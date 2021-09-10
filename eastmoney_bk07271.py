@@ -6,7 +6,7 @@ import redis
 from multiprocessing import Pool
 
 url_list = [
-    'http://16.push2.eastmoney.com/api/qt/clist/get', 'http://55.push2.eastmoney.com/api/qt/clist/get'
+    'http://73.push2.eastmoney.com/api/qt/clist/get'
 ]
 COMPANY_SURVEY_URL = 'http://emweb.eastmoney.com/PC_HSF10/CompanySurvey/CompanySurveyAjax'
 SHARE_HOLDER_URL = 'http://emweb.eastmoney.com/PC_HSF10/ShareholderResearch/PageAjax'
@@ -66,14 +66,14 @@ params = {
     'fltt': 2,
     'invt': 2,
     'fid': 'f3',
-    'fs': 'b:BK0465 f:!50',
+    'fs': 'b:BK0727 f:!50',
     'fields': 'f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f12,f13,f14,f15,f16,f17,f18,f20,f21,f23,f24,f25,f22,f11,f62,f128,f136,f115,f152,f45',
-    '_': '1631153683978'
+    '_': '1631240247522'
 }
 
 
 def parse_list_data(parsed_result):
-    redis_client = get_redis_client(0)
+    redis_client = get_redis_client(3)
     list_data = parsed_result.get('data', {}).get('diff', {})
     for x in list_data:
         code = x.get('f12')
@@ -98,7 +98,7 @@ def get_list_data(page_number):
 def get_company_data(code):
     try:
         company_code = code.decode()
-        redis_client_1 = get_redis_client(1)
+        redis_client_1 = get_redis_client(4)
         req_params = {
             'code': company_code
         }
@@ -112,7 +112,7 @@ def get_company_data(code):
 def get_share_holder_data(code):
     try:
         company_code = code.decode()
-        redis_client_1 = get_redis_client(2)
+        redis_client_1 = get_redis_client(5)
         req_params = {
             'code': company_code
         }
@@ -145,13 +145,14 @@ def get_share_holder_data(code):
 # - 300 创业板，创业板是在深圳市场交易的
 
 if __name__ == '__main__':
-    # with Pool(8) as p:
-    #     p.map(get_list_data, range(1, 15))
-    # p.close()
+    with Pool(8) as p:
+        p.map(get_list_data, range(1, 7))
+    p.close()
 
-    redis_client_0 = get_redis_client(0)
+    redis_client_0 = get_redis_client(3)
     code_list = redis_client_0.keys('*')
 
     with Pool(8) as p:
+        p.map(get_company_data, code_list)
         p.map(get_share_holder_data, code_list)
     p.close()
