@@ -5,7 +5,28 @@ import random
 import redis
 from multiprocessing import Pool
 
-url_list = [
+# 上海证券市场
+# - 6 上交所
+# - 60 上海A股
+# - 600 主板
+# - 601 主板
+# - 603 主板
+# - 688 科创板
+# - 500 上海封闭式基金
+# - 900 上海B股
+
+# 深圳证券市场
+# - 0 深交所
+# - 3 深交所
+# - 00 深圳A股
+# - 000 主板
+# - 001 主板
+# - 002 中小板
+# - 200 深圳B股
+# - 184 深圳封闭式基金
+# - 300 创业板，创业板是在深圳市场交易的
+
+bk0465_url_list = [
     'http://16.push2.eastmoney.com/api/qt/clist/get', 'http://55.push2.eastmoney.com/api/qt/clist/get'
 ]
 COMPANY_SURVEY_URL = 'http://emweb.eastmoney.com/PC_HSF10/CompanySurvey/CompanySurveyAjax'
@@ -56,9 +77,9 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36'
 }
 
-params = {
+bk0465_params = {
     'cb': '',
-    'pn': 4,
+    'pn': 1,
     'pz': 20,
     'po': 1,
     'np': 1,
@@ -86,10 +107,10 @@ def parse_list_data(parsed_result):
 
 
 def get_list_data(page_number):
-    params.update({
+    bk0465_params.update({
         'pn': page_number
     })
-    res = requests.get(random.choice(url_list), params=params, headers=headers)
+    res = requests.get(random.choice(bk0465_url_list), params=bk0465_params, headers=headers)
     parsed_result = json.loads(res.text)
     print(parsed_result.get('data', {}).get('diff', {}))
     parse_list_data(parsed_result)
@@ -122,27 +143,6 @@ def get_share_holder_data(code):
     except Exception as e:
         print('code: {}, exception: {}'.format(code, e))
 
-
-# 上海证券市场
-# - 6 上交所
-# - 60 上海A股
-# - 600 主板
-# - 601 主板
-# - 603 主板
-# - 688 科创板
-# - 500 上海封闭式基金
-# - 900 上海B股
-
-# 深圳证券市场
-# - 0 深交所
-# - 3 深交所
-# - 00 深圳A股
-# - 000 主板
-# - 001 主板
-# - 002 中小板
-# - 200 深圳B股
-# - 184 深圳封闭式基金
-# - 300 创业板，创业板是在深圳市场交易的
 
 if __name__ == '__main__':
     # with Pool(8) as p:
