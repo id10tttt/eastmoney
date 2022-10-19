@@ -18,6 +18,7 @@ stock_url = 'http://push2.eastmoney.com/api/qt/stock/get'
 # company_survey_url = 'http://emweb.securities.eastmoney.com/PC_HSF10/CompanySurvey/CompanySurveyAjax'
 company_survey_url = 'https://emweb.securities.eastmoney.com/PC_HSF10/CompanySurvey/PageAjax'
 
+rpt_lico_fn_cpd_url = 'https://datacenter-web.eastmoney.com/api/data/v1/get'
 stock_relationship_url = 'https://emweb.securities.eastmoney.com/PC_HSF10/StockRelationship/PageAjax'
 
 org_holder_url = 'http://basic.10jqka.com.cn/basicapi/holder/stock/org_holder/detail'
@@ -291,8 +292,8 @@ def save_stock_analysis_result(code, main_data, zcfzb_data, lrb_data, business_d
     result.to_csv('{}.csv'.format(code), encoding='utf-8')
 
 
-def search_period_stock_analysis_result(code, main_data, zcfzb_data, lrb_data, business_data, jbzl, extra_values,
-                                        query_period, all_values):
+def search_period_stock_analysis_result(code, main_data, zcfzb_data, lrb_data, business_data, jbzl, rpt_lico_data,
+                                        extra_values, query_period, all_values):
     for search_period in query_period:
         #  净利率
         xsjll = main_data.loc[main_data['REPORT_DATE'] == search_period, 'XSJLL']
@@ -315,6 +316,9 @@ def search_period_stock_analysis_result(code, main_data, zcfzb_data, lrb_data, b
         mbi_ratio = business_data.loc[
             (business_data['REPORT_DATE'] == search_period) & (business_data['MAINOP_TYPE'] == '3') & (
                     business_data['RANK'] == 2), 'MBI_RATIO']
+
+        # 每股收益
+        basic_eps = rpt_lico_data.loc[rpt_lico_data['REPORTDATE'] == search_period, 'BASIC_EPS']
         # 流动负债合计
         total_equity = zcfzb_data.loc[zcfzb_data['REPORT_DATE'] == search_period, 'TOTAL_EQUITY']
         # 利息费用
@@ -349,7 +353,7 @@ def search_period_stock_analysis_result(code, main_data, zcfzb_data, lrb_data, b
                get_pandas_value(roejq), get_pandas_value(zcfzl), get_pandas_value(mbi_ratio),
                get_pandas_value(total_equity), get_pandas_value(fe_interest_expense),
                get_pandas_value(continued_netprofit), get_pandas_value(v12), get_pandas_value(chzzl),
-               peg_car, pb_mrq, pcf_ocf_tim, industry_csrc, hypm, org_holder]
+               peg_car, pb_mrq, pcf_ocf_tim, industry_csrc, hypm, org_holder, get_pandas_value(basic_eps)]
         all_values.append(tmp)
     return all_values
 
@@ -394,6 +398,27 @@ def get_east_money_peg_value(stock_code):
         return result_data[0]
     else:
         return result_data
+
+
+def get_rpt_lico_fn_cpd_data(code: str):
+    """
+    业绩报表
+    """
+    payload_data = {
+        'callback': '',
+        'sortColumns': 'REPORTDATE',
+        'sortTypes': -1,
+        'pageSize': 50,
+        'pageNumber': 1,
+        'columns': 'ALL',
+        'filter': '(SECURITY_CODE={})'.format(code),
+        'reportName': 'RPT_LICO_FN_CPD'
+    }
+    res = requests.get(rpt_lico_fn_cpd_url, params=payload_data, headers=headers)
+    result = res.json().get('result', {}).get('data')
+    print('result: ', result)
+    result = pd.DataFrame(result)
+    return result
 
 
 def get_peg_value(stock_code):
@@ -490,11 +515,13 @@ def get_transverse_data(code_list, analysis_header, query_period):
             zcfzb_data = save_zcfzb_data(security_code)
             lrb_data = save_lrb_data(security_code)
             xjllb_data = save_xjllb_data(security_code)
+            rpt_lico_data = get_rpt_lico_fn_cpd_data(code)
             stock_data, extra_values = save_stock_info(security_code, sec_id)
             jbzl = get_company_survey(security_code)
             business_data = save_business_analysis(security_code)
             all_values = search_period_stock_analysis_result(
-                code, main_data, zcfzb_data, lrb_data, business_data, jbzl, extra_values, query_period, all_values)
+                code, main_data, zcfzb_data, lrb_data, business_data, jbzl, rpt_lico_data, extra_values, query_period,
+                all_values)
         except Exception as e:
             print(traceback.format_exc())
             continue
@@ -519,11 +546,13 @@ def get_portrait_data(code_list, analysis_header, query_period):
             zcfzb_data = save_zcfzb_data(security_code)
             lrb_data = save_lrb_data(security_code)
             xjllb_data = save_xjllb_data(security_code)
+            rpt_lico_data = get_rpt_lico_fn_cpd_data(code)
             stock_data, extra_values = save_stock_info(security_code, sec_id)
             jbzl = get_company_survey(security_code)
             business_data = save_business_analysis(security_code)
             code_values = search_period_stock_analysis_result(
-                code, main_data, zcfzb_data, lrb_data, business_data, jbzl, extra_values, query_period, code_values)
+                code, main_data, zcfzb_data, lrb_data, business_data, jbzl, rpt_lico_data, extra_values, query_period,
+                code_values)
             all_values[code] = code_values
         except Exception as e:
             print(traceback.format_exc())
@@ -577,7 +606,7 @@ def main_p(args):
         code_list = code_list.split(',')
         analysis_header = ['编码', '期间', '净利率', '毛利率', '市值（亿）', '总资产', '流通股', '总股本', '营业总收入',
                            '市销率', '净资产收益率ROE', '资产负债率', '国际销售占比', '流动负债', '利息费用', '净利润',
-                           '雇员', '库存周转率', 'PEG', '市净率', '市现率', '所属行业', '行业排名', '基金机构']
+                           '雇员', '库存周转率', 'PEG', '市净率', '市现率', '所属行业', '行业排名', '基金机构', '每股收益(元)']
         get_portrait_data(code_list, analysis_header, query_period)
 
 
@@ -597,7 +626,7 @@ def main_t(args):
         code_list = code_list.split(',')
         analysis_header = ['编码', '期间', '净利率', '毛利率', '市值（亿）', '总资产', '流通股', '总股本', '营业总收入',
                            '市销率', '净资产收益率ROE', '资产负债率', '国际销售占比', '流动负债', '利息费用', '净利润',
-                           '雇员', '库存周转率', 'PEG', '市净率', '市现率', '所属行业', '行业排名', '基金机构']
+                           '雇员', '库存周转率', 'PEG', '市净率', '市现率', '所属行业', '行业排名', '基金机构', '每股收益(元)']
         get_transverse_data(code_list, analysis_header, query_period)
 
 
