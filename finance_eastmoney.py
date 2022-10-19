@@ -20,6 +20,8 @@ company_survey_url = 'https://emweb.securities.eastmoney.com/PC_HSF10/CompanySur
 
 stock_relationship_url = 'https://emweb.securities.eastmoney.com/PC_HSF10/StockRelationship/PageAjax'
 
+org_holder_url = 'http://basic.10jqka.com.cn/basicapi/holder/stock/org_holder/detail'
+
 USER_AGENT = [
     'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.112 Safari/537.36',
     'Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.67 Safari/537.36',
@@ -330,8 +332,15 @@ def search_period_stock_analysis_result(code, main_data, zcfzb_data, lrb_data, b
         # 市现率
         pcf_ocf_tim = peg_result.get('PCF_OCF_TTM')
 
+        # 所属行业
         industry_csrc = jbzl.get('INDUSTRYCSRC1')
+
+        # 行业排名
         hypm = get_stock_relationship_data(code)
+
+        # 基金机构
+        search_period_date = search_period.split(' 00:00:00')
+        org_holder = get_org_holder(code, search_period_date[0])
 
         # 库存周转率
         chzzl = main_data.loc[main_data['REPORT_DATE'] == search_period, 'CHZZL']
@@ -340,7 +349,7 @@ def search_period_stock_analysis_result(code, main_data, zcfzb_data, lrb_data, b
                get_pandas_value(roejq), get_pandas_value(zcfzl), get_pandas_value(mbi_ratio),
                get_pandas_value(total_equity), get_pandas_value(fe_interest_expense),
                get_pandas_value(continued_netprofit), get_pandas_value(v12), get_pandas_value(chzzl),
-               peg_car, pb_mrq, pcf_ocf_tim, industry_csrc, hypm]
+               peg_car, pb_mrq, pcf_ocf_tim, industry_csrc, hypm, org_holder]
         all_values.append(tmp)
     return all_values
 
@@ -529,9 +538,32 @@ def get_portrait_data(code_list, analysis_header, query_period):
     pd_writer.close()
 
 
+def get_org_holder(code: str, date: str) -> str:
+    """
+    基金机构<数据来源-同花顺>
+    """
+    payload_data = {
+        'code': code,
+        'date': date,
+        'page': 1,
+        'size': 15,
+        'type': 'all'
+    }
+    res = requests.get(org_holder_url, params=payload_data, headers=headers)
+
+    result = res.json()
+    status_code = result.get('status_code')
+    if status_code == 0:
+        result_data = res.json().get('data', {}).get('data', [])
+        return '; \n'.join(
+            '{org_name}, {rate}'.format(org_name=x.get('org_name'), rate=x.get('rate')) for x in result_data)
+    else:
+        return ''
+
+
 def main_p(args):
     try:
-        code_list = args.code if args.code else default_code
+        code_list = args.code
     except AttributeError as e:
         parser.print_help()
         code_list = ''
@@ -545,14 +577,13 @@ def main_p(args):
         code_list = code_list.split(',')
         analysis_header = ['编码', '期间', '净利率', '毛利率', '市值（亿）', '总资产', '流通股', '总股本', '营业总收入',
                            '市销率', '净资产收益率ROE', '资产负债率', '国际销售占比', '流动负债', '利息费用', '净利润',
-                           '雇员',
-                           '库存周转率', 'PEG', '市净率', '市现率', '所属行业', '行业排名']
+                           '雇员', '库存周转率', 'PEG', '市净率', '市现率', '所属行业', '行业排名', '基金机构']
         get_portrait_data(code_list, analysis_header, query_period)
 
 
 def main_t(args):
     try:
-        code_list = args.code if args.code else default_code
+        code_list = args.code
     except AttributeError as e:
         parser.print_help()
         code_list = ''
@@ -566,26 +597,27 @@ def main_t(args):
         code_list = code_list.split(',')
         analysis_header = ['编码', '期间', '净利率', '毛利率', '市值（亿）', '总资产', '流通股', '总股本', '营业总收入',
                            '市销率', '净资产收益率ROE', '资产负债率', '国际销售占比', '流动负债', '利息费用', '净利润',
-                           '雇员',
-                           '库存周转率', 'PEG', '市净率', '市现率', '所属行业', '行业排名']
+                           '雇员', '库存周转率', 'PEG', '市净率', '市现率', '所属行业', '行业排名', '基金机构']
         get_transverse_data(code_list, analysis_header, query_period)
 
 
 def arguments_init():
     parser = argparse.ArgumentParser()
-    subparser = parser.add_subparsers(help=u'帮助')
+    subparser = parser.add_subparsers(help=u'示例： finance_eastmoney.py p -c 002223,002352')
 
     ret_t = subparser.add_parser('t', help=u'横向表格')
-    ret_t.add_argument('-c', type=str, help=u'股票代码', dest='code')
+    ret_t.add_argument('-c', type=str, help=u'股票代码', dest='code', required=True)
     ret_t.set_defaults(func=main_t)
 
     ret_p = subparser.add_parser('p', help=u'纵向表格')
-    ret_p.add_argument('-c', type=str, help=u'股票代码', dest='code')
+    ret_p.add_argument('-c', type=str, help=u'股票代码', dest='code', required=True)
     ret_p.set_defaults(func=main_p)
     return parser
 
 
 if __name__ == '__main__':
+    # org_holder = get_org_holder('002223', '2022-06-30')
+    # print('org_holder: ', org_holder)
     parser = arguments_init()
     default_code = '002223,300136'
     args = parser.parse_args()
