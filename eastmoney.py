@@ -94,7 +94,7 @@ bk0465_params = {
 
 
 def parse_list_data(parsed_result):
-    redis_client = get_redis_client(0)
+    redis_client = get_redis_client(6)
     list_data = parsed_result.get('data', {}).get('diff', {})
     for x in list_data:
         code = x.get('f12')
@@ -103,6 +103,7 @@ def parse_list_data(parsed_result):
         else:
             prefix_code = 'SZ'
         redis_client.set(prefix_code + code, json.dumps(x))
+        redis_client.set('EAST:MONEY:COMPANY:BK:0465:{}'.format(prefix_code + code), json.dumps(x))
     redis_client.close()
 
 
@@ -145,13 +146,14 @@ def get_share_holder_data(code):
 
 
 if __name__ == '__main__':
-    # with Pool(8) as p:
-    #     p.map(get_list_data, range(1, 15))
-    # p.close()
-
-    redis_client_0 = get_redis_client(0)
-    code_list = redis_client_0.keys('*')
-
     with Pool(8) as p:
-        p.map(get_share_holder_data, code_list)
+        p.map(get_list_data, range(1, 16))
     p.close()
+
+    # redis_client_0 = get_redis_client(0)
+    # code_list = redis_client_0.keys('*')
+    #
+    # with Pool(8) as p:
+    #     p.map(get_company_data, code_list)
+    #     p.map(get_share_holder_data, code_list)
+    # p.close()

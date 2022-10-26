@@ -6,7 +6,7 @@ import time
 from random import choice
 import datetime
 import traceback
-from sys import argv
+import xlsxwriter
 import argparse
 
 finance_zyzb_url = 'http://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/ZYZBAjaxNew'
@@ -287,7 +287,6 @@ def save_stock_analysis_result(code, main_data, zcfzb_data, lrb_data, business_d
                get_pandas_value(v10),
                v11, get_pandas_value(v12)]
         all_values.append(tmp)
-    print(all_values)
     result = pd.DataFrame(data=all_values)
     result.to_csv('{}.csv'.format(code), encoding='utf-8')
 
@@ -348,7 +347,7 @@ def search_period_stock_analysis_result(code, main_data, zcfzb_data, lrb_data, b
 
         # 库存周转率
         chzzl = main_data.loc[main_data['REPORT_DATE'] == search_period, 'CHZZL']
-        tmp = [str(code), search_period, get_pandas_value(xsjll), get_pandas_value(xsmll), v3, total_value, f85, f84,
+        tmp = [search_period, str(code), get_pandas_value(xsjll), get_pandas_value(xsmll), v3, total_value, f85, f84,
                get_pandas_value(v4), v5,
                get_pandas_value(roejq), get_pandas_value(zcfzl), get_pandas_value(mbi_ratio),
                get_pandas_value(total_equity), get_pandas_value(fe_interest_expense),
@@ -362,11 +361,11 @@ def get_pandas_value(parse_value):
     try:
         parse_value = parse_value.values
     except Exception as e:
-        return parse_value
+        return None
     if parse_value.size > 0:
         return parse_value[0]
     else:
-        return parse_value
+        return None
 
 
 """
@@ -416,7 +415,6 @@ def get_rpt_lico_fn_cpd_data(code: str):
     }
     res = requests.get(rpt_lico_fn_cpd_url, params=payload_data, headers=headers)
     result = res.json().get('result', {}).get('data')
-    print('result: ', result)
     result = pd.DataFrame(result)
     return result
 
@@ -476,13 +474,12 @@ def get_peg_value(stock_code):
         peg_data = peg_data[::-1][0]
         peg_x_axis = peg_x_axis[::-1][0]
     else:
-        print('empty: {}'.format(result_data))
         peg_data = []
         peg_x_axis = []
     return peg_data, peg_x_axis
 
 
-def get_default_period():
+def get_default_period(all_period=False):
     search_today = datetime.date.today()
     search_month = search_today.month
     search_year = search_today.year
@@ -491,15 +488,22 @@ def get_default_period():
     search_period = []
     for x in range(search_year - 2, search_year):
         search_period += [f'{x}-03-31 00:00:00', f'{x}-06-30 00:00:00', f'{x}-09-30 00:00:00', f'{x}-12-31 00:00:00']
-    if search_month < 3:
-        search_period += [f'{search_year}-03-31 00:00:00']
-    elif 3 <= search_month < 6:
-        search_period += [f'{search_year}-03-31 00:00:00']
-    elif 6 <= search_month < 9:
-        search_period += [f'{search_year}-03-31 00:00:00', f'{search_year}-06-30 00:00:00']
-    elif 9 <= search_month < 12:
+    if all_period:
         search_period += [f'{search_year}-03-31 00:00:00', f'{search_year}-06-30 00:00:00',
-                          f'{search_year}-09-30 00:00:00']
+                          f'{search_year}-09-30 00:00:00', f'{search_year}-12-31 00:00:00']
+    else:
+        if search_month < 3:
+            search_period += [f'{search_year}-03-31 00:00:00']
+        elif 3 <= search_month < 6:
+            search_period += [f'{search_year}-03-31 00:00:00']
+        elif 6 <= search_month < 9:
+            search_period += [f'{search_year}-03-31 00:00:00', f'{search_year}-06-30 00:00:00']
+        elif 9 <= search_month < 12:
+            search_period += [f'{search_year}-03-31 00:00:00', f'{search_year}-06-30 00:00:00',
+                              f'{search_year}-09-30 00:00:00']
+        else:
+            search_period += [f'{search_year}-03-31 00:00:00', f'{search_year}-06-30 00:00:00',
+                              f'{search_year}-09-30 00:00:00', f'{search_year}-12-31 00:00:00']
     return search_period
 
 
@@ -562,7 +566,9 @@ def get_portrait_data(code_list, analysis_header, query_period):
     for value_code in all_values.keys():
         tmp_df = pd.DataFrame(all_values[value_code])
         tmp_df_T = tmp_df.T
-        tmp_df_T.to_excel(pd_writer, value_code)
+        tmp_df_T.to_excel(pd_writer, value_code, index=False, header=False)
+
+        analyse_t_file(tmp_df_T.values.tolist(), value_code)
     pd_writer.save()
     pd_writer.close()
 
@@ -601,13 +607,83 @@ def main_p(args):
         # default_period = '2021-09-30'
         # search_period = argv[2] if len(argv) > 2 else default_period
         # search_period = search_period + ' 00:00:00'
-        query_period = get_default_period()
+        query_period = get_default_period(all_period=True)
         # print(query_period)
         code_list = code_list.split(',')
-        analysis_header = ['编码', '期间', '净利率', '毛利率', '市值（亿）', '总资产', '流通股', '总股本', '营业总收入',
+        analysis_header = ['期间', '编码', '净利率', '毛利率', '市值（亿）', '总资产', '流通股', '总股本', '营业总收入',
                            '市销率', '净资产收益率ROE', '资产负债率', '国际销售占比', '流动负债', '利息费用', '净利润',
-                           '雇员', '库存周转率', 'PEG', '市净率', '市现率', '所属行业', '行业排名', '基金机构', '每股收益(元)']
+                           '雇员', '库存周转率', 'PEG', '市净率', '市现率', '所属行业', '行业排名', '基金机构',
+                           '每股收益(元)']
         get_portrait_data(code_list, analysis_header, query_period)
+
+
+def analyse_t_file(file_content, file_name):
+    """
+    指标: 2021年比2020年增长比例
+         2022年比2021年增长比例
+         2021年Q1比2020年Q1增长比例
+         2022年Q1比2021年Q1增长比例
+         Q1逐年增长增速
+
+         2021年Q1比2020年Q2增长比例
+         2022年Q1比2021年Q2增长比例
+         Q2逐年增长增速
+
+         2021年Q1比2020年Q3增长比例
+         2022年Q1比2021年Q3增长比例
+         Q3逐年增长增速
+
+         得分
+    """
+    workbook = xlsxwriter.Workbook('{}结果-比对.xlsx'.format(file_name))
+    worksheet = workbook.add_worksheet()
+
+    row = 0
+    for idx, line in enumerate(file_content):
+        for x in range(13):
+            worksheet.write(row, x, line[x])
+        if row == 0:
+            worksheet.write(row, 13, '2021年比2020年增长比例')
+            worksheet.write(row, 14, '2022年比2021年增长比例')
+            worksheet.write(row, 15, '2021年Q1比2020年Q1增长比例')
+            worksheet.write(row, 16, '2022年Q1比2021年Q1增长比例')
+            worksheet.write(row, 17, 'Q1逐年增长增速')
+
+            worksheet.write(row, 18, '2021年Q2比2020年Q2增长比例')
+            worksheet.write(row, 19, '2022年Q2比2021年Q2增长比例')
+            worksheet.write(row, 20, 'Q2逐年增长增速')
+
+            worksheet.write(row, 21, '2021年Q3比2020年Q3增长比例')
+            worksheet.write(row, 22, '2022年Q3比2021年Q3增长比例')
+            worksheet.write(row, 23, 'Q3逐年增长增速')
+
+            worksheet.write(row, 24, '2021年Q4比2020年Q4增长比例')
+            worksheet.write(row, 25, '2022年Q4比2021年Q4增长比例')
+            worksheet.write(row, 26, 'Q4逐年增长增速')
+
+            worksheet.write(row, 27, '得分')
+        elif row in range(2, 17):
+            worksheet.write(row, 13, '=sum(F{row}:I{row})-sum(B{row}:E{row})'.format(row=row))
+            worksheet.write(row, 14, '=sum(J{row}:M{row})-sum(F{row}:I{row})'.format(row=row))
+            worksheet.write(row, 15, '=F{row}-B{row}'.format(row=row))
+            worksheet.write(row, 16, '=J{row}-F{row}'.format(row=row))
+            worksheet.write(row, 17, '')
+
+            worksheet.write(row, 18, '=G{row}-C{row}'.format(row=row))
+            worksheet.write(row, 19, '=K{row}-G{row}'.format(row=row))
+            worksheet.write(row, 20, '')
+
+            worksheet.write(row, 21, '=H{row}-G{row}'.format(row=row))
+            worksheet.write(row, 22, '=L{row}-H{row}'.format(row=row))
+            worksheet.write(row, 23, '')
+
+            worksheet.write(row, 24, '=I{row}-E{row}'.format(row=row))
+            worksheet.write(row, 25, '=M{row}-I{row}'.format(row=row))
+            worksheet.write(row, 26, '')
+
+            worksheet.write(row, 27, '')
+        row += 1
+    workbook.close()
 
 
 def main_t(args):
@@ -624,9 +700,10 @@ def main_t(args):
         query_period = get_default_period()
         # print(query_period)
         code_list = code_list.split(',')
-        analysis_header = ['编码', '期间', '净利率', '毛利率', '市值（亿）', '总资产', '流通股', '总股本', '营业总收入',
+        analysis_header = ['期间', '编码', '净利率', '毛利率', '市值（亿）', '总资产', '流通股', '总股本', '营业总收入',
                            '市销率', '净资产收益率ROE', '资产负债率', '国际销售占比', '流动负债', '利息费用', '净利润',
-                           '雇员', '库存周转率', 'PEG', '市净率', '市现率', '所属行业', '行业排名', '基金机构', '每股收益(元)']
+                           '雇员', '库存周转率', 'PEG', '市净率', '市现率', '所属行业', '行业排名', '基金机构',
+                           '每股收益(元)']
         get_transverse_data(code_list, analysis_header, query_period)
 
 
