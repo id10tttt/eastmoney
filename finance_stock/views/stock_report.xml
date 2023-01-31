@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_finance_stock_report_tree" model="ir.ui.view">
+            <field name="name">finance.stock.report tree</field>
+            <field name="model">finance.stock.report</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="secucode"/>
+                    <field name="security_code"/>
+                    <field name="reportdate"/>
+                    <field name="basic_eps"/>
+                    <field name="basic_eps"/>
+                    <field name="bps"/>
+                    <field name="mgjyxjje"/>
+                    <field name="parent_netprofit"/>
+                    <field name="sjlhz"/>
+                    <field name="sjltz"/>
+                    <field name="total_operate_income"/>
+                    <field name="weightavg_roe"/>
+                    <field name="yshz"/>
+                    <field name="ystz"/>
+                </tree>
+            </field>
+        </record>
+        <record id="action_finance_stock_report" model="ir.actions.act_window">
+            <field name="name">业绩报表</field>
+            <field name="res_model">finance.stock.report</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem id="menu_finance_stock_report"
+                  name="业绩报表"
+                  action="action_finance_stock_report"
+                  parent="menu_finance_stock_root"
+                  sequence="5"/>
+    </data>
+</odoo>

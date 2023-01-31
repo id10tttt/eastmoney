@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_finance_stock_main_data_form" model="ir.ui.view">
+            <field name="name">finance.stock.main.data form</field>
+            <field name="model">finance.stock.main.data</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="secucode"/>
+                                <field name="security_code"/>
+                                <field name="security_name_abbr"/>
+                                <field name="stock_id"/>
+                                <field name="org_code"/>
+                                <field name="org_type"/>
+                                <field name="report_date"/>
+                                <field name="report_type"/>
+                                <field name="report_date_name"/>
+                                <field name="security_type_code"/>
+                                <field name="notice_date"/>
+                                <field name="update_date"/>
+                                <field name="currency"/>
+                            </group>
+                            <group>
+                                <field name="epsjb"/>
+                                <field name="epskcjb"/>
+                                <field name="epsxs"/>
+                                <field name="bps"/>
+                                <field name="mgzbgj"/>
+                                <field name="mgwfrplr"/>
+                                <field name="mgjyxjje"/>
+                                <field name="mlr"/>
+                                <field name="parent_net_profit"/>
+                                <field name="kcfjcxsyjlr"/>
+                                <field name="totaloperatereve"/>
+                                <field name="totaloperaterevetz"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="chzzl"/>
+                                <field name="xsjll"/>
+                                <field name="xsmll"/>
+                            </group>
+                            <group>
+                                <field name="roejq"/>
+                                <field name="zcfzl"/>
+                                <field name="total_operate_reve"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="main_json"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="view_finance_stock_main_data_tree" model="ir.ui.view">
+            <field name="name">finance.stock.main.data tree</field>
+            <field name="model">finance.stock.main.data</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="secucode"/>
+                    <field name="security_code"/>
+                    <field name="report_date"/>
+                    <field name="report_type"/>
+                    <field name="report_date_name"/>
+                    <field name="chzzl"/>
+                    <field name="xsjll"/>
+                    <field name="xsmll"/>
+                    <field name="roejq"/>
+                    <field name="zcfzl"/>
+                    <field name="total_operate_reve"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.server" id="action_view_stock_main_data_update_tree">
+            <field name="name">更新主要指标</field>
+            <field name="model_id" ref="model_finance_stock_main_data"/>
+            <field name="binding_model_id" ref="model_finance_stock_main_data"/>
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code">
+                action = records.update_json_value()
+            </field>
+        </record>
+        <record id="action_finance_stock_main_data" model="ir.actions.act_window">
+            <field name="name">主要指标</field>
+            <field name="res_model">finance.stock.main.data</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem id="menu_finance_stock_main_data"
+                  name="主要指标"
+                  action="action_finance_stock_main_data"
+                  parent="menu_finance_stock_root"
+                  sequence="3"/>
+    </data>
+</odoo>

@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_finance_stock_company_form" model="ir.ui.view">
+            <field name="name">finance.stock.company form</field>
+            <field name="model">finance.stock.company</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="get_company_survey" string="基本信息" type="object"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="ts_code"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="exchange"/>
+                                <field name="chairman"/>
+                                <field name="manager"/>
+                                <field name="secretary"/>
+                            </group>
+                            <group>
+                                <field name="reg_capital"/>
+                                <field name="setup_date"/>
+                                <field name="ann_date"/>
+                                <field name="province"/>
+                                <field name="city"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="introduction"/>
+                                <field name="employees"/>
+                                <field name="emp_num"/>
+                                <field name="reg_num"/>
+                                <field name="address_postcode"/>
+                                <field name="industry_csrc"/>
+                            </group>
+                            <group>
+                                <field name="website"/>
+                                <field name="email"/>
+                                <field name="office"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="main_business"/>
+                            <field name="business_scope"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_finance_stock_company_tree" model="ir.ui.view">
+            <field name="name">finance.stock.company tree</field>
+            <field name="model">finance.stock.company</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="ts_code"/>
+                    <field name="exchange"/>
+                    <field name="chairman"/>
+                    <field name="manager"/>
+                    <field name="secretary"/>
+                    <field name="reg_capital"/>
+                    <field name="setup_date"/>
+                    <field name="ann_date"/>
+                    <field name="province"/>
+                    <field name="city"/>
+                    <field name="emp_num"/>
+                    <field name="email"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_finance_stock_basic_form" model="ir.ui.view">
+            <field name="name">finance.stock.basic form</field>
+            <field name="model">finance.stock.basic</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="get_update_company_data" string="上市公司信息" type="object"
+                                class="oe_highlight"/>
+                        <button name="get_update_main_data" string="主要指标" type="object" class="oe_highlight"/>
+                        <button name="get_zcfzb_data" string="资产负债表" type="object" class="oe_highlight"/>
+                        <button name="get_rpt_lico_fn_cpd_data" string="业绩报表" type="object" class="oe_highlight"/>
+                        <button name="get_lrb_data" string="利润表" type="object" class="oe_highlight"/>
+                        <button name="get_business_analysis" string="经营分析" type="object" class="oe_highlight"/>
+                        <button name="get_stock_info" string="其它信息" type="object"/>
+                        <button name="get_east_money_peg_value" string="PEG" type="object"/>
+                        <button name="get_stock_relationship_data" string="行业排名" type="object"/>
+                        <button name="get_org_holder" string="基金机构" type="object"/>
+                        <button name="get_mine_brief" string="扫雷" type="object"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1>
+                                <field name="ts_code"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="symbol"/>
+                                <field name="name"/>
+                                <field name="market"/>
+                                <field name="hypm"/>
+                                <field name="peg_car"/>
+                                <field name="pb_mrq"/>
+                            </group>
+                            <group>
+                                <field name="area"/>
+                                <field name="industry"/>
+                                <field name="exchange"/>
+                                <field name="pcf_ocf_tim"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="fullname"/>
+                                <field name="enname"/>
+                                <field name="cnspell"/>
+                                <field name="is_hs"/>
+                            </group>
+                            <group>
+                                <field name="curr_type"/>
+                                <field name="list_status"/>
+                                <field name="list_date"/>
+                                <field name="delist_date"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="stock_company_id"/>
+                        </group>
+
+                        <notebook>
+                            <page name="main_data" string="主要指标">
+                                <group>
+                                    <group>
+                                        <field name="main_data_url"/>
+                                    </group>
+                                </group>
+                                <field name="main_data_ids">
+                                    <tree>
+                                        <field name="report_date"/>
+                                        <field name="report_type"/>
+                                        <field name="report_date_name"/>
+                                        <field name="chzzl"/>
+                                        <field name="xsjll"/>
+                                        <field name="xsmll"/>
+                                        <field name="roejq"/>
+                                        <field name="zcfzl"/>
+                                        <field name="total_operate_reve"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page name="zcfzb" string="资产负债表">
+                                <field name="zcfzb_ids">
+                                    <tree>
+                                        <field name="secucode"/>
+                                        <field name="security_code"/>
+                                        <field name="report_date"/>
+                                        <field name="report_date_name"/>
+                                        <field name="total_assets"/>
+                                        <field name="total_current_assets"/>
+                                        <field name="total_current_liab"/>
+                                        <field name="total_equity"/>
+                                        <field name="total_liab_equity"/>
+                                        <field name="total_liablifties"/>
+                                        <field name="total_noncurrent_assets"/>
+                                        <field name="total_noncurrent_liab"/>
+                                        <field name="total_other_payable"/>
+                                        <field name="total_other_rece"/>
+                                        <field name="total_parent_equity"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page name="lrb" string="利润表">
+                                <field name="lrb_ids">
+                                    <tree>
+                                        <field name="secucode"/>
+                                        <field name="security_code"/>
+                                        <field name="report_date"/>
+                                        <field name="continued_netprofit"/>
+                                        <field name="interest_expense"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page name="business" string="经营分析">
+                                <field name="business_ids">
+                                    <tree>
+                                        <field name="secucode"/>
+                                        <field name="security_code"/>
+                                        <field name="report_date"/>
+                                        <field name="item_name"/>
+                                        <field name="gross_profit_ratio"/>
+                                        <field name="mainop_type"/>
+                                        <field name="main_business_cost"/>
+                                        <field name="main_business_income"/>
+                                        <field name="main_business_profit"/>
+                                        <field name="mbc_ratio"/>
+                                        <field name="mbi_ratio"/>
+                                        <field name="mbr_ratio"/>
+                                        <field name="rank"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page name="rpt_lico_fn_cpd" string="业绩报表">
+                                <field name="report_ids">
+                                    <tree>
+                                        <field name="secucode"/>
+                                        <field name="reportdate"/>
+                                        <field name="qdate"/>
+                                        <field name="basic_eps"/>
+                                        <field name="mgjyxjje"/>
+                                        <field name="parent_netprofit"/>
+                                        <field name="sjlhz"/>
+                                        <field name="sjltz"/>
+                                        <field name="total_operate_income"/>
+                                        <field name="weightavg_roe"/>
+                                        <field name="yshz"/>
+                                        <field name="ystz"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page name="stock_info" string="其它信息">
+                                <group>
+                                    <group>
+                                        <field name="f56"/>
+                                        <field name="f84"/>
+                                        <field name="f85"/>
+                                        <field name="f102"/>
+                                        <field name="f105"/>
+                                        <field name="f116"/>
+                                        <field name="f117"/>
+                                        <field name="f190"/>
+                                        <field name="f277"/>
+                                    </group>
+                                    <group>
+                                        <field name="f162"/>
+                                        <field name="f167"/>
+                                        <field name="f173"/>
+                                        <field name="f183"/>
+                                        <field name="f184"/>
+                                        <field name="f185"/>
+                                        <field name="f186"/>
+                                        <field name="f187"/>
+                                        <field name="f188"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page name="holder" string="基金机构">
+                                <field name="holder_ids">
+                                    <tree>
+                                        <field name="report_date"/>
+                                        <field name="org_name"/>
+                                        <field name="rate"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page name="mine" string="扫雷">
+                                <group>
+                                    <group string="股权质押">
+                                        <field name="plge_rat"/>
+                                        <field name="blt_hld_rat"/>
+                                        <field name="blt_tshr_rat"/>
+                                        <field name="blt_plge_shr"/>
+                                        <field name="plge_shr"/>
+                                    </group>
+                                    <group string="限售解禁">
+                                        <field name="restricted_json"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group string="商誉">
+                                        <field name="gw"/>
+                                        <field name="gw_netast_rat"/>
+                                    </group>
+                                    <group string="业绩">
+                                        <field name="pred_typ_name"/>
+                                        <field name="pred_big_typ"/>
+                                        <field name="end_dt"/>
+                                        <field name="pred_cont"/>
+                                        <field name="rpt_prd"/>
+                                        <field name="net_prof_pco"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group string="股东减持">
+                                        <field name="shr_red_json"/>
+                                    </group>
+                                    <group string="会计师审计">
+                                        <field name="options_code"/>
+                                        <field name="options_rslt"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group string="诉讼仲裁">
+                                        <field name="law_case"/>
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="view_finance_stock_basic_tree" model="ir.ui.view">
+            <field name="name">finance.stock.basic tree</field>
+            <field name="model">finance.stock.basic</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="ts_code"/>
+                    <field name="symbol"/>
+                    <field name="name"/>
+                    <field name="market"/>
+                    <field name="area"/>
+                    <field name="industry"/>
+                    <field name="exchange"/>
+                    <field name="fullname"/>
+                    <field name="enname"/>
+                    <field name="cnspell"/>
+                    <field name="is_hs"/>
+                    <field name="curr_type"/>
+                    <field name="list_status"/>
+                    <field name="list_date"/>
+                    <field name="delist_date"/>
+                </tree>
+            </field>
+        </record>
+        <record id="action_finance_stock_base" model="ir.actions.act_window">
+            <field name="name">股票列表</field>
+            <field name="res_model">finance.stock.basic</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record id="action_finance_stock_company" model="ir.actions.act_window">
+            <field name="name">上市公司</field>
+            <field name="res_model">finance.stock.company</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem id="menu_finance_stock_root"
+                  name="股票分析"
+                  sequence="1"/>
+        <menuitem id="menu_finance_stock_base"
+                  name="股票列表"
+                  action="action_finance_stock_base"
+                  parent="menu_finance_stock_root"
+                  sequence="1"/>
+        <menuitem id="menu_finance_stock_company"
+                  name="上市公司"
+                  action="action_finance_stock_company"
+                  parent="menu_finance_stock_root"
+                  sequence="2"/>
+    </data>
+</odoo>

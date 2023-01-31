@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="res_config_settings_tushare_form" model="ir.ui.view">
+        <field name="name">res.config.settings.celery.view.form</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('settings')]" position="inside">
+                <div class="app_settings_block" data-string="Tushare" data-key="tushare">
+                    <h2>Tushare</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <div class="content-group">
+                                    <label for="ts_token" class="o_light_label"/>
+                                    <field name="ts_token"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+    <record id="finance_config_settings_action" model="ir.actions.act_window">
+        <field name="name">设置</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_id" ref="res_config_settings_tushare_form"/>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{}</field>
+    </record>
+    <menuitem id="menu_finance_stock_settings_root"
+              name="设置"
+              parent="menu_finance_stock_root"
+              sequence="99"/>
+    <menuitem id="menu_finance_stock_setting"
+              name="设置"
+              action="finance_config_settings_action"
+              parent="menu_finance_stock_settings_root"
+              sequence="1"/>
+</odoo>

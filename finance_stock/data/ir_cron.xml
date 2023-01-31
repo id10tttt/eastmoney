@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <record id="ir_cron_sync_finance_stock_basic" model="ir.cron">
+        <field name='name'>同步股票列表</field>
+        <field name='interval_number'>1</field>
+        <field name='interval_type'>days</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="False"/>
+        <field name="doall" eval="False"/>
+        <field name="code">model.get_update_stock_list()</field>
+        <field name="state">code</field>
+        <field name="model_id" ref="model_finance_stock_basic"/>
+    </record>
+    <record id="ir_cron_sync_finance_stock_company" model="ir.cron">
+        <field name='name'>同步公司信息</field>
+        <field name='interval_number'>5</field>
+        <field name='interval_type'>minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="True"/>
+        <field name="doall" eval="False"/>
+        <field name="code">model.cron_sync_company_data()</field>
+        <field name="state">code</field>
+        <field name="model_id" ref="model_finance_stock_basic"/>
+    </record>
+    <record id="ir_cron_sync_finance_stock_zcfbz" model="ir.cron">
+        <field name='name'>同步资产负债表</field>
+        <field name='interval_number'>2</field>
+        <field name='interval_type'>minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="True"/>
+        <field name="doall" eval="False"/>
+        <field name="code">model.cron_fetch_zcfzb()</field>
+        <field name="state">code</field>
+        <field name="model_id" ref="model_finance_stock_basic"/>
+    </record>
+    <record id="ir_cron_sync_finance_stock_main_data" model="ir.cron">
+        <field name='name'>同步主要指标</field>
+        <field name='interval_number'>3</field>
+        <field name='interval_type'>minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="True"/>
+        <field name="doall" eval="False"/>
+        <field name="code">model.cron_fetch_main_data()</field>
+        <field name="state">code</field>
+        <field name="model_id" ref="model_finance_stock_basic"/>
+    </record>
+    <record id="ir_cron_sync_finance_stock_rpt" model="ir.cron">
+        <field name='name'>同步业绩报表</field>
+        <field name='interval_number'>10</field>
+        <field name='interval_type'>minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="True"/>
+        <field name="doall" eval="False"/>
+        <field name="code">model.cron_fetch_rpt_lico_fn_cpd()</field>
+        <field name="state">code</field>
+        <field name="model_id" ref="model_finance_stock_basic"/>
+    </record>
+    <record id="ir_cron_sync_finance_stock_lrb" model="ir.cron">
+        <field name='name'>同步利润表</field>
+        <field name='interval_number'>10</field>
+        <field name='interval_type'>minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="True"/>
+        <field name="doall" eval="False"/>
+        <field name="code">model.cron_fetch_lrb()</field>
+        <field name="state">code</field>
+        <field name="model_id" ref="model_finance_stock_basic"/>
+    </record>
+    <record id="ir_cron_sync_finance_stock_business" model="ir.cron">
+        <field name='name'>经营分析</field>
+        <field name='interval_number'>15</field>
+        <field name='interval_type'>minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="True"/>
+        <field name="doall" eval="False"/>
+        <field name="code">model.cron_fetch_business()</field>
+        <field name="state">code</field>
+        <field name="model_id" ref="model_finance_stock_basic"/>
+    </record>
+    <record id="ir_cron_sync_finance_stock_info" model="ir.cron">
+        <field name='name'>其它信息</field>
+        <field name='interval_number'>1</field>
+        <field name='interval_type'>minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="True"/>
+        <field name="doall" eval="False"/>
+        <field name="code">model.cron_sync_stock_info()</field>
+        <field name="state">code</field>
+        <field name="model_id" ref="model_finance_stock_basic"/>
+    </record>
+    <record id="ir_cron_sync_finance_stock_company_survey" model="ir.cron">
+        <field name='name'>公司信息补充</field>
+        <field name='interval_number'>5</field>
+        <field name='interval_type'>minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="True"/>
+        <field name="doall" eval="False"/>
+        <field name="code">model.cron_fetch_company_survey()</field>
+        <field name="state">code</field>
+        <field name="model_id" ref="model_finance_stock_company"/>
+    </record>
+    <record id="ir_cron_sync_finance_stock_peg" model="ir.cron">
+        <field name='name'>PEG</field>
+        <field name='interval_number'>6</field>
+        <field name='interval_type'>minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="True"/>
+        <field name="doall" eval="False"/>
+        <field name="code">model.cron_fetch_peg_value()</field>
+        <field name="state">code</field>
+        <field name="model_id" ref="model_finance_stock_basic"/>
+    </record>
+    <record id="ir_cron_sync_finance_stock_relationship" model="ir.cron">
+        <field name='name'>行业排名</field>
+        <field name='interval_number'>7</field>
+        <field name='interval_type'>minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="True"/>
+        <field name="doall" eval="False"/>
+        <field name="code">model.cron_fetch_relation()</field>
+        <field name="state">code</field>
+        <field name="model_id" ref="model_finance_stock_basic"/>
+    </record>
+    <record id="ir_cron_sync_finance_stock_holder" model="ir.cron">
+        <field name='name'>基金机构</field>
+        <field name='interval_number'>6</field>
+        <field name='interval_type'>minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="True"/>
+        <field name="doall" eval="False"/>
+        <field name="code">model.cron_fetch_holder()</field>
+        <field name="state">code</field>
+        <field name="model_id" ref="model_finance_stock_basic"/>
+    </record>
+    <record id="ir_cron_sync_finance_stock_analyse" model="ir.cron">
+        <field name='name'>报表</field>
+        <field name='interval_number'>1</field>
+        <field name='interval_type'>days</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="True"/>
+        <field name="doall" eval="False"/>
+        <field name="code">model.cron_fetch_analyse_report()</field>
+        <field name="state">code</field>
+        <field name="model_id" ref="model_finance_stock_analyse"/>
+    </record>
+</odoo>

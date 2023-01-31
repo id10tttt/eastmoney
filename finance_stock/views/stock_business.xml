@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_finance_stock_business_tree" model="ir.ui.view">
+            <field name="name">finance.stock.business tree</field>
+            <field name="model">finance.stock.business</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="secucode"/>
+                    <field name="security_code"/>
+                    <field name="report_date"/>
+                    <field name="item_name"/>
+                    <field name="gross_profit_ratio"/>
+                    <field name="mainop_type"/>
+                    <field name="main_business_cost"/>
+                    <field name="main_business_income"/>
+                    <field name="main_business_profit"/>
+                    <field name="mbc_ratio"/>
+                    <field name="mbi_ratio"/>
+                    <field name="mbr_ratio"/>
+                    <field name="rank"/>
+                </tree>
+            </field>
+        </record>
+        <record id="action_finance_stock_business" model="ir.actions.act_window">
+            <field name="name">经营分析</field>
+            <field name="res_model">finance.stock.business</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem id="menu_finance_stock_business"
+                  name="经营分析"
+                  action="action_finance_stock_business"
+                  parent="menu_finance_stock_root"
+                  sequence="6"/>
+    </data>
+</odoo>

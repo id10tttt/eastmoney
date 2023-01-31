@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_finance_stock_analyse_tree" model="ir.ui.view">
+            <field name="name">finance.stock.analyse tree</field>
+            <field name="model">finance.stock.analyse</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="secucode"/>
+                    <field name="security_code"/>
+                    <field name="report_date"/>
+                    <field name="xsjll"/>
+                    <field name="xsmll"/>
+                    <field name="values"/>
+                    <field name="total_value"/>
+                    <field name="f84"/>
+                    <field name="f85"/>
+                    <field name="total_operate_rece"/>
+                    <field name="trade_ratio"/>
+                    <field name="roe_jq"/>
+                    <field name="zcfzl"/>
+                    <field name="mbi_ratio"/>
+                    <field name="total_equity"/>
+                    <field name="total_current_liab"/>
+                    <field name="interest_expense"/>
+                    <field name="continued_netprofit"/>
+                    <field name="basic_eps"/>
+                    <field name="chzzl"/>
+                    <field name="emp_num"/>
+                    <field name="peg_car"/>
+                    <field name="pb_mrq"/>
+                    <field name="pcf_ocf_tim"/>
+                    <field name="industry_csrc"/>
+                    <field name="hypm"/>
+                </tree>
+            </field>
+        </record>
+        <record id="action_finance_stock_analyse" model="ir.actions.act_window">
+            <field name="name">报表</field>
+            <field name="res_model">finance.stock.analyse</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem id="menu_finance_stock_analyse"
+                  name="报表"
+                  action="action_finance_stock_analyse"
+                  parent="menu_finance_stock_root"
+                  sequence="7"/>
+    </data>
+</odoo>

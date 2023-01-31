@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_finance_stock_zcfzb_tree" model="ir.ui.view">
+            <field name="name">finance.stock.zcfzb tree</field>
+            <field name="model">finance.stock.zcfzb</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="secucode"/>
+                    <field name="security_code"/>
+                    <field name="report_date"/>
+                    <field name="report_type"/>
+                    <field name="report_date_name"/>
+                    <field name="total_assets"/>
+                    <field name="total_current_assets"/>
+                    <field name="total_current_assets"/>
+                    <field name="total_current_liab"/>
+                    <field name="total_equity"/>
+                    <field name="total_liab_equity"/>
+                    <field name="total_liablifties"/>
+                    <field name="total_noncurrent_assets"/>
+                    <field name="total_noncurrent_liab"/>
+                    <field name="total_other_payable"/>
+                    <field name="total_other_rece"/>
+                    <field name="total_parent_equity"/>
+                </tree>
+            </field>
+        </record>
+        <record id="action_finance_stock_zcfzb" model="ir.actions.act_window">
+            <field name="name">资产负债表</field>
+            <field name="res_model">finance.stock.zcfzb</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem id="menu_finance_stock_zcfzb"
+                  name="资产负债表"
+                  action="action_finance_stock_zcfzb"
+                  parent="menu_finance_stock_root"
+                  sequence="4"/>
+    </data>
+</odoo>
