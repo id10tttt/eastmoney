@@ -8,6 +8,11 @@ import datetime
 import traceback
 import xlsxwriter
 import argparse
+import tushare as ts
+from multiprocessing import Pool
+
+# 初始化pro接口
+ts_pro = ts.pro_api('8e145e12e63d1191aa1b1833c030fcfb6fa24a3730154d02aab96036')
 
 finance_zyzb_url = 'http://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/ZYZBAjaxNew'
 finance_zcfzb_url = 'http://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/zcfzbAjaxNew'
@@ -215,7 +220,6 @@ def save_stock_info(code: str, sec_id: str):
         'ut': 'fa5fd1943c7b386f172d6893dbfba10b',
         'invt': 2,
         'fltt': 2,
-        # 'fields': 'f43,f57,f58,f169,f170,f46,f44,f51,f168,f47,f164,f163,f116,f60,f45,f52,f50,f48,f167,f117,f71,f161,f49,f530,f135,f136,f137,f138,f139,f141,f142,f144,f145,f147,f148,f140,f143,f146,f149,f55,f62,f162,f92,f173,f104,f105,f84,f85,f183,f184, f185, f186, f187, f188, f189, f190, f191, f192, f107, f111, f86, f177, f78, f110, f262, f263, f264, f267, f268, f250, f251, f252, f253, f254, f255, f256, f257, f258, f266, f269, f270, f271, f273, f274, f275, f127, f199, f128, f193, f196, f194, f195, f197, f80, f280, f281, f282, f284, f285, f286, f287, f292',
         'fields': ','.join('f{}'.format(x) for x in range(1, 293)),
         'secid': sec_id,
         '_': int(time.time() * 1000)
@@ -226,7 +230,7 @@ def save_stock_info(code: str, sec_id: str):
     f85 = res.json().get('data', {}).get('f85')
     f277 = res.json().get('data', {}).get('f277')
     f116 = res.json().get('data', {}).get('f116')
-    result.to_csv('{}_STOCK.csv'.format(code), encoding='utf-8')
+    # result.to_csv('{}_STOCK.csv'.format(code), encoding='utf-8')
     return result, [f84, f116, f85, f277]
 
 
@@ -319,7 +323,10 @@ def search_period_stock_analysis_result(code, main_data, zcfzb_data, lrb_data, b
         # 每股收益
         basic_eps = rpt_lico_data.loc[rpt_lico_data['REPORTDATE'] == search_period, 'BASIC_EPS']
         # 流动负债合计
-        total_equity = zcfzb_data.loc[zcfzb_data['REPORT_DATE'] == search_period, 'TOTAL_EQUITY']
+        try:
+            total_equity = zcfzb_data.loc[zcfzb_data['REPORT_DATE'] == search_period, 'TOTAL_EQUITY']
+        except Exception as e:
+            total_equity = 0
         # 利息费用
         fe_interest_expense = lrb_data.loc[lrb_data['REPORT_DATE'] == search_period, 'FE_INTEREST_EXPENSE']
         # 净利润
@@ -354,6 +361,7 @@ def search_period_stock_analysis_result(code, main_data, zcfzb_data, lrb_data, b
                get_pandas_value(continued_netprofit), get_pandas_value(v12), get_pandas_value(chzzl),
                peg_car, pb_mrq, pcf_ocf_tim, industry_csrc, hypm, org_holder, get_pandas_value(basic_eps)]
         all_values.append(tmp)
+    print('code: ', code)
     return all_values
 
 
@@ -507,30 +515,76 @@ def get_default_period(all_period=False):
     return search_period
 
 
+def _get_transverse_data(code: str, query_period, all_values: list):
+    security_code, sec_id = get_security_code(code)
+    main_data = save_main_data(security_code)
+    zcfzb_data = save_zcfzb_data(security_code)
+    lrb_data = save_lrb_data(security_code)
+    # xjllb_data = save_xjllb_data(security_code)
+    rpt_lico_data = get_rpt_lico_fn_cpd_data(code)
+    stock_data, extra_values = save_stock_info(security_code, sec_id)
+    jbzl = get_company_survey(security_code)
+    business_data = save_business_analysis(security_code)
+    all_values = search_period_stock_analysis_result(
+        code, main_data, zcfzb_data, lrb_data, business_data, jbzl, rpt_lico_data, extra_values, query_period,
+        all_values)
+    return all_values
+
+
 def get_transverse_data(code_list, analysis_header, query_period):
     """
     横向表格
     """
+    pool = Pool(8)
     all_values = [analysis_header]
-    for code in code_list:
+    results = []
+    for index_code, code in enumerate(code_list):
         try:
-            security_code, sec_id = get_security_code(code)
-            main_data = save_main_data(security_code)
-            zcfzb_data = save_zcfzb_data(security_code)
-            lrb_data = save_lrb_data(security_code)
-            xjllb_data = save_xjllb_data(security_code)
-            rpt_lico_data = get_rpt_lico_fn_cpd_data(code)
-            stock_data, extra_values = save_stock_info(security_code, sec_id)
-            jbzl = get_company_survey(security_code)
-            business_data = save_business_analysis(security_code)
-            all_values = search_period_stock_analysis_result(
-                code, main_data, zcfzb_data, lrb_data, business_data, jbzl, rpt_lico_data, extra_values, query_period,
-                all_values)
+            results.append(pool.apply_async(_get_transverse_data, args=(code, query_period, all_values)))
+            # security_code, sec_id = get_security_code(code)
+            # main_data = save_main_data(security_code)
+            # zcfzb_data = save_zcfzb_data(security_code)
+            # lrb_data = save_lrb_data(security_code)
+            # xjllb_data = save_xjllb_data(security_code)
+            # rpt_lico_data = get_rpt_lico_fn_cpd_data(code)
+            # stock_data, extra_values = save_stock_info(security_code, sec_id)
+            # jbzl = get_company_survey(security_code)
+            # business_data = save_business_analysis(security_code)
+            # all_values = search_period_stock_analysis_result(
+            #     code, main_data, zcfzb_data, lrb_data, business_data, jbzl, rpt_lico_data, extra_values, query_period,
+            #     all_values)
         except Exception as e:
-            print(traceback.format_exc())
+            print('error: {}, {}'.format(e, traceback.format_exc()))
             continue
-    result = pd.DataFrame(data=all_values)
+    pool.close()
+    pool.join()
+    result_values = []
+    for index_res, res in enumerate(results):
+        try:
+            result_values = result_values + res.get()
+        except Exception as e:
+            print('error: {}, {}'.format(e, traceback.format_exc()))
+            continue
+        # print('\r进度: {} / {}'.format(index_res, len(results)), end='', flush=False)
+    result = pd.DataFrame(data=result_values)
     result.to_csv('查询结果.csv', encoding='utf-8')
+
+
+def _get_portrait_data(code: str, query_period, all_values, code_values):
+    security_code, sec_id = get_security_code(code)
+    main_data = save_main_data(security_code)
+    zcfzb_data = save_zcfzb_data(security_code)
+    lrb_data = save_lrb_data(security_code)
+    # xjllb_data = save_xjllb_data(security_code)
+    rpt_lico_data = get_rpt_lico_fn_cpd_data(code)
+    stock_data, extra_values = save_stock_info(security_code, sec_id)
+    jbzl = get_company_survey(security_code)
+    business_data = save_business_analysis(security_code)
+    code_values = search_period_stock_analysis_result(
+        code, main_data, zcfzb_data, lrb_data, business_data, jbzl, rpt_lico_data, extra_values, query_period,
+        code_values)
+    all_values[code] = code_values
+    return all_values
 
 
 def get_portrait_data(code_list, analysis_header, query_period):
@@ -541,30 +595,30 @@ def get_portrait_data(code_list, analysis_header, query_period):
         横向表格
         """
 
+    pool = Pool(8)
     all_values = {}
-    for code in code_list:
+    results = []
+    for index_code, code in enumerate(code_list):
         code_values = [analysis_header]
         try:
-            security_code, sec_id = get_security_code(code)
-            main_data = save_main_data(security_code)
-            zcfzb_data = save_zcfzb_data(security_code)
-            lrb_data = save_lrb_data(security_code)
-            xjllb_data = save_xjllb_data(security_code)
-            rpt_lico_data = get_rpt_lico_fn_cpd_data(code)
-            stock_data, extra_values = save_stock_info(security_code, sec_id)
-            jbzl = get_company_survey(security_code)
-            business_data = save_business_analysis(security_code)
-            code_values = search_period_stock_analysis_result(
-                code, main_data, zcfzb_data, lrb_data, business_data, jbzl, rpt_lico_data, extra_values, query_period,
-                code_values)
-            all_values[code] = code_values
+            results.append(pool.apply_async(_get_portrait_data, args=(code, query_period, all_values, code_values)))
         except Exception as e:
-            print(traceback.format_exc())
+            print('error: {}, {}'.format(e, traceback.format_exc()))
             continue
 
+    pool.close()
+    pool.join()
+    result_values = {}
+    for index_res, res in enumerate(results):
+        try:
+            result_values.update(res.get())
+        except Exception as e:
+            print('error: {}, {}'.format(e, traceback.format_exc()))
+            continue
+        # print('\r进度: {} / {}'.format(index_res, len(results)), end='', flush=False)
     pd_writer = pd.ExcelWriter('查询结果.xlsx')
-    for value_code in all_values.keys():
-        tmp_df = pd.DataFrame(all_values[value_code])
+    for value_code in result_values.keys():
+        tmp_df = pd.DataFrame(result_values.get(value_code))
         tmp_df_T = tmp_df.T
         tmp_df_T.to_excel(pd_writer, value_code, index=False, header=False)
 
@@ -599,17 +653,19 @@ def get_org_holder(code: str, date: str) -> str:
 def main_p(args):
     try:
         code_list = args.code
+        if code_list == '-':
+            code_list = get_all_code_list()
+        else:
+            code_list = code_list.split(',')
     except AttributeError as e:
         parser.print_help()
-        code_list = ''
+        code_list = get_all_code_list()
 
     if code_list:
         # default_period = '2021-09-30'
         # search_period = argv[2] if len(argv) > 2 else default_period
         # search_period = search_period + ' 00:00:00'
         query_period = get_default_period(all_period=True)
-        # print(query_period)
-        code_list = code_list.split(',')
         analysis_header = ['期间', '编码', '净利率', '毛利率', '市值（亿）', '总资产', '流通股', '总股本', '营业总收入',
                            '市销率', '净资产收益率ROE', '资产负债率', '国际销售占比', '流动负债', '利息费用', '净利润',
                            '雇员', '库存周转率', 'PEG', '市净率', '市现率', '所属行业', '行业排名', '基金机构',
@@ -641,7 +697,10 @@ def analyse_t_file(file_content, file_name):
     row = 0
     for idx, line in enumerate(file_content):
         for x in range(13):
-            worksheet.write(row, x, line[x])
+            try:
+                worksheet.write(row, x, line[x])
+            except Exception as e:
+                worksheet.write(row, x, '-')
         if row == 0:
             worksheet.write(row, 13, '2021年比2020年增长比例')
             worksheet.write(row, 14, '2022年比2021年增长比例')
@@ -689,9 +748,13 @@ def analyse_t_file(file_content, file_name):
 def main_t(args):
     try:
         code_list = args.code
+        if code_list == '-':
+            code_list = get_all_code_list()
+        else:
+            code_list = code_list.split(',')
     except AttributeError as e:
         parser.print_help()
-        code_list = ''
+        code_list = get_all_code_list()
 
     if code_list:
         # default_period = '2021-09-30'
@@ -699,7 +762,6 @@ def main_t(args):
         # search_period = search_period + ' 00:00:00'
         query_period = get_default_period()
         # print(query_period)
-        code_list = code_list.split(',')
         analysis_header = ['期间', '编码', '净利率', '毛利率', '市值（亿）', '总资产', '流通股', '总股本', '营业总收入',
                            '市销率', '净资产收益率ROE', '资产负债率', '国际销售占比', '流动负债', '利息费用', '净利润',
                            '雇员', '库存周转率', 'PEG', '市净率', '市现率', '所属行业', '行业排名', '基金机构',
@@ -707,9 +769,33 @@ def main_t(args):
         get_transverse_data(code_list, analysis_header, query_period)
 
 
+def get_all_code_list():
+    df = ts_pro.stock_basic(**{
+        "ts_code": "",
+        "name": "",
+        "exchange": "",
+        "market": "",
+        "is_hs": "",
+        "list_status": "",
+        "limit": "",
+        "offset": ""
+    }, fields=[
+        "ts_code",
+        "symbol",
+        "name",
+        "area",
+        "industry",
+        "market",
+        "list_date"
+    ])
+    stock_list = df['symbol'].values
+    return list(stock_list)
+
+
 def arguments_init():
     parser = argparse.ArgumentParser()
-    subparser = parser.add_subparsers(help=u'示例： finance_eastmoney.py p -c 002223,002352')
+    subparser = parser.add_subparsers(
+        help=u'示例： finance_eastmoney.py p -c 002223,002352, 一次查询所有: finance_eastmoney.py p -c -')
 
     ret_t = subparser.add_parser('t', help=u'横向表格')
     ret_t.add_argument('-c', type=str, help=u'股票代码', dest='code', required=True)
