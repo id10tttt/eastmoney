@@ -5,7 +5,7 @@
     'author': '1di0t',
     'license': 'LGPL-3',
     'installable': True,
-    'depends': ['base'],
+    'depends': ['base', 'queue_job'],
     'external_dependencies': {
         'python': ['tushare'],
     },

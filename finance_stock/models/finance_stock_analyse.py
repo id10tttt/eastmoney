@@ -91,7 +91,7 @@ class FinanceStockAnalyse(models.Model):
         all_period = all_period[:-4]
         all_analyse_ids = self.env['finance.stock.analyse'].search([])
         all_stock_ids = self.env['finance.stock.basic'].search([('id', 'not in', all_analyse_ids.stock_id.ids)],
-                                                               limit=20)
+                                                               limit=50)
         self.generate_analyse_report(stock_ids=all_stock_ids, report_date=all_period)
 
     def generate_analyse_report(self, stock_ids=None, report_date=None):

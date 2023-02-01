@@ -118,6 +118,11 @@ class FinanceStockBasic(models.Model):
     lrb_ids = fields.One2many('finance.stock.lrb', 'stock_id', string='利润表')
     business_ids = fields.One2many('finance.stock.business', 'stock_id', string='主营构成分析')
     holder_ids = fields.One2many('finance.stock.holder', 'stock_id', string='基金机构')
+    # zcfzb_sync_status = fields.Boolean('资产负债表同步')
+    # report_sync_status = fields.Boolean('业绩报表同步')
+    # lrb_sync_status = fields.Boolean('')
+    # business_sync_status = fields.Boolean('')
+    # holder_sync_status = fields.Boolean('')
 
     plge_rat = fields.Char('质押比例')
     blt_hld_rat = fields.Char('合计持股比')
@@ -146,8 +151,7 @@ class FinanceStockBasic(models.Model):
     mine_json = fields.Char('MINE SWEEP JSON')
 
     def cron_fetch_mine_brief(self):
-        res = self.env['finance.stock.basic'].search(['|', ('plge_rat', '=', False), ('pred_typ_name', '=', False)],
-                                                     limit=200)
+        res = self.env['finance.stock.basic'].search(['|', ('plge_rat', '=', False), ('pred_typ_name', '=', False)])
         for x in res:
             x.with_delay().get_mine_brief()
 
@@ -162,7 +166,7 @@ class FinanceStockBasic(models.Model):
             'Content-Type': 'application/json;charset=utf-8'
         }
         for stock_id in self:
-            _logger.info('let\'s dance: {}'.format(stock_id.symbol))
+            _logger.info('获取扫雷信息: {}'.format(stock_id.symbol))
             payload_data = {
                 'scode': stock_id.symbol,
                 'ecode': '0'
@@ -247,8 +251,9 @@ class FinanceStockBasic(models.Model):
         return search_period
 
     def cron_fetch_holder(self):
-        res = self.env['finance.stock.basic'].search([('holder_ids', '=', False)], limit=20)
-        res.get_org_holder()
+        res = self.env['finance.stock.basic'].search([('holder_ids', '=', False)])
+        for x in res:
+            x.with_delay().get_org_holder()
 
     def get_org_holder(self):
         """
@@ -258,6 +263,7 @@ class FinanceStockBasic(models.Model):
         all_period = self.get_default_period()
         all_holder_ids = self.env['finance.stock.holder'].search([])
         for stock_id in self:
+            _logger.info('获取基金机构信息: {}'.format(stock_id.symbol))
             all_data = []
             for period_id in all_period:
 
@@ -302,12 +308,18 @@ class FinanceStockBasic(models.Model):
                 })
 
     def cron_fetch_relation(self):
-        res = self.env['finance.stock.basic'].search(['|', ('hypm', '=', False), ('hypm', '=', 0)], limit=20)
-        res.get_stock_relationship_data()
+        res = self.env['finance.stock.basic'].search(['|', ('hypm', '=', False), ('hypm', '=', 0)])
+        for x in res:
+            x.with_delay().get_stock_relationship_data()
+        # res.get_stock_relationship_data()
 
     def get_stock_relationship_data(self):
+        """
+        行业排名
+        """
         stock_relationship_url = 'https://emweb.securities.eastmoney.com/PC_HSF10/StockRelationship/PageAjax'
         for stock_id in self:
+            _logger.info('获取排名信息: {}'.format(stock_id.symbol))
             security_code, sec_id = self.get_security_code(stock_id.symbol)
             payloads = {
                 'code': security_code
@@ -328,8 +340,10 @@ class FinanceStockBasic(models.Model):
             })
 
     def cron_sync_stock_info(self):
-        res = self.env['finance.stock.basic'].search([('f84', '=', False)], limit=100)
-        res.get_stock_info()
+        res = self.env['finance.stock.basic'].search([('f84', '=', False)])
+        for x in res:
+            x.with_delay().get_stock_info()
+            # res.get_stock_info()
 
     def get_stock_info(self):
         """
@@ -337,6 +351,7 @@ class FinanceStockBasic(models.Model):
         """
         stock_url = 'http://push2.eastmoney.com/api/qt/stock/get'
         for stock_id in self:
+            _logger.info('获取股票信息: {}'.format(stock_id.symbol))
             security_code, sec_id = self.get_security_code(stock_id.symbol)
             payloads = {
                 'ut': 'fa5fd1943c7b386f172d6893dbfba10b',
@@ -441,6 +456,7 @@ class FinanceStockBasic(models.Model):
                             "employees", "office", "ann_date", "business_scope", "main_business", "introduction"]
         ts_pro = ts.pro_api(TS_TOKEN)
         for stock_id in self:
+            _logger.info('获取上市公司信息: {}'.format(stock_id.symbol))
             try:
                 df = ts_pro.stock_company(**{
                     "ts_code": stock_id.ts_code,
@@ -511,8 +527,10 @@ class FinanceStockBasic(models.Model):
         return res
 
     def cron_fetch_main_data(self):
-        res = self.env['finance.stock.basic'].search([('main_data_ids', '=', False)], limit=50)
-        res.get_update_main_data()
+        res = self.env['finance.stock.basic'].search([('main_data_ids', '=', False)])
+        for x in res:
+            x.with_delay().get_update_main_data()
+        # res.get_update_main_data()
 
     def get_update_main_data(self):
         """
@@ -520,6 +538,7 @@ class FinanceStockBasic(models.Model):
         """
         all_main_ids = self.env['finance.stock.main.data'].search([])
         for stock_id in self:
+            _logger.info('获取主要指标信息: {}'.format(stock_id.symbol))
             security_code, sec_id = self.get_security_code(stock_id.symbol)
             payloads = {
                 'code': security_code,
@@ -550,8 +569,10 @@ class FinanceStockBasic(models.Model):
         return res
 
     def cron_fetch_zcfzb(self):
-        res = self.env['finance.stock.basic'].search([('zcfzb_ids', '=', False)], limit=50)
-        res.get_zcfzb_data()
+        res = self.env['finance.stock.basic'].search([('zcfzb_ids', '=', False)])
+        for x in res:
+            x.with_delay().get_zcfzb_data()
+        # res.get_zcfzb_data()
 
     def get_zcfzb_data(self):
         """
@@ -561,6 +582,7 @@ class FinanceStockBasic(models.Model):
         query_dates = '2022-09-30,2022-06-30,2022-03-31,2021-12-31,2021-09-30'
         all_zcfzb = self.env['finance.stock.zcfzb'].search([])
         for stock_id in self:
+            _logger.info('获取资产负债表信息: {}'.format(stock_id.symbol))
             security_code, sec_id = self.get_security_code(stock_id.symbol)
             res = self.fetch_zcfbz_data(query_dates, security_code)
 
@@ -606,8 +628,10 @@ class FinanceStockBasic(models.Model):
                 })
 
     def cron_fetch_rpt_lico_fn_cpd(self):
-        res = self.env['finance.stock.basic'].search([('report_ids', '=', False)], limit=50)
-        res.get_rpt_lico_fn_cpd_data()
+        res = self.env['finance.stock.basic'].search([('report_ids', '=', False)])
+        for x in res:
+            x.with_delay().get_rpt_lico_fn_cpd_data()
+        # res.get_rpt_lico_fn_cpd_data()
 
     def get_rpt_lico_fn_cpd_data(self):
         """
@@ -616,6 +640,7 @@ class FinanceStockBasic(models.Model):
         rpt_lico_fn_cpd_url = 'https://datacenter-web.eastmoney.com/api/data/v1/get'
         all_rpt_ids = self.env['finance.stock.report'].search([])
         for stock_id in self:
+            _logger.info('获取业绩报表信息: {}'.format(stock_id.symbol))
             payload_data = {
                 'callback': '',
                 'sortColumns': 'REPORTDATE',
@@ -689,8 +714,10 @@ class FinanceStockBasic(models.Model):
         return res
 
     def cron_fetch_lrb(self):
-        res = self.env['finance.stock.basic'].search([('lrb_ids', '=', False)], limit=50)
-        res.get_lrb_data()
+        res = self.env['finance.stock.basic'].search([('lrb_ids', '=', False)])
+        for x in res:
+            x.with_delay().get_lrb_data()
+        # res.get_lrb_data()
 
     def get_lrb_data(self):
         """
@@ -699,6 +726,7 @@ class FinanceStockBasic(models.Model):
         query_dates = '2022-09-30,2022-06-30,2022-03-31,2021-12-31,2021-09-30'
         all_lrb = self.env['finance.stock.lrb'].search([])
         for stock_id in self:
+            _logger.info('获取利润表信息: {}'.format(stock_id.symbol))
             security_code, sec_id = self.get_security_code(stock_id.symbol)
             res = self.fetch_lrb_data(query_dates, security_code)
 
@@ -734,8 +762,10 @@ class FinanceStockBasic(models.Model):
         """
         经营分析
         """
-        res = self.env['finance.stock.basic'].search([('business_ids', '=', False)], limit=20)
-        res.get_business_analysis()
+        res = self.env['finance.stock.basic'].search([('business_ids', '=', False)])
+        for x in res:
+            x.with_delay().get_business_analysis()
+        # res.get_business_analysis()
 
     def get_business_analysis(self):
         """
@@ -746,6 +776,7 @@ class FinanceStockBasic(models.Model):
         business_analysis_url = 'http://emweb.securities.eastmoney.com/PC_HSF10/BusinessAnalysis/PageAjax'
         all_business_ids = self.env['finance.stock.business'].search([])
         for stock_id in self:
+            _logger.info('获取经营分析信息: {}'.format(stock_id.symbol))
             security_code, sec_id = self.get_security_code(stock_id.symbol)
             payload_data = {
                 'code': security_code
@@ -782,12 +813,15 @@ class FinanceStockBasic(models.Model):
             })
 
     def cron_fetch_peg_value(self):
-        res = self.env['finance.stock.basic'].search([('peg_car', '=', False)], limit=20)
-        res.get_east_money_peg_value()
+        res = self.env['finance.stock.basic'].search([('peg_car', '=', False)])
+        for x in res:
+            x.with_delay().get_east_money_peg_value()
+        # res.get_east_money_peg_value()
 
     def get_east_money_peg_value(self):
         req_url = 'https://datacenter-web.eastmoney.com/api/data/v1/get'
         for stock_id in self:
+            _logger.info('获取PEG信息: {}'.format(stock_id.symbol))
             payload_data = {
                 'callback': '',
                 'reportName': 'RPT_VALUEANALYSIS_DET',
@@ -803,7 +837,7 @@ class FinanceStockBasic(models.Model):
                 '_': int(time.time() * 1000)
             }
             res = requests.get(req_url, params=payload_data, headers=headers)
-            if not res.json():
+            if not res.json().get('result'):
                 continue
             result_data = res.json().get('result', {}).get('data', [])
             if not result_data:
@@ -931,12 +965,15 @@ class FinanceStockCompany(models.Model):
         """
         员工人数
         """
-        res = self.env['finance.stock.company'].search([('emp_num', '=', False)], limit=10)
-        res.get_company_survey()
+        res = self.env['finance.stock.company'].search([('emp_num', '=', False)])
+        for x in res:
+            x.with_delay().get_company_survey()
+            # res.get_company_survey()
 
     def get_company_survey(self):
         company_survey_url = 'https://emweb.securities.eastmoney.com/PC_HSF10/CompanySurvey/PageAjax'
         for survey_id in self:
+            _logger.info('获取公司信息: {}'.format(survey_id.ts_code))
             security_code = survey_id.ts_code.split('.')[0]
             security_code, sec_id = self.get_security_code(security_code)
             payload_data = {
