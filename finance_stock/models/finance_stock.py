@@ -734,7 +734,7 @@ class FinanceStockBasic(models.Model):
         """
         经营分析
         """
-        res = self.env['finance.stock.basic'].search([('business_ids', '=', False)], limit=10)
+        res = self.env['finance.stock.basic'].search([('business_ids', '=', False)], limit=20)
         res.get_business_analysis()
 
     def get_business_analysis(self):
@@ -800,7 +800,7 @@ class FinanceStockBasic(models.Model):
                 'source': 'WEB',
                 'client': 'WEB',
                 'filter': '(SECURITY_CODE="{}")'.format(stock_id.symbol),
-                '_': 1651220068071
+                '_': int(time.time() * 1000)
             }
             res = requests.get(req_url, params=payload_data, headers=headers)
             if not res.json():
