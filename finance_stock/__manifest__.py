@@ -19,6 +19,6 @@
         'views/stock_business.xml',
         'views/stock_analyse.xml',
         'views/finance_settings.xml',
-        'views/finance_settings.xml',
+        'views/stock_compare_analysis.xml',
     ],
 }

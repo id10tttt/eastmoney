@@ -6,3 +6,4 @@ from . import finance_stock_report
 from . import finance_stock_lrb
 from . import finance_stock_business
 from . import res_config_settings
+from . import stock_compare_analysis

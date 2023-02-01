@@ -143,4 +143,15 @@
         <field name="state">code</field>
         <field name="model_id" ref="model_finance_stock_analyse"/>
     </record>
+    <record id="ir_cron_sync_finance_stock_mine_sweep" model="ir.cron">
+        <field name='name'>扫雷</field>
+        <field name='interval_number'>10</field>
+        <field name='interval_type'>minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="True"/>
+        <field name="doall" eval="False"/>
+        <field name="code">model.cron_fetch_mine_brief()</field>
+        <field name="state">code</field>
+        <field name="model_id" ref="model_finance_stock_basic"/>
+    </record>
 </odoo>

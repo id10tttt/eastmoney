@@ -145,6 +145,12 @@ class FinanceStockBasic(models.Model):
     law_case = fields.Char('诉讼仲裁')
     mine_json = fields.Char('MINE SWEEP JSON')
 
+    def cron_fetch_mine_brief(self):
+        res = self.env['finance.stock.basic'].search(['|', ('plge_rat', '=', False), ('pred_typ_name', '=', False)],
+                                                     limit=200)
+        for x in res:
+            x.with_delay().get_mine_brief()
+
     def get_mine_brief(self):
         """
         数据源： 招商财富APP
@@ -156,6 +162,7 @@ class FinanceStockBasic(models.Model):
             'Content-Type': 'application/json;charset=utf-8'
         }
         for stock_id in self:
+            _logger.info('let\'s dance: {}'.format(stock_id.symbol))
             payload_data = {
                 'scode': stock_id.symbol,
                 'ecode': '0'
@@ -796,6 +803,8 @@ class FinanceStockBasic(models.Model):
                 '_': 1651220068071
             }
             res = requests.get(req_url, params=payload_data, headers=headers)
+            if not res.json():
+                continue
             result_data = res.json().get('result', {}).get('data', [])
             if not result_data:
                 continue
