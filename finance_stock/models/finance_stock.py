@@ -261,7 +261,7 @@ class FinanceStockBasic(models.Model):
         """
         org_holder_url = 'http://basic.10jqka.com.cn/basicapi/holder/stock/org_holder/detail'
         all_period = self.get_default_period()
-        all_holder_ids = self.env['finance.stock.holder'].search([])
+        all_holder_ids = self.env['finance.stock.holder'].search([('stock_id', 'in', self.ids)])
         for stock_id in self:
             _logger.info('获取基金机构信息: {}'.format(stock_id.symbol))
             all_data = []
@@ -285,12 +285,13 @@ class FinanceStockBasic(models.Model):
                 result_data = res.json().get('data', {}).get('data', [])
                 if not result_data:
                     continue
+                stock_holder_ids = all_holder_ids.filtered(lambda x: x.stock_id == stock_id.id)
                 tmp_data = []
                 for x in result_data:
                     org_name = x.get('org_name')
-                    if all_holder_ids.filtered(lambda x: x.ts_code == stock_id.ts_code and
-                                                         x.report_date == period_id and
-                                                         x.org_name == org_name):
+                    if stock_holder_ids.filtered(lambda x: x.ts_code == stock_id.ts_code and
+                                                           x.report_date == period_id and
+                                                           x.org_name == org_name):
                         continue
                     data = {
                         'ts_code': stock_id.ts_code,
@@ -487,10 +488,10 @@ class FinanceStockBasic(models.Model):
                     'stock_company_id': res.id
                 })
 
-    def parse_main_data(self, all_main_ids, main_res):
+    def parse_main_data(self, stock_main_id, main_res):
         secucode = main_res.get('SECUCODE')
         report_date = main_res.get('REPORT_DATE')
-        if all_main_ids.filtered(lambda x: x.secucode == secucode and x.report_date == report_date):
+        if stock_main_id.filtered(lambda x: x.report_date == report_date):
             return {}
         res = {
             'chzzl': main_res.get('CHZZL'),
@@ -536,7 +537,7 @@ class FinanceStockBasic(models.Model):
         """
         主要指标
         """
-        all_main_ids = self.env['finance.stock.main.data'].search([])
+        all_main_ids = self.env['finance.stock.main.data'].search([('stock_id', 'in', self.ids)])
         for stock_id in self:
             _logger.info('获取主要指标信息: {}'.format(stock_id.symbol))
             security_code, sec_id = self.get_security_code(stock_id.symbol)
@@ -548,7 +549,8 @@ class FinanceStockBasic(models.Model):
             result = res.json().get('data')
             if not result:
                 continue
-            main_data = [(0, 0, self.parse_main_data(all_main_ids, main_res)) for main_res in result]
+            stock_main_id = all_main_ids.filtered(lambda x: x.stock_id == stock_id.id)
+            main_data = [(0, 0, self.parse_main_data(stock_main_id, main_res)) for main_res in result]
             stock_id.write({
                 'main_data_ids': main_data
             })
@@ -590,10 +592,11 @@ class FinanceStockBasic(models.Model):
             if not data:
                 continue
             all_data = []
+            stock_zcfzb = all_zcfzb.filtered(lambda x: x.stock_id == stock_id.id)
             for line_data in data:
                 secucode = line_data.get('SECUCODE')
                 report_date = line_data.get('REPORT_DATE')
-                if all_zcfzb.filtered(lambda x: x.secucode == secucode and x.report_date == report_date):
+                if stock_zcfzb.filtered(lambda x: x.report_date == report_date):
                     continue
                 tmp_data = {
                     'zcfbb_json': json.dumps(line_data),
@@ -638,7 +641,7 @@ class FinanceStockBasic(models.Model):
         业绩报表
         """
         rpt_lico_fn_cpd_url = 'https://datacenter-web.eastmoney.com/api/data/v1/get'
-        all_rpt_ids = self.env['finance.stock.report'].search([])
+        all_rpt_ids = self.env['finance.stock.report'].search([('stock_id', 'in', self.ids)])
         for stock_id in self:
             _logger.info('获取业绩报表信息: {}'.format(stock_id.symbol))
             payload_data = {
@@ -656,10 +659,11 @@ class FinanceStockBasic(models.Model):
             all_data = []
             if not result:
                 continue
+            stock_all_rpt = all_rpt_ids.filtered(lambda x: x.stock_id == stock_id.id)
             for line_data in result:
                 secucode = line_data.get('SECUCODE')
                 report_date = line_data.get('REPORTDATE')
-                if all_rpt_ids.filtered(lambda x: x.secucode == secucode and x.reportdate == report_date):
+                if stock_all_rpt.filtered(lambda x: x.reportdate == report_date):
                     continue
                 data = {
                     'basic_eps': line_data.get('BASIC_EPS'),
@@ -724,8 +728,9 @@ class FinanceStockBasic(models.Model):
             利润表
         """
         query_dates = '2022-09-30,2022-06-30,2022-03-31,2021-12-31,2021-09-30'
-        all_lrb = self.env['finance.stock.lrb'].search([])
+        all_lrb = self.env['finance.stock.lrb'].search([('stock_id', 'in', self.ids)])
         for stock_id in self:
+            stock_lrb_id = all_lrb.filtered(lambda x: x.stock_id == stock_id.id)
             _logger.info('获取利润表信息: {}'.format(stock_id.symbol))
             security_code, sec_id = self.get_security_code(stock_id.symbol)
             res = self.fetch_lrb_data(query_dates, security_code)
@@ -739,7 +744,7 @@ class FinanceStockBasic(models.Model):
             for line_data in data:
                 secucode = line_data.get('SECUCODE')
                 report_date = line_data.get('REPORT_DATE')
-                if all_lrb.filtered(lambda x: x.secucode == secucode and x.report_date == report_date):
+                if stock_lrb_id.filtered(lambda x: x.report_date == report_date):
                     continue
                 data = {
                     'lrb_json': json.dumps(line_data),
@@ -774,14 +779,17 @@ class FinanceStockBasic(models.Model):
             MBI_RATIO：收入比例
             """
         business_analysis_url = 'http://emweb.securities.eastmoney.com/PC_HSF10/BusinessAnalysis/PageAjax'
-        all_business_ids = self.env['finance.stock.business'].search([])
+        all_business_ids = self.env['finance.stock.business'].search([('stock_id', 'in', self.ids)])
         for stock_id in self:
-            _logger.info('获取经营分析信息: {}'.format(stock_id.symbol))
+            stock_business_ids = all_business_ids.filtered(lambda x: x.stock_id == stock_id.id)
+            start_time = time.time()
+            _logger.info('开始获取经营分析信息: {}'.format(stock_id.symbol))
             security_code, sec_id = self.get_security_code(stock_id.symbol)
             payload_data = {
                 'code': security_code
             }
-            res = requests.get(business_analysis_url, params=payload_data, headers=headers)
+            res = requests.get(business_analysis_url, params=payload_data, headers=headers, timeout=10.0)
+            _logger.info('开始解析经营分析信息: {}, 获取数据耗时: {}'.format(stock_id.symbol, time.time() - start_time))
             result = res.json().get('zygcfx')
             all_data = []
             if not result:
@@ -789,7 +797,7 @@ class FinanceStockBasic(models.Model):
             for business_data in result:
                 secucode = business_data.get('SECUCODE')
                 report_date = business_data.get('REPORT_DATE')
-                if all_business_ids.filtered(lambda x: x.secucode == secucode and x.report_date == report_date):
+                if stock_business_ids.filtered(lambda x: x.report_date == report_date):
                     continue
                 tmp = {
                     'business_json': json.dumps(business_data),
@@ -808,7 +816,7 @@ class FinanceStockBasic(models.Model):
                     'secucode': secucode,
                 }
                 all_data.append((0, 0, tmp))
-            stock_id.write({
+            stock_id.with_delay().write({
                 'business_ids': all_data
             })
 

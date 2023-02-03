@@ -1,6 +1,65 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
     <data>
+        <record id="view_finance_stock_analyse_form" model="ir.ui.view">
+            <field name="name">finance.stock.analyse form</field>
+            <field name="model">finance.stock.analyse</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="secucode"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="stock_id"/>
+                                <field name="survey_id"/>
+                                <field name="main_id"/>
+                                <field name="lrb_id"/>
+                                <field name="zcfzb_id"/>
+                                <field name="report_id"/>
+                            </group>
+                            <group>
+                                <field name="security_code"/>
+                                <field name="report_date"/>
+                                <field name="business_ids" widget="many2many_tags"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="xsjll"/>
+                                <field name="xsmll"/>
+                                <field name="values"/>
+                                <field name="total_value"/>
+                                <field name="f84"/>
+                                <field name="f85"/>
+                                <field name="total_operate_rece"/>
+                                <field name="trade_ratio"/>
+                                <field name="roe_jq"/>
+                                <field name="zcfzl"/>
+                                <field name="mbi_ratio"/>
+                                <field name="total_equity"/>
+                            </group>
+                            <group>
+                                <field name="total_current_liab"/>
+                                <field name="interest_expense"/>
+                                <field name="continued_netprofit"/>
+                                <field name="basic_eps"/>
+                                <field name="chzzl"/>
+                                <field name="emp_num"/>
+                                <field name="peg_car"/>
+                                <field name="pb_mrq"/>
+                                <field name="pcf_ocf_tim"/>
+                                <field name="industry_csrc"/>
+                                <field name="hypm"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
         <record id="view_finance_stock_analyse_tree" model="ir.ui.view">
             <field name="name">finance.stock.analyse tree</field>
             <field name="model">finance.stock.analyse</field>
