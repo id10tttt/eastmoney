@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <menuitem id="mine_sweep_menu_root" name="扫雷" sequence="6"
+                  web_icon="finance_interface,static/description/icon.png"/>
+    </data>
+</odoo>

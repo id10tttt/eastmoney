@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from . import finance_stock
+from . import finance_mine_type
 from . import stock_zcfzb
 from . import finance_stock_analyse
 from . import finance_stock_report

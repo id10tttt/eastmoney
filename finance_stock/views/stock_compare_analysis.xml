@@ -13,23 +13,39 @@
                         <group>
                             <group>
                                 <field name="name"/>
+                                <field name="value_type"/>
+                                <field name="uuid"/>
                             </group>
                             <group>
+                                <field name="type_id"/>
                                 <field name="usage"/>
                             </group>
                         </group>
                         <group>
                             <group>
-                                <field name="left_model_id"/>
-                                <field name="left_field_name" domain="[('model_id', '=', left_model_id)]"/>
-                                <field name="left_filter_field" domain="[('model_id', '=', left_model_id)]"/>
-                                <field name="left_domain"/>
+                                <field name="value_model_id" attrs="{'required': [('value_type', '!=', 'vs')]}"/>
                             </group>
                             <group>
-                                <field name="right_model_id"/>
-                                <field name="right_field_name" domain="[('model_id', '=', right_model_id)]"/>
-                                <field name="right_filter_field" domain="[('model_id', '=', right_model_id)]"/>
-                                <field name="right_domain"/>
+                                <field name="value_field_name"  domain="[('model_id', '=', value_model_id)]"
+                                       attrs="{'required': [('value_type', '!=', 'vs')]}"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="left_model_id" attrs="{'required': [('value_type', '=', 'vs')]}"/>
+                                <field name="left_field_name" domain="[('model_id', '=', left_model_id)]"
+                                       attrs="{'required': [('value_type', '=', 'vs')]}"/>
+                                <field name="left_filter_field" domain="[('model_id', '=', left_model_id)]"
+                                       attrs="{'required': [('value_type', '=', 'vs')]}"/>
+                                <field name="left_domain" attrs="{'required': [('value_type', '=', 'vs')]}"/>
+                            </group>
+                            <group>
+                                <field name="right_model_id" attrs="{'required': [('value_type', '=', 'vs')]}"/>
+                                <field name="right_field_name" domain="[('model_id', '=', right_model_id)]"
+                                       attrs="{'required': [('value_type', '=', 'vs')]}"/>
+                                <field name="right_filter_field" domain="[('model_id', '=', right_model_id)]"
+                                       attrs="{'required': [('value_type', '=', 'vs')]}"/>
+                                <field name="right_domain" attrs="{'required': [('value_type', '=', 'vs')]}"/>
                             </group>
                         </group>
                     </sheet>
@@ -43,6 +59,7 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="name"/>
+                    <field name="uuid"/>
                     <field name="left_model_id"/>
                     <field name="left_field_name"/>
                     <field name="left_filter_field"/>
@@ -50,6 +67,7 @@
                     <field name="right_field_name"/>
                     <field name="right_filter_field"/>
                     <field name="usage"/>
+                    <field name="type_id"/>
                 </tree>
             </field>
         </record>

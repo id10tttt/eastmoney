@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="wx_config_data_finance" model="wx.config">
+            <field name="app_id">xxxxxxxxxxxxxxxx</field>
+            <field name="secret">xxxxxxxxxxxxxxxxxxxxxx</field>
+            <field name="mall_name">扫雷</field>
+            <field name="sub_domain">mine</field>
+            <field name="team_id" ref="crm_team_data_mine"/>
+        </record>
+    </data>
+</odoo>

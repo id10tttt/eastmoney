@@ -341,6 +341,7 @@
             <field name="view_mode">tree,form</field>
         </record>
         <menuitem id="menu_finance_stock_root"
+                  web_icon="finance_stock,static/description/icon.png"
                   name="股票分析"
                   sequence="1"/>
         <menuitem id="menu_finance_stock_base"

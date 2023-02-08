@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_finance_mine_type_form" model="ir.ui.view">
+            <field name="name">finance.mine.type form</field>
+            <field name="model">finance.mine.type</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="view_finance_mine_type_tree" model="ir.ui.view">
+            <field name="name">finance.mine.type tree</field>
+            <field name="model">finance.mine.type</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record id="action_finance_mine_type" model="ir.actions.act_window">
+            <field name="name">雷区类别</field>
+            <field name="res_model">finance.mine.type</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem id="menu_finance_mine_type"
+                  name="雷区类别"
+                  action="action_finance_mine_type"
+                  parent="menu_finance_stock_settings_root"
+                  sequence="2"/>
+    </data>
+</odoo>
