@@ -441,8 +441,17 @@ class FinanceStockBasic(models.Model):
             all_data.append(tmp_data)
         self.create(all_data)
 
+    def hook_process_link_basic_company(self):
+        company_ids = self.env['finance.stock.company'].search([('ts_code', 'in', self.mapped('ts_code'))])
+        for stock_id in self:
+            company_id = company_ids.filtered(lambda x: x.ts_code == stock_id.ts_code)
+            if company_id:
+                _logger.info('link: {}'.format(stock_id.ts_code))
+                stock_id.stock_company_id = company_id.id
+
     def cron_sync_company_data(self):
         res = self.env['finance.stock.basic'].search([('stock_company_id', '=', False)], limit=8)
+        res.hook_process_link_basic_company()
         res.get_update_company_data()
 
     def get_update_company_data(self):
@@ -456,8 +465,11 @@ class FinanceStockBasic(models.Model):
                             "reg_capital", "setup_date", "province", "city", "website", "email",
                             "employees", "office", "ann_date", "business_scope", "main_business", "introduction"]
         ts_pro = ts.pro_api(TS_TOKEN)
+        company_ids = self.env['finance.stock.company'].search([('ts_code', 'in', self.mapped('ts_code'))])
         for stock_id in self:
             _logger.info('获取上市公司信息: {}'.format(stock_id.symbol))
+            if company_ids.filtered(lambda x: x.ts_code == stock_id.ts_code):
+                continue
             try:
                 df = ts_pro.stock_company(**{
                     "ts_code": stock_id.ts_code,
@@ -592,7 +604,7 @@ class FinanceStockBasic(models.Model):
             if not data:
                 continue
             all_data = []
-            stock_zcfzb = all_zcfzb.filtered(lambda x: x.stock_id == stock_id.id)
+            stock_zcfzb = all_zcfzb.filtered(lambda x: x.stock_id.id == stock_id.id)
             for line_data in data:
                 secucode = line_data.get('SECUCODE')
                 report_date = line_data.get('REPORT_DATE')
