@@ -1,8 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-finance_interface.access_wx_user,access_wx_user,finance_interface.model_wx_user,base.group_user,1,1,1,1
-finance_interface.access_wx_access_token,access_wx_access_token,finance_interface.model_wx_access_token,base.group_user,1,1,1,1
-finance_interface.access_wx_payment,access_wx_payment,finance_interface.model_wx_payment,base.group_user,1,1,1,1
-finance_interface.access_wx_config,access_wx_config,finance_interface.model_wx_config,base.group_user,1,1,1,1
-finance_interface.access_wx_confirm,access_wx_confirm,finance_interface.model_wx_confirm,base.group_user,1,1,1,1
-finance_interface.access_wx_subscribe,access_wx_subscribe,finance_interface.model_wx_subscribe,base.group_user,1,1,1,1
-finance_interface.access_wx_subscribe_order,access_wx_subscribe_order,finance_interface.model_wx_subscribe_order,base.group_user,1,0,0,0
+finance_interface.access_wxa_user,access_wxa_user,finance_interface.model_wxa_user,base.group_user,1,1,1,1
+finance_interface.access_wxa_payment,access_wxa_payment,finance_interface.model_wxa_payment,base.group_user,1,1,1,1
+finance_interface.access_wxa_subscribe,access_wxa_subscribe,finance_interface.model_wxa_subscribe,base.group_user,1,1,1,1
+finance_interface.access_wxa_subscribe_order,access_wxa_subscribe_order,finance_interface.model_wxa_subscribe_order,base.group_user,1,0,0,0

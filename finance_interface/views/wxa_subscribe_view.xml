@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="wxa_subscribe_order_view_form" model="ir.ui.view">
+            <field name="name">wxa.subscribe.order.view_form</field>
+            <field name="model">wxa.subscribe.order</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form create="0" edit="0" delete="0" import="0">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="wechat_user_id"/>
+                                <field name="subscribe_id"/>
+
+                            </group>
+                            <group>
+                                <field name="price_total"/>
+                                <field name="payment_id"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="start_date"/>
+                                <field name="end_date"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="wxa_subscribe_order_view_tree" model="ir.ui.view">
+            <field name="name">wxa.subscribe.view_tree</field>
+            <field name="model">wxa.subscribe.order</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="订阅" create="0" edit="0" delete="0" import="0">
+                    <field name="wechat_user_id"/>
+                    <field name="subscribe_id"/>
+                    <field name="price_total"/>
+                    <field name="payment_id"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                </tree>
+            </field>
+        </record>
+        <record id="wxa_subscribe_view_form" model="ir.ui.view">
+            <field name="name">wxa.subscribe.view_form</field>
+            <field name="model">wxa.subscribe</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="type"/>
+                                <field name="uuid"/>
+                            </group>
+                            <group>
+                                <field name="price_total"/>
+                                <field name="duration_time"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="allow_analysis_ids"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="wxa_subscribe_view_tree" model="ir.ui.view">
+            <field name="name">wxa.subscribe.view_tree</field>
+            <field name="model">wxa.subscribe</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="订阅设置">
+                    <field name="name"/>
+                    <field name="type"/>
+                    <field name="uuid"/>
+                    <field name="price_total"/>
+                    <field name="duration_time"/>
+                </tree>
+            </field>
+        </record>
+        <record id="wxa_subscribe_order_action" model="ir.actions.act_window">
+            <field name="name">订阅</field>
+            <field name="res_model">wxa.subscribe.order</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record id="wxa_subscribe_action" model="ir.actions.act_window">
+            <field name="name">订阅设置</field>
+            <field name="res_model">wxa.subscribe</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem action="wxa_subscribe_order_action" id="wx_subscribe_order_root" name="订阅"
+                  parent="finance_api_menu_root" sequence="18"/>
+        <menuitem action="wxa_subscribe_action" id="wx_subscribe_root" name="订阅设置"
+                  parent="finance_api_menu_root" sequence="20"/>
+    </data>
+</odoo>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="wxa_user_view_tree_view" model="ir.ui.view">
+            <field name="name">wxa.user.view_tree</field>
+            <field name="model">wxa.user</field>
+            <field name="type">tree</field>
+            <field name="priority">999</field>
+            <field name="arch" type="xml">
+                <tree string="微信小程序用户" create="0" edit="0" delete="0">
+
+                    <field name="real_name"/>
+                    <field name="nickname"/>
+                    <field name="avatar"/>
+                    <field name="phone"/>
+
+                    <field name="province"/>
+                    <field name="city"/>
+                    <field name="gender"/>
+
+                    <field name="create_date" string="注册时间"/>
+                    <field name="last_login"/>
+                    <field name="status"/>
+
+                    <field name="register_type"/>
+                </tree>
+            </field>
+        </record>
+        <record id="wxa_user_view_form_view" model="ir.ui.view">
+            <field name="name">wxa.user.view_form</field>
+            <field name="model">wxa.user</field>
+            <field name="type">form</field>
+            <field name="priority">999</field>
+            <field name="arch" type="xml">
+                <form string="微信小程序客户" create="0" delete="0">
+                    <header>
+                        <button name="change_access_token" string="更改Token" type="object" class="oe_highlight"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="nickname" readonly="1"/>
+                                <field name="avatar" readonly="1"/>
+                                <field name="phone" readonly="1"/>
+
+                                <field name="country" readonly="1"/>
+                                <field name="province" readonly="1"/>
+                                <field name="city" readonly="1"/>
+                                <field name="language" readonly="1"/>
+                                <field name="gender" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="open_id" readonly="1"/>
+                                <field name="union_id" readonly="1"/>
+                                <field name="create_date" string="注册时间" readonly="1"/>
+                                <field name="last_login" readonly="1"/>
+                                <field name="status" readonly="1"/>
+
+                                <field name="register_type" readonly="1"/>
+                                <field name="register_ip" readonly="1"/>
+                                <field name="ip" readonly="1"/>
+                            </group>
+                        </group>
+                        <group string="API相关设置">
+                            <group>
+                                <field name="forbidden_user"/>
+                            </group>
+                            <group>
+                                <field name="real_name"/>
+                                <field name="user_uuid" readonly="1"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="wxa_user_filter" model="ir.ui.view">
+            <field name="name">wxa_user_filter</field>
+            <field name="model">wxa.user</field>
+            <field name="type">search</field>
+            <field name="arch" type="xml">
+                <search string="查找">
+                    <field name="nickname" string="昵称"/>
+                </search>
+            </field>
+        </record>
+        <record id="wxa_user_action" model="ir.actions.act_window">
+            <field name="name">微信小程序用户</field>
+            <field name="res_model">wxa.user</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem action="wxa_user_action" id="wxa_user_menu_item" name="微信小程序用户"
+                  parent="finance_api_menu_root" sequence="1"/>
+
+    </data>
+</odoo>
