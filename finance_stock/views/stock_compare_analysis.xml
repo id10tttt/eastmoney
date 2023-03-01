@@ -82,12 +82,12 @@
             </field>
         </record>
         <record id="action_finance_stock_compare_analysis" model="ir.actions.act_window">
-            <field name="name">雷区定义</field>
+            <field name="name">比较规则</field>
             <field name="res_model">stock.compare.analysis</field>
             <field name="view_mode">tree,form</field>
         </record>
         <menuitem id="menu_finance_stock_compare_analysis"
-                  name="雷区定义"
+                  name="比较规则"
                   action="action_finance_stock_compare_analysis"
                   parent="menu_finance_stock_mine_sweep"
                   sequence="10"/>

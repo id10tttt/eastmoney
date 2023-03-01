@@ -24,12 +24,12 @@
             </field>
         </record>
         <record id="action_finance_mine_type" model="ir.actions.act_window">
-            <field name="name">雷区类别</field>
+            <field name="name">比较组</field>
             <field name="res_model">finance.mine.type</field>
             <field name="view_mode">tree,form</field>
         </record>
         <menuitem id="menu_finance_mine_type"
-                  name="雷区类别"
+                  name="比较组"
                   action="action_finance_mine_type"
                   parent="menu_finance_stock_settings_root"
                   sequence="2"/>
