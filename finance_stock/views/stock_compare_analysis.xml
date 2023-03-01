@@ -22,7 +22,12 @@
                             </group>
                         </group>
                         <group>
-                            <field name="benchmark"/>
+                            <group>
+                                <field name="inequality_operator"/>
+                            </group>
+                            <group>
+                                <field name="benchmark"/>
+                            </group>
                         </group>
                         <group string="取值" attrs="{'invisible': [('value_type', '=', 'vs')]}">
                             <group>
