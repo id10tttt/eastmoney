@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_finance_stock_fiscal_data_form" model="ir.ui.view">
+            <field name="name">finance.fiscal.data form</field>
+            <field name="model">finance.fiscal.data</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="stock_id"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="per_share"/>
+                                <field name="per_share_mm_ratio"/>
+                                <field name="per_share_speed"/>
+                            </group>
+                            <group>
+                                <field name="operate_revenue"/>
+                                <field name="operate_revenue_mm_ratio"/>
+                                <field name="operate_revenue_speed"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="roe"/>
+                                <field name="roe_mm_ratio"/>
+                                <field name="roe_speed"/>
+                            </group>
+                            <group>
+                                <field name="operate_cash_flow"/>
+                                <field name="net_working_capital"/>
+                                <field name="revenue_quality"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="accounts_receivable"/>
+                                <field name="accounts_receivable_mm_ratio"/>
+                                <field name="accounts_receivable_speed"/>
+                                <field name="peg"/>
+                                <field name="gw_netast_rat"/>
+                                <field name="net_asset_ratio"/>
+                                <field name="employee"/>
+                                <field name="operate_revenue_per"/>
+                            </group>
+                            <group>
+                                <field name="total_share_capital"/>
+                                <field name="pcf_ocf_tim"/>
+                                <field name="pb_mrq"/>
+                                <field name="pe_ratio"/>
+                                <field name="trade_ratio"/>
+                                <field name="profit_margin"/>
+                                <field name="gross_profit_ratio"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="inventory_turnover"/>
+                                <field name="net_asset"/>
+                            </group>
+                            <group>
+                                <field name="sign"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="view_finance_stock_fiscal_data_tree" model="ir.ui.view">
+            <field name="name">finance.fiscal.data tree</field>
+            <field name="model">finance.fiscal.data</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="stock_id"/>
+                    <field name="per_share"/>
+                    <field name="per_share_mm_ratio"/>
+                    <field name="per_share_speed"/>
+                    <field name="operate_revenue"/>
+                    <field name="operate_revenue_mm_ratio"/>
+                    <field name="operate_revenue_speed"/>
+                    <field name="roe"/>
+                    <field name="roe_mm_ratio"/>
+                    <field name="roe_speed"/>
+                    <field name="operate_cash_flow"/>
+                    <field name="net_working_capital"/>
+                    <field name="revenue_quality"/>
+                    <field name="accounts_receivable" optional="hide"/>
+                    <field name="accounts_receivable_mm_ratio" optional="hide"/>
+                    <field name="accounts_receivable_speed" optional="hide"/>
+                    <field name="peg" optional="hide"/>
+                    <field name="gw_netast_rat" optional="hide"/>
+                    <field name="net_asset_ratio" optional="hide"/>
+                    <field name="employee" optional="hide"/>
+                    <field name="operate_revenue_per" optional="hide"/>
+                    <field name="total_share_capital" optional="hide"/>
+                    <field name="pcf_ocf_tim" optional="hide"/>
+                    <field name="pb_mrq" optional="hide"/>
+                    <field name="pe_ratio" optional="hide"/>
+                    <field name="trade_ratio" optional="hide"/>
+                    <field name="profit_margin" optional="hide"/>
+                    <field name="gross_profit_ratio" optional="hide"/>
+                </tree>
+            </field>
+        </record>
+        <record id="action_finance_stock_fiscal_data" model="ir.actions.act_window">
+            <field name="name">处理后财务信息</field>
+            <field name="res_model">finance.fiscal.data</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem id="menu_finance_stock_fiscal_data"
+                  name="处理后财务信息"
+                  action="action_finance_stock_fiscal_data"
+                  parent="menu_finance_stock_fiscal_data_menu"
+                  sequence="2"/>
+    </data>
+</odoo>

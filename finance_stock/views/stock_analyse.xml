@@ -102,7 +102,7 @@
         <menuitem id="menu_finance_stock_analyse"
                   name="报表"
                   action="action_finance_stock_analyse"
-                  parent="menu_finance_stock_root"
-                  sequence="7"/>
+                  parent="menu_finance_stock_fiscal_data_menu"
+                  sequence="1"/>
     </data>
 </odoo>

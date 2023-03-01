@@ -14,3 +14,4 @@ finance_stock.access_finance_mine_type,access_finance_mine_type,finance_stock.mo
 finance_stock.access_finance_company_event,access_finance_company_event,finance_stock.model_finance_company_event,base.group_user,1,1,1,1
 finance_stock.access_finance_check_list,access_finance_check_list,finance_stock.model_finance_check_list,base.group_user,1,1,1,1
 finance_stock.access_finance_event_type,access_finance_event_type,finance_stock.model_finance_event_type,base.group_user,1,1,1,1
+finance_stock.access_finance_fiscal_data,access_finance_fiscal_data,finance_stock.model_finance_fiscal_data,base.group_user,1,1,1,1

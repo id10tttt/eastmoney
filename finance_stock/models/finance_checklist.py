@@ -21,4 +21,8 @@ class FinanceCheckList(models.Model):
     event_type = fields.Many2one('finance.event.type', '事件类型')
     event_date = fields.Date('事件日期')
     updated_date = fields.Date('更新日期')
-    sign = fields.Char('签名')
+    sign = fields.Selection([
+        ('thunder', '雷🌩️'),
+        ('bad', '阴☁️'),
+        ('good', '阳🌞')
+    ], string='迹象')

@@ -10,3 +10,4 @@ from . import res_config_settings
 from . import stock_compare_analysis
 from . import finance_company_event
 from . import finance_checklist
+from . import finance_fiscal_data

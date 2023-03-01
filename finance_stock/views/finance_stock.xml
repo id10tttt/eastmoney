@@ -358,6 +358,10 @@
                   name="公司财务数据"
                   parent="menu_finance_stock_root"
                   sequence="3"/>
+        <menuitem id="menu_finance_stock_fiscal_data_menu"
+                  name="财务信息"
+                  parent="menu_finance_stock_root"
+                  sequence="4"/>
         <menuitem id="menu_finance_stock_mine_sweep"
                   name="避雷针"
                   parent="menu_finance_stock_root"
