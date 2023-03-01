@@ -31,7 +31,7 @@
         <menuitem id="menu_finance_stock_report"
                   name="业绩报表"
                   action="action_finance_stock_report"
-                  parent="menu_finance_stock_root"
-                  sequence="5"/>
+                  parent="menu_finance_stock_menu"
+                  sequence="3"/>
     </data>
 </odoo>

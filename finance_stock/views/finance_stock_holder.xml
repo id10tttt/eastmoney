@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_finance_stock_holder_tree" model="ir.ui.view">
+            <field name="name">finance.stock.holder tree</field>
+            <field name="model">finance.stock.holder</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="stock_id"/>
+                    <field name="ts_code"/>
+                    <field name="security_code"/>
+                    <field name="org_name"/>
+                    <field name="report_date"/>
+                    <field name="rate"/>
+                </tree>
+            </field>
+        </record>
+        <record id="action_finance_stock_holder" model="ir.actions.act_window">
+            <field name="name">基金机构</field>
+            <field name="res_model">finance.stock.holder</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem id="menu_finance_stock_holder"
+                  name="基金机构"
+                  action="action_finance_stock_holder"
+                  parent="menu_finance_stock_menu"
+                  sequence="6"/>
+    </data>
+</odoo>

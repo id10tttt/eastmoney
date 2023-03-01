@@ -19,8 +19,13 @@
         'views/stock_report.xml',
         'views/stock_business.xml',
         'views/stock_analyse.xml',
+        'views/finance_stock_holder.xml',
+        'views/stock_lrb.xml',
         'views/finance_settings.xml',
         'views/stock_compare_analysis.xml',
         'views/mine_type.xml',
+        'views/finance_company_event.xml',
+        'views/finance_checklist.xml',
+        'views/finance_event_type.xml',
     ],
 }

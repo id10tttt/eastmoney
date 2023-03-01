@@ -94,7 +94,7 @@
         <menuitem id="menu_finance_stock_main_data"
                   name="主要指标"
                   action="action_finance_stock_main_data"
-                  parent="menu_finance_stock_root"
-                  sequence="3"/>
+                  parent="menu_finance_stock_menu"
+                  sequence="1"/>
     </data>
 </odoo>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_finance_event_type_form" model="ir.ui.view">
+            <field name="name">finance.event.type form</field>
+            <field name="model">finance.event.type</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                            </group>
+                            <group>
+                                <field name="description"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_finance_event_type_tree" model="ir.ui.view">
+            <field name="name">finance.event.type tree</field>
+            <field name="model">finance.event.type</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="description"/>
+                </tree>
+            </field>
+        </record>
+        <record id="action_finance_event_type" model="ir.actions.act_window">
+            <field name="name">事件类型</field>
+            <field name="res_model">finance.event.type</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem id="menu_finance_event_type"
+                  name="事件类型"
+                  action="action_finance_event_type"
+                  parent="menu_finance_stock_settings_root"
+                  sequence="3"/>
+    </data>
+</odoo>

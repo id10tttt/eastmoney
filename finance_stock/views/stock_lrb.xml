@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_finance_stock_lrb_tree" model="ir.ui.view">
+            <field name="name">finance.stock.lrb tree</field>
+            <field name="model">finance.stock.lrb</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="stock_id"/>
+                    <field name="secucode"/>
+                    <field name="security_code"/>
+                    <field name="security_name_abbr"/>
+                    <field name="org_code"/>
+                    <field name="org_type"/>
+                    <field name="report_date"/>
+                    <field name="report_type"/>
+                    <field name="continued_netprofit"/>
+                    <field name="interest_expense"/>
+                </tree>
+            </field>
+        </record>
+        <record id="action_finance_stock_lrb" model="ir.actions.act_window">
+            <field name="name">利润表</field>
+            <field name="res_model">finance.stock.lrb</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem id="menu_finance_stock_lrb"
+                  name="利润表"
+                  action="action_finance_stock_lrb"
+                  parent="menu_finance_stock_menu"
+                  sequence="5"/>
+    </data>
+</odoo>

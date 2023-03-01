@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_finance_stock_checklist_form" model="ir.ui.view">
+            <field name="name">finance.check.list form</field>
+            <field name="model">finance.check.list</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="event_id"/>
+                                <field name="event_data"/>
+                                <field name="stock_id"/>
+
+                            </group>
+                            <group>
+                                <field name="event_type"/>
+                                <field name="event_date"/>
+                                <field name="updated_date"/>
+                                <field name="sign"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_finance_stock_checklist_tree" model="ir.ui.view">
+            <field name="name">finance.check.list tree</field>
+            <field name="model">finance.check.list</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="event_id"/>
+                    <field name="event_data"/>
+                    <field name="stock_id"/>
+                    <field name="event_type"/>
+                    <field name="event_date"/>
+                    <field name="updated_date"/>
+                </tree>
+            </field>
+        </record>
+        <record id="action_finance_stock_checklist" model="ir.actions.act_window">
+            <field name="name">检测清单</field>
+            <field name="res_model">finance.check.list</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem id="menu_finance_checklist"
+                  name="检测清单"
+                  action="action_finance_stock_checklist"
+                  parent="menu_finance_stock_mine_sweep"
+                  sequence="2"/>
+    </data>
+</odoo>

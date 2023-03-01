@@ -2,6 +2,8 @@
 from odoo import models, fields
 import requests
 from random import choice
+from odoo.tools import ormcache
+from itertools import groupby
 import json
 import time
 import datetime
@@ -40,6 +42,12 @@ USER_AGENT = [
 
 headers = {
     'User-Agent': choice(USER_AGENT)
+}
+
+STOCK_DICT = {
+    'SSE': '上交所',
+    'SZSE': '深交所',
+    'OTHER': '其它'
 }
 
 
@@ -149,6 +157,30 @@ class FinanceStockBasic(models.Model):
 
     law_case = fields.Char('诉讼仲裁')
     mine_json = fields.Char('MINE SWEEP JSON')
+
+    @ormcache('exchange')
+    def get_finance_basic_value(self, exchange):
+        stock_data = self.env['finance.stock.basic'].sudo().search_read(
+            domain=[('exchange', '=', exchange)],
+            fields=['ts_code', 'symbol', 'name', 'exchange', 'id'],
+            limit=100
+        )
+        group_by_result = {}
+        for exchange_key, y in groupby(stock_data, key=lambda x: x.get('exchange')):
+            if exchange_key in group_by_result.keys():
+                group_by_result.get(exchange_key).append(list(y))
+            else:
+                group_by_result[exchange_key] = list(y)
+
+        result = []
+        for group_by_key in group_by_result:
+            result.append({
+                'exchange': STOCK_DICT.get(group_by_key, '其它'),
+                'title': group_by_key,
+                'badgeProps': {},
+                'items': group_by_result.get(group_by_key)
+            })
+        return result
 
     def cron_fetch_mine_brief(self):
         res = self.env['finance.stock.basic'].search(['|', ('plge_rat', '=', False), ('pred_typ_name', '=', False)])

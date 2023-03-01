@@ -30,7 +30,7 @@
         <menuitem id="menu_finance_stock_business"
                   name="经营分析"
                   action="action_finance_stock_business"
-                  parent="menu_finance_stock_root"
-                  sequence="6"/>
+                  parent="menu_finance_stock_menu"
+                  sequence="4"/>
     </data>
 </odoo>
