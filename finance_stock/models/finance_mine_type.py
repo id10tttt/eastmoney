@@ -10,3 +10,4 @@ class FinanceMineType(models.Model):
     ]
 
     name = fields.Char('名称')
+    description = fields.Char('说明')
