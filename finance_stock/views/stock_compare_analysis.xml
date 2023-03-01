@@ -27,6 +27,8 @@
                             </group>
                             <group>
                                 <field name="benchmark"/>
+                                <field name="benchmark_between_right"
+                                       attrs="{'invisible': [('inequality_operator', '!=', 'between')], 'required': [('inequality_operator', '=', 'between')]}"/>
                             </group>
                         </group>
                         <group string="取值" attrs="{'invisible': [('value_type', '=', 'vs')]}">

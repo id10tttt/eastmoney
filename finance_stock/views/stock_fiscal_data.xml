@@ -10,6 +10,10 @@
                         <group>
                             <group>
                                 <field name="stock_id"/>
+                                <field name="report_date"/>
+                            </group>
+                            <group>
+                                <field name="period_type"/>
                             </group>
                         </group>
                         <group>

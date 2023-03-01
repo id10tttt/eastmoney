@@ -22,9 +22,11 @@ class StockCompareAnalysis(models.Model):
         ('<', '小于'),
         ('=', '等于'),
         ('>=', '大于等于'),
-        ('<=', '小于等于')
+        ('<=', '小于等于'),
+        ('between', '介于')
     ], string='比较', required=True)
     benchmark = fields.Float('Benchmark', required=True)
+    benchmark_between_right = fields.Float('Benchmark')
 
     value_model_id = fields.Many2one('ir.model', string='取值表', ondelete='cascade')
     value_field_name = fields.Many2one('ir.model.fields', string='取值字段', ondelete='cascade')

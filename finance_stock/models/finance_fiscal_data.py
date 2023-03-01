@@ -6,6 +6,14 @@ class FinanceFiscalData(models.Model):
     _name = 'finance.fiscal.data'
     _description = 'table: fiscal_data处理后的财务信息'
 
+    report_date = fields.Datetime('日期', index=True)
+    period_type = fields.Selection([
+        ('year', '年'),
+        ('quarter', '季度'),
+        ('month', '月份'),
+        ('other', '其它')
+    ], default='quarter', string='日期类型', index=True)
+
     stock_id = fields.Many2one('finance.stock.basic', index=True)
     per_share = fields.Float(u'每股收益')
     per_share_mm_ratio = fields.Float('每股收益环比', help='环比上个财务期间，例如本年Q1环比去年Q1')
