@@ -87,13 +87,13 @@ class FinanceMineSweep(http.Controller, BaseController):
             }
             return self.response_json_success(result)
         result = {
-            'peg': stock_id.peg_car,
-            'plge': stock_id.plge_rat,
-            'plge_freeze': stock_id.plge_shr,
-            'restricted': stock_id.restricted_json,
-            'shr_red': stock_id.shr_red_json,
-            'gw_netast': stock_id.gw_netast_rat,
-            'options': stock_id.options_rslt,
+            'peg': stock_id.peg_car or '暂无',
+            'plge': stock_id.plge_rat or '暂无',
+            'plge_freeze': stock_id.plge_shr or '暂无',
+            'restricted': stock_id.restricted_json or '暂无',
+            'shr_red': stock_id.shr_red_json or '暂无',
+            'gw_netast': stock_id.gw_netast_rat or '暂无',
+            'options': stock_id.options_rslt or '暂无',
             'law_case': stock_id.law_case or 0
         }
         return self.response_json_success(result)
