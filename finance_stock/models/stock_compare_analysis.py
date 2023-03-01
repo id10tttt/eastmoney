@@ -16,10 +16,11 @@ class StockCompareAnalysis(models.Model):
         ('value', u'取值'),
         ('vs', u'比较'),
         ('other', u'其它')
-    ], string='取值类别', default='vs')
+    ], string='取值类别', default='value')
     benchmark = fields.Float('Benchmark')
     value_model_id = fields.Many2one('ir.model', string='取值表', ondelete='cascade')
     value_field_name = fields.Many2one('ir.model.fields', string='取值字段', ondelete='cascade')
+    value_model_domain = fields.Char(string='取值WHERE')
 
     left_model_id = fields.Many2one('ir.model', string='表', required=False, ondelete='cascade')
     left_field_name = fields.Many2one('ir.model.fields', string='字段', required=False, ondelete='cascade')
