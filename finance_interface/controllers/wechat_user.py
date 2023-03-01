@@ -161,7 +161,7 @@ class WeChatUser(http.Controller, BaseController):
 
     @http.route('/api/wechat/mini/vip/check', auth='public', methods=['POST'], csrf=True, cors="*", type='json')
     @verify_auth_token()
-    def check_user_token(self):
+    def check_user_is_vip(self):
         payload_data = json.loads(request.httprequest.data)
 
         user_vip = request.env['wxa.subscribe.order'].sudo().wx_user_is_vip(request.wxa_uid)
