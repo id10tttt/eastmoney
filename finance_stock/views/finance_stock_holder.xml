@@ -24,6 +24,6 @@
                   name="基金机构"
                   action="action_finance_stock_holder"
                   parent="menu_finance_stock_menu"
-                  sequence="6"/>
+                  sequence="10"/>
     </data>
 </odoo>

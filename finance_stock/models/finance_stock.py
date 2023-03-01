@@ -124,13 +124,9 @@ class FinanceStockBasic(models.Model):
     zcfzb_ids = fields.One2many('finance.stock.zcfzb', 'stock_id', string='资产负债表明细行')
     report_ids = fields.One2many('finance.stock.report', 'stock_id', string='业绩报表')
     lrb_ids = fields.One2many('finance.stock.lrb', 'stock_id', string='利润表')
+    xjllb_ids = fields.One2many('finance.stock.xjllb', 'stock_id', string='现金流量表')
     business_ids = fields.One2many('finance.stock.business', 'stock_id', string='主营构成分析')
     holder_ids = fields.One2many('finance.stock.holder', 'stock_id', string='基金机构')
-    # zcfzb_sync_status = fields.Boolean('资产负债表同步')
-    # report_sync_status = fields.Boolean('业绩报表同步')
-    # lrb_sync_status = fields.Boolean('')
-    # business_sync_status = fields.Boolean('')
-    # holder_sync_status = fields.Boolean('')
 
     plge_rat = fields.Char('质押比例')
     blt_hld_rat = fields.Char('合计持股比')
@@ -280,6 +276,37 @@ class FinanceStockBasic(models.Model):
             else:
                 search_period += [f'{search_year}-03-31 00:00:00', f'{search_year}-06-30 00:00:00',
                                   f'{search_year}-09-30 00:00:00', f'{search_year}-12-31 00:00:00']
+        return search_period
+
+    def get_default_period_date(self, all_period=False):
+        """
+        获取两年的所有期间
+        """
+        search_today = datetime.date.today()
+        search_month = search_today.month
+        search_year = search_today.year
+        search_year = int(search_year)
+        search_month = int(search_month)
+        search_period = []
+        for x in range(search_year - 1, search_year):
+            search_period += [f'{x}-03-31', f'{x}-06-30', f'{x}-09-30',
+                              f'{x}-12-31']
+        if all_period:
+            search_period += [f'{search_year}-03-31', f'{search_year}-06-30',
+                              f'{search_year}-09-30', f'{search_year}-12-31']
+        else:
+            if search_month < 3:
+                search_period += [f'{search_year}-03-31']
+            elif 3 <= search_month < 6:
+                search_period += [f'{search_year}-03-31']
+            elif 6 <= search_month < 9:
+                search_period += [f'{search_year}-03-31', f'{search_year}-06-30']
+            elif 9 <= search_month < 12:
+                search_period += [f'{search_year}-03-31', f'{search_year}-06-30',
+                                  f'{search_year}-09-30']
+            else:
+                search_period += [f'{search_year}-03-31', f'{search_year}-06-30',
+                                  f'{search_year}-09-30', f'{search_year}-12-31']
         return search_period
 
     def cron_fetch_holder(self):
@@ -625,7 +652,8 @@ class FinanceStockBasic(models.Model):
         资产负债表
         """
 
-        query_dates = '2022-09-30,2022-06-30,2022-03-31,2021-12-31,2021-09-30'
+        query_dates = self.get_default_period_date()
+        query_dates = ','.join(str(x) for x in query_dates)
         all_zcfzb = self.env['finance.stock.zcfzb'].search([])
         for stock_id in self:
             _logger.info('获取资产负债表信息: {}'.format(stock_id.symbol))
@@ -761,17 +789,77 @@ class FinanceStockBasic(models.Model):
             return self.fetch_lrb_data(query_dates, security_code, default_company_type=3, retry=True)
         return res
 
+    def fetch_xjllb_data(self, query_dates, security_code, default_company_type=4, retry=False):
+        finance_xjllb_url = 'https://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/xjllbAjaxNew'
+        payloads = {
+            'companyType': default_company_type,
+            'reportDateType': 0,
+            'reportType': 1,
+            'dates': query_dates,
+            'code': security_code,
+        }
+        res = requests.get(finance_xjllb_url, params=payloads, headers=headers)
+        data = res.json().get('data')
+        if not data and not retry:
+            return self.fetch_xjllb_data(query_dates, security_code, default_company_type=3, retry=True)
+        return res
+
     def cron_fetch_lrb(self):
         res = self.env['finance.stock.basic'].search([('lrb_ids', '=', False)])
         for x in res:
             x.with_delay().get_lrb_data()
         # res.get_lrb_data()
 
+    def cron_fetch_xjllb(self):
+        res = self.env['finance.stock.basic'].search([('xjllb_ids', '=', False)])
+        for x in res:
+            x.with_delay().get_xjllb_data()
+        # res.get_lrb_data()
+
+    def get_xjllb_data(self):
+        """
+            现金流量表
+        """
+        query_dates = self.get_default_period_date()
+        query_dates = ','.join(str(x) for x in query_dates)
+        all_xjllb = self.env['finance.stock.xjllb'].search([('stock_id', 'in', self.ids)])
+        for stock_id in self:
+            stock_xjllb_id = all_xjllb.filtered(lambda x: x.stock_id == stock_id.id)
+            _logger.info('获取现金流量表信息: {}'.format(stock_id.symbol))
+            security_code, sec_id = self.get_security_code(stock_id.symbol)
+            res = self.fetch_xjllb_data(query_dates, security_code)
+
+            data = res.json().get('data')
+            if not data:
+                continue
+            all_data = []
+            if not data:
+                continue
+            for line_data in data:
+                secucode = line_data.get('SECUCODE')
+                report_date = line_data.get('REPORT_DATE')
+                if stock_xjllb_id.filtered(lambda x: x.report_date == report_date):
+                    continue
+                data = {
+                    'xjllb_json': json.dumps(line_data),
+                    'secucode': secucode,
+                    'security_code': line_data.get('SECURITY_CODE'),
+                    'operate_in_flow': line_data.get('TOTAL_OPERATE_INFLOW'),
+                    'operate_out_flow': line_data.get('TOTAL_OPERATE_OUTFLOW'),
+                    'report_date': report_date,
+                    'report_type': line_data.get('REPORT_TYPE'),
+                }
+                all_data.append((0, 0, data))
+            stock_id.write({
+                'xjllb_ids': all_data
+            })
+
     def get_lrb_data(self):
         """
             利润表
         """
-        query_dates = '2022-09-30,2022-06-30,2022-03-31,2021-12-31,2021-09-30'
+        query_dates = self.get_default_period_date()
+        query_dates = ','.join(str(x) for x in query_dates)
         all_lrb = self.env['finance.stock.lrb'].search([('stock_id', 'in', self.ids)])
         for stock_id in self:
             stock_lrb_id = all_lrb.filtered(lambda x: x.stock_id == stock_id.id)

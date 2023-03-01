@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_finance_stock_xjllb_tree" model="ir.ui.view">
+            <field name="name">finance.stock.xjllb tree</field>
+            <field name="model">finance.stock.xjllb</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="stock_id"/>
+                    <field name="secucode"/>
+                    <field name="security_code"/>
+                    <field name="report_date"/>
+                    <field name="report_type"/>
+                </tree>
+            </field>
+        </record>
+        <record id="action_finance_stock_xjllb" model="ir.actions.act_window">
+            <field name="name">现金流量表</field>
+            <field name="res_model">finance.stock.xjllb</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem id="menu_finance_stock_xjllb"
+                  name="现金流量表"
+                  action="action_finance_stock_xjllb"
+                  parent="menu_finance_stock_menu"
+                  sequence="6"/>
+    </data>
+</odoo>

@@ -28,5 +28,6 @@
         'views/finance_checklist.xml',
         'views/finance_event_type.xml',
         'views/stock_fiscal_data.xml',
+        'views/finance_stock_xjllb.xml',
     ],
 }

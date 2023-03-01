@@ -87,6 +87,7 @@
                         <button name="get_zcfzb_data" string="资产负债表" type="object" class="oe_highlight"/>
                         <button name="get_rpt_lico_fn_cpd_data" string="业绩报表" type="object" class="oe_highlight"/>
                         <button name="get_lrb_data" string="利润表" type="object" class="oe_highlight"/>
+                        <button name="get_xjllb_data" string="现金流量表" type="object" class="oe_highlight"/>
                         <button name="get_business_analysis" string="经营分析" type="object" class="oe_highlight"/>
                         <button name="get_stock_info" string="其它信息" type="object"/>
                         <button name="get_east_money_peg_value" string="PEG" type="object"/>

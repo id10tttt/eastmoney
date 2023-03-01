@@ -6,13 +6,18 @@
             <field name="model">finance.fiscal.data</field>
             <field name="arch" type="xml">
                 <form>
+                    <header>
+                        <button name="update_fiscal_data" string="更新数据" type="object" class="oe_highlight"/>
+                    </header>
                     <sheet>
                         <group>
                             <group>
                                 <field name="stock_id"/>
-                                <field name="report_date"/>
+                                <field name="secucode"/>
+                                <field name="security_code"/>
                             </group>
                             <group>
+                                <field name="report_date"/>
                                 <field name="period_type"/>
                             </group>
                         </group>
@@ -79,7 +84,10 @@
             <field name="model">finance.fiscal.data</field>
             <field name="arch" type="xml">
                 <tree>
+                    <field name="secucode"/>
+                    <field name="security_code"/>
                     <field name="stock_id"/>
+                    <field name="report_date"/>
                     <field name="per_share"/>
                     <field name="per_share_mm_ratio"/>
                     <field name="per_share_speed"/>
