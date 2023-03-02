@@ -152,32 +152,16 @@ class FinanceFiscalData(models.Model):
             'period_type': 'quarter',
             # 每股收益
             'per_share': self.get_per_share_value(lrb_id),
-            # 每股收益环比
-            'per_share_mm_ratio': '',
-            # 每股收益增速
-            'per_share_speed': '',
             # 营业收入
             'operate_revenue': main_id.total_operate_reve,
-            # 营业收入环比
-            'operate_revenue_mm_ratio': '',
-            # 营业收入增速
-            'operate_revenue_speed': '',
             # ROE
             'roe': main_id.roejq,
-            # ROE环比
-            'roe_mm_ratio': '',
-            # ROE增速
-            'roe_speed': '',
             # 经营性现金流
             'operate_cash_flow': self.get_operate_cash_flow(xjllb_id),
             # 净运营资本
             'net_working_capital': '',
             # 应收账款
             'accounts_receivable': zcfzb_id.total_other_rece,
-            # 应收账款环比
-            'accounts_receivable_mm_ratio': '',
-            # 应收账款增速
-            'accounts_receivable_speed': '',
             # 收入质量
             'revenue_quality': '',
             # 总股本
