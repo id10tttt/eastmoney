@@ -165,6 +165,17 @@
         <field name="state">code</field>
         <field name="model_id" ref="model_finance_fiscal_data"/>
     </record>
+    <record id="ir_cron_sync_update_finance_fiscal_data" model="ir.cron">
+        <field name='name'>避雷针：更新-处理后财务信息</field>
+        <field name='interval_number'>5</field>
+        <field name='interval_type'>days</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="True"/>
+        <field name="doall" eval="False"/>
+        <field name="code">model.cron_update_fiscal_data()</field>
+        <field name="state">code</field>
+        <field name="model_id" ref="model_finance_fiscal_data"/>
+    </record>
     <record id="ir_cron_sync_finance_stock_mine_sweep" model="ir.cron">
         <field name='name'>避雷针：扫雷</field>
         <field name='interval_number'>1</field>

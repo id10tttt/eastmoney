@@ -2,7 +2,7 @@
 from odoo import models, fields, api
 import logging
 import datetime
-from datetime import timedelta
+import calendar
 import json
 
 _logger = logging.getLogger(__name__)
@@ -339,6 +339,11 @@ class FinanceFiscalData(models.Model):
             trade_ratio = 0
         return trade_ratio
 
+    def cron_update_fiscal_data(self):
+        all_fiscal_ids = self.env['finance.fiscal.data'].search([])
+        for fiscal_id in all_fiscal_ids:
+            fiscal_id.with_delay().update_mm_ratio_value()
+
     def update_mm_ratio_value(self):
         for fiscal_id in self:
             stock_fiscal_ids = self.env['finance.fiscal.data'].search([
@@ -351,7 +356,6 @@ class FinanceFiscalData(models.Model):
             mm_fiscal_id = stock_fiscal_ids.filtered(lambda x: x.report_date == mm_date)
             if not mm_fiscal_id:
                 continue
-            print('mm_fiscal_id: ', mm_fiscal_id, mm_date)
 
             fiscal_id.write({
                 'operate_revenue_mm_ratio': self.get_ratio(mm_fiscal_id.operate_revenue, fiscal_id.operate_revenue),
@@ -371,10 +375,12 @@ class FinanceFiscalData(models.Model):
 
             last_q_month = current_date.month - 3
             if last_q_month == 0:
-                last_q_date = datetime.datetime(current_date.year - 1, 12, current_date.day, current_date.hour,
+                last_month_day = calendar.monthrange(current_date.year, 12)
+                last_q_date = datetime.datetime(current_date.year - 1, 12, last_month_day[1], current_date.hour,
                                                 current_date.minute, current_date.second, current_date.microsecond)
             elif last_q_month > 0:
-                last_q_date = datetime.datetime(current_date.year, current_date.month - 3, current_date.day,
+                last_month_day = calendar.monthrange(current_date.year, current_date.month - 3)
+                last_q_date = datetime.datetime(current_date.year, current_date.month - 3, last_month_day[1],
                                                 current_date.hour, current_date.minute, current_date.second,
                                                 current_date.microsecond)
             else:
