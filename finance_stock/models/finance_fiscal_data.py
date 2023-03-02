@@ -55,7 +55,7 @@ class FinanceFiscalData(models.Model):
     pe_ratio = fields.Float('市盈率')
     trade_ratio = fields.Float('市销率')
     peg = fields.Float('PEG')
-    gw_netast_rat = fields.Char('商誉(无形资产)')
+    gw_netast_rat = fields.Char('商誉')
     net_asset_ratio = fields.Float('商誉/净资产')
     employee = fields.Float('员工数量')
     operate_revenue_per = fields.Float('营业收入/员工数量')
@@ -195,9 +195,10 @@ class FinanceFiscalData(models.Model):
             # PEG
             'peg': float_or_zero(stock_id.peg_car),
             # 商誉
-            'gw_netast_rat': self.get_zcfzb_value(zcfzb_id, 'INTANGIBLE_ASSET'),
+            # 'gw_netast_rat': self.get_zcfzb_value(zcfzb_id, 'INTANGIBLE_ASSET'),
+            'gw_netast_rat': self.get_zcfzb_value(zcfzb_id, 'GOODWILL'),
             # 商誉/净资产
-            'net_asset_ratio': self.get_ratio(self.get_zcfzb_value(zcfzb_id, 'INTANGIBLE_ASSET'),
+            'net_asset_ratio': self.get_ratio(self.get_zcfzb_value(zcfzb_id, 'GOODWILL'),
                                               float_or_zero(zcfzb_id.total_equity)),
             # 员工数
             'employee': float_or_zero(survey_id.emp_num),
@@ -309,9 +310,9 @@ class FinanceFiscalData(models.Model):
                     # PEG
                     'peg': float_or_zero(stock_id.peg_car),
                     # 商誉
-                    'gw_netast_rat': self.get_zcfzb_value(zcfzb_id, 'INTANGIBLE_ASSET'),
+                    'gw_netast_rat': self.get_zcfzb_value(zcfzb_id, 'GOODWILL'),
                     # 商誉/净资产
-                    'net_asset_ratio': self.get_ratio(self.get_zcfzb_value(zcfzb_id, 'INTANGIBLE_ASSET'),
+                    'net_asset_ratio': self.get_ratio(self.get_zcfzb_value(zcfzb_id, 'GOODWILL'),
                                                       float_or_zero(zcfzb_id.total_equity)),
                     # 员工数
                     'employee': float_or_zero(survey_id.emp_num),
