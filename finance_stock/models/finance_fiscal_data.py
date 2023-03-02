@@ -19,6 +19,9 @@ class FinanceFiscalData(models.Model):
     _name = 'finance.fiscal.data'
     _description = 'table: fiscal_data处理后的财务信息'
     _rec_name = 'secucode'
+    _sql_constraints = [
+        ('unique_secucode_report_date', 'unique(secucode, report_date)', '股票、日期必须唯一')
+    ]
 
     report_date = fields.Datetime('日期', index=True)
     period_type = fields.Selection([
@@ -148,20 +151,18 @@ class FinanceFiscalData(models.Model):
             lambda x: x.stock_id == stock_id and x.reportdate == period_date)
 
         tmp_data = {
-            'report_date': period_date,
-            'period_type': 'quarter',
             # 每股收益
             'per_share': self.get_per_share_value(lrb_id),
             # 营业收入
-            'operate_revenue': main_id.total_operate_reve,
+            'operate_revenue': float_or_zero(main_id.total_operate_reve),
             # ROE
-            'roe': main_id.roejq,
+            'roe': float_or_zero(main_id.roejq),
             # 经营性现金流
             'operate_cash_flow': self.get_operate_cash_flow(xjllb_id),
             # 净运营资本
             'net_working_capital': '',
             # 应收账款
-            'accounts_receivable': zcfzb_id.total_other_rece,
+            'accounts_receivable': float_or_zero(zcfzb_id.total_other_rece),
             # 收入质量
             'revenue_quality': '',
             # 总股本
@@ -193,7 +194,7 @@ class FinanceFiscalData(models.Model):
             # 毛利率
             'gross_profit_ratio': float_or_zero(main_id.xsmll),
             # 净资产
-            'net_asset': '',
+            'net_asset': float_or_zero(main_id.bps),
         }
         return tmp_data
 
@@ -250,31 +251,31 @@ class FinanceFiscalData(models.Model):
                     # 每股收益
                     'per_share': self.get_per_share_value(lrb_id),
                     # 每股收益环比
-                    'per_share_mm_ratio': '',
+                    # 'per_share_mm_ratio': '',
                     # 每股收益增速
-                    'per_share_speed': '',
+                    # 'per_share_speed': '',
                     # 营业收入
-                    'operate_revenue': main_id.total_operate_reve,
+                    'operate_revenue': float_or_zero(main_id.total_operate_reve),
                     # 营业收入环比
-                    'operate_revenue_mm_ratio': '',
+                    # 'operate_revenue_mm_ratio': '',
                     # 营业收入增速
-                    'operate_revenue_speed': '',
+                    # 'operate_revenue_speed': '',
                     # ROE
-                    'roe': main_id.roejq,
+                    'roe': float_or_zero(main_id.roejq),
                     # ROE环比
-                    'roe_mm_ratio': '',
+                    # 'roe_mm_ratio': '',
                     # ROE增速
-                    'roe_speed': '',
+                    # 'roe_speed': '',
                     # 经营性现金流
                     'operate_cash_flow': self.get_operate_cash_flow(xjllb_id),
                     # 净运营资本
                     'net_working_capital': '',
                     # 应收账款
-                    'accounts_receivable': zcfzb_id.total_other_rece,
+                    'accounts_receivable': float_or_zero(zcfzb_id.total_other_rece),
                     # 应收账款环比
-                    'accounts_receivable_mm_ratio': '',
+                    # 'accounts_receivable_mm_ratio': '',
                     # 应收账款增速
-                    'accounts_receivable_speed': '',
+                    # 'accounts_receivable_speed': '',
                     # 收入质量
                     'revenue_quality': '',
                     # 总股本
@@ -306,7 +307,7 @@ class FinanceFiscalData(models.Model):
                     # 毛利率
                     'gross_profit_ratio': float_or_zero(main_id.xsmll),
                     # 净资产
-                    'net_asset': '',
+                    'net_asset': float_or_zero(main_id.bps),
                 }
                 # 更新？
                 # if fiscal_id:
