@@ -55,7 +55,7 @@ class FinanceFiscalData(models.Model):
     pe_ratio = fields.Float('市盈率')
     trade_ratio = fields.Float('市销率')
     peg = fields.Float('PEG')
-    gw_netast_rat = fields.Char('商誉')
+    gw_netast_rat = fields.Char('商誉(无形资产)')
     net_asset_ratio = fields.Float('商誉/净资产')
     employee = fields.Float('员工数量')
     operate_revenue_per = fields.Float('营业收入/员工数量')
@@ -63,7 +63,7 @@ class FinanceFiscalData(models.Model):
     asset_liability_ratio = fields.Float('资产负债率')
     profit_margin = fields.Float('净利率')
     gross_profit_ratio = fields.Float('毛利率')
-    net_asset = fields.Float('净资产')
+    net_asset = fields.Float('净资产(股东权益合计)', help='资产负债表')
     sign = fields.Char('Sign')
 
     def get_default_period(self, all_period=False):
@@ -94,6 +94,15 @@ class FinanceFiscalData(models.Model):
                                   f'{search_year}-09-30 00:00:00', f'{search_year}-12-31 00:00:00']
         return search_period
 
+    def cron_update_finance_fiscal_data(self):
+        # 更新数据
+        all_fiscal_ids = self.env['finance.fiscal.data'].search([])
+        for fiscal_id in all_fiscal_ids:
+            # 常规数据更新
+            fiscal_id.with_delay().update_fiscal_data()
+            # 更新环比、增速等数据
+            fiscal_id.with_delay().update_mm_ratio_value()
+
     def update_fiscal_data(self):
         for line_id in self:
             update_data = self.parse_fiscal_data(self.stock_id, str(self.report_date))
@@ -115,12 +124,20 @@ class FinanceFiscalData(models.Model):
         return float_or_zero(xjllb_json.get('TOTAL_OPERATE_INFLOW')) - float_or_zero(
             xjllb_json.get('TOTAL_OPERATE_OUTFLOW'))
 
-    def get_per_share_value(self, lrb_id):
+    def get_lrb_value(self, lrb_id, field_name):
         lrb_json = lrb_id.lrb_json
         if not lrb_json:
             return 0.0
         lrb_json = json.loads(lrb_json)
-        return float_or_zero(lrb_json.get('DILUTED_EPS'))
+        return float_or_zero(lrb_json.get(field_name))
+
+    def get_zcfzb_value(self, zcfzb_id, field_name):
+        # INTANGIBLE_ASSET
+        zcfbb_json = zcfzb_id.zcfzb_id
+        if not zcfbb_json:
+            return 0.0
+        lrb_json = json.loads(zcfbb_json)
+        return float_or_zero(lrb_json.get(field_name))
 
     def parse_fiscal_data(self, stock_id, period_date):
         survey_ids = self.env['finance.stock.company'].search([('ts_code', '=', stock_id.ts_code)])
@@ -152,7 +169,7 @@ class FinanceFiscalData(models.Model):
 
         tmp_data = {
             # 每股收益
-            'per_share': self.get_per_share_value(lrb_id),
+            'per_share': self.get_lrb_value(lrb_id, 'DILUTED_EPS'),
             # 营业收入
             'operate_revenue': float_or_zero(main_id.total_operate_reve),
             # ROE
@@ -178,9 +195,10 @@ class FinanceFiscalData(models.Model):
             # PEG
             'peg': float_or_zero(stock_id.peg_car),
             # 商誉
-            'gw_netast_rat': float_or_zero(stock_id.gw_netast_rat),
+            'gw_netast_rat': self.get_zcfzb_value(zcfzb_id, 'INTANGIBLE_ASSET'),
             # 商誉/净资产
-            'net_asset_ratio': '',
+            'net_asset_ratio': self.get_ratio(self.get_zcfzb_value(zcfzb_id, 'INTANGIBLE_ASSET'),
+                                              float_or_zero(zcfzb_id.total_equity)),
             # 员工数
             'employee': float_or_zero(survey_id.emp_num),
             # 营业收入/员工数量
@@ -194,7 +212,7 @@ class FinanceFiscalData(models.Model):
             # 毛利率
             'gross_profit_ratio': float_or_zero(main_id.xsmll),
             # 净资产
-            'net_asset': float_or_zero(main_id.bps),
+            'net_asset': float_or_zero(zcfzb_id.total_equity),
         }
         return tmp_data
 
@@ -249,7 +267,7 @@ class FinanceFiscalData(models.Model):
                     'period_type': 'quarter',
                     'stock_id': stock_id.id,
                     # 每股收益
-                    'per_share': self.get_per_share_value(lrb_id),
+                    'per_share': self.get_lrb_value(lrb_id, 'DILUTED_EPS'),
                     # 每股收益环比
                     # 'per_share_mm_ratio': '',
                     # 每股收益增速
@@ -291,9 +309,10 @@ class FinanceFiscalData(models.Model):
                     # PEG
                     'peg': float_or_zero(stock_id.peg_car),
                     # 商誉
-                    'gw_netast_rat': float_or_zero(stock_id.gw_netast_rat),
+                    'gw_netast_rat': self.get_zcfzb_value(zcfzb_id, 'INTANGIBLE_ASSET'),
                     # 商誉/净资产
-                    'net_asset_ratio': '',
+                    'net_asset_ratio': self.get_ratio(self.get_zcfzb_value(zcfzb_id, 'INTANGIBLE_ASSET'),
+                                                      float_or_zero(zcfzb_id.total_equity)),
                     # 员工数
                     'employee': float_or_zero(survey_id.emp_num),
                     # 营业收入/员工数量
@@ -307,7 +326,7 @@ class FinanceFiscalData(models.Model):
                     # 毛利率
                     'gross_profit_ratio': float_or_zero(main_id.xsmll),
                     # 净资产
-                    'net_asset': float_or_zero(main_id.bps),
+                    'net_asset': float_or_zero(zcfzb_id.total_equity),
                 }
                 # 更新？
                 # if fiscal_id:
