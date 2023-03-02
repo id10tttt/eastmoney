@@ -344,7 +344,7 @@ class FinanceStockBasic(models.Model):
                 result_data = res.json().get('data', {}).get('data', [])
                 if not result_data:
                     continue
-                stock_holder_ids = all_holder_ids.filtered(lambda x: x.stock_id == stock_id.id)
+                stock_holder_ids = all_holder_ids.filtered(lambda x: x.stock_id == stock_id)
                 tmp_data = []
                 for x in result_data:
                     org_name = x.get('org_name')
@@ -360,6 +360,7 @@ class FinanceStockBasic(models.Model):
                         'report_date': period_id,
                         'holder_json': json.dumps(x)
                     }
+                    _logger.info('基金机构: {}'.format(period_id))
                     tmp_data.append((0, 0, data))
                 all_data += tmp_data
             if all_data:
@@ -596,6 +597,7 @@ class FinanceStockBasic(models.Model):
             'totaloperaterevetz': main_res.get('TOTALOPERATEREVETZ'),
             'main_json': json.dumps(main_res)
         }
+        _logger.info('主要指标: {}'.format(report_date))
         return res
 
     def cron_fetch_main_data(self):
@@ -620,7 +622,7 @@ class FinanceStockBasic(models.Model):
             result = res.json().get('data')
             if not result:
                 continue
-            stock_main_id = all_main_ids.filtered(lambda x: x.stock_id == stock_id.id)
+            stock_main_id = all_main_ids.filtered(lambda x: x.stock_id == stock_id)
             main_data = [(0, 0, self.parse_main_data(stock_main_id, main_res)) for main_res in result]
             stock_id.write({
                 'main_data_ids': main_data
@@ -696,6 +698,7 @@ class FinanceStockBasic(models.Model):
                     'total_other_rece': line_data.get('TOTAL_OTHER_RECE'),
                     'total_parent_equity': line_data.get('TOTAL_PARENT_EQUITY'),
                 }
+                _logger.info('资产负债表: {}'.format(report_date))
                 all_data.append((0, 0, tmp_data))
             if all_data:
                 stock_id.write({
@@ -731,7 +734,7 @@ class FinanceStockBasic(models.Model):
             all_data = []
             if not result:
                 continue
-            stock_all_rpt = all_rpt_ids.filtered(lambda x: x.stock_id == stock_id.id)
+            stock_all_rpt = all_rpt_ids.filtered(lambda x: x.stock_id == stock_id)
             for line_data in result:
                 secucode = line_data.get('SECUCODE')
                 report_date = line_data.get('REPORTDATE')
@@ -769,6 +772,7 @@ class FinanceStockBasic(models.Model):
                     'ystz': line_data.get('YSTZ'),
                     'report_json': json.dumps(line_data)
                 }
+                _logger.info('业绩报表: {}'.format(report_date))
                 all_data.append((0, 0, data))
             stock_id.write({
                 'report_ids': all_data
@@ -824,7 +828,7 @@ class FinanceStockBasic(models.Model):
         query_dates = ','.join(str(x) for x in query_dates)
         all_xjllb = self.env['finance.stock.xjllb'].search([('stock_id', 'in', self.ids)])
         for stock_id in self:
-            stock_xjllb_id = all_xjllb.filtered(lambda x: x.stock_id == stock_id.id)
+            stock_xjllb_id = all_xjllb.filtered(lambda x: x.stock_id == stock_id)
             _logger.info('获取现金流量表信息: {}'.format(stock_id.symbol))
             security_code, sec_id = self.get_security_code(stock_id.symbol)
             res = self.fetch_xjllb_data(query_dates, security_code)
@@ -849,6 +853,7 @@ class FinanceStockBasic(models.Model):
                     'report_date': report_date,
                     'report_type': line_data.get('REPORT_TYPE'),
                 }
+                _logger.info('现金流量表: {}'.format(report_date))
                 all_data.append((0, 0, data))
             stock_id.write({
                 'xjllb_ids': all_data
@@ -862,7 +867,7 @@ class FinanceStockBasic(models.Model):
         query_dates = ','.join(str(x) for x in query_dates)
         all_lrb = self.env['finance.stock.lrb'].search([('stock_id', 'in', self.ids)])
         for stock_id in self:
-            stock_lrb_id = all_lrb.filtered(lambda x: x.stock_id == stock_id.id)
+            stock_lrb_id = all_lrb.filtered(lambda x: x.stock_id.id == stock_id.id)
             _logger.info('获取利润表信息: {}'.format(stock_id.symbol))
             security_code, sec_id = self.get_security_code(stock_id.symbol)
             res = self.fetch_lrb_data(query_dates, security_code)
@@ -890,7 +895,9 @@ class FinanceStockBasic(models.Model):
                     'continued_netprofit': line_data.get('CONTINUED_NETPROFIT'),
                     'interest_expense': line_data.get('INTEREST_EXPENSE'),
                 }
+                _logger.info('利润表: {}'.format(report_date))
                 all_data.append((0, 0, data))
+            print('all_data: ', all_data)
             stock_id.write({
                 'lrb_ids': all_data
             })
@@ -913,7 +920,7 @@ class FinanceStockBasic(models.Model):
         business_analysis_url = 'http://emweb.securities.eastmoney.com/PC_HSF10/BusinessAnalysis/PageAjax'
         all_business_ids = self.env['finance.stock.business'].search([('stock_id', 'in', self.ids)])
         for stock_id in self:
-            stock_business_ids = all_business_ids.filtered(lambda x: x.stock_id == stock_id.id)
+            stock_business_ids = all_business_ids.filtered(lambda x: x.stock_id == stock_id)
             start_time = time.time()
             _logger.info('开始获取经营分析信息: {}'.format(stock_id.symbol))
             security_code, sec_id = self.get_security_code(stock_id.symbol)
@@ -947,6 +954,7 @@ class FinanceStockBasic(models.Model):
                     'report_date': report_date,
                     'secucode': secucode,
                 }
+                _logger.info('经营分析: {}'.format(report_date))
                 all_data.append((0, 0, tmp))
             stock_id.with_delay().write({
                 'business_ids': all_data

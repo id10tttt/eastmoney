@@ -8,6 +8,7 @@
                 <form>
                     <header>
                         <button name="update_fiscal_data" string="更新数据" type="object" class="oe_highlight"/>
+                        <button name="update_mm_ratio_value" string="更新环比&amp;增速" type="object" class="oe_highlight"/>
                     </header>
                     <sheet>
                         <group>
