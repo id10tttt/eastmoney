@@ -98,9 +98,9 @@ class FinanceFiscalData(models.Model):
 
     def cron_fetch_fiscal_data(self):
         all_period = self.get_default_period()
-        all_period = all_period[:-4]
-        all_fiscal_ids = self.env['finance.fiscal.data'].search([])
-        all_stock_ids = self.env['finance.stock.basic'].search([('id', 'not in', all_fiscal_ids.stock_id.ids)])
+        # all_period = all_period[:-4]
+        # all_fiscal_ids = self.env['finance.fiscal.data'].search([])
+        all_stock_ids = self.env['finance.stock.basic'].search([])
         for stock_id in all_stock_ids:
             self.with_delay().generate_fiscal_data(stock_ids=stock_id, report_date=all_period)
 
