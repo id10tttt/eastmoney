@@ -133,7 +133,7 @@ class FinanceFiscalData(models.Model):
 
     def get_zcfzb_value(self, zcfzb_id, field_name):
         # INTANGIBLE_ASSET
-        zcfbb_json = zcfzb_id.zcfzb_id
+        zcfbb_json = zcfzb_id.zcfbb_json
         if not zcfbb_json:
             return 0.0
         lrb_json = json.loads(zcfbb_json)
