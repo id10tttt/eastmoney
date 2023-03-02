@@ -117,7 +117,6 @@ class FinanceFiscalData(models.Model):
         if not lrb_json:
             return 0.0
         lrb_json = json.loads(lrb_json)
-        print('lrb_json: ', lrb_json)
         return float_or_zero(lrb_json.get('DILUTED_EPS'))
 
     def parse_fiscal_data(self, stock_id, period_date):
@@ -130,7 +129,7 @@ class FinanceFiscalData(models.Model):
         report_ids = self.env['finance.stock.report'].search([('stock_id', '=', stock_id.id)])
 
         survey_id = survey_ids.filtered(lambda x: x.ts_code == stock_id.ts_code)
-        xjllb_id = xjllb_ids.filtered(lambda x: x.ts_code == stock_id.ts_code)
+        xjllb_id = xjllb_ids.filtered(lambda x: x.stock_id == stock_id)
 
         # 主要指标
         main_id = main_ids.filtered(lambda x: x.stock_id == stock_id and x.report_date == period_date)
@@ -237,7 +236,8 @@ class FinanceFiscalData(models.Model):
             xjllb_ids = self.env['finance.stock.xjllb'].search([('stock_id', '=', stock_id.id)])
 
             for period_date in all_period:
-                if all_fiscal_ids.filtered(lambda x: x.stock_id == stock_id and x.report_date == period_date):
+                fiscal_id = all_fiscal_ids.filtered(lambda x: x.stock_id == stock_id and x.report_date == period_date)
+                if fiscal_id:
                     continue
                 survey_id = survey_ids.filtered(lambda x: x.ts_code == stock_id.ts_code)
                 # 主要指标
@@ -255,7 +255,7 @@ class FinanceFiscalData(models.Model):
                 zcfzb_id = zcfzb_ids.filtered(lambda x: x.stock_id == stock_id and x.report_date == period_date)
                 report_id = report_ids.filtered(
                     lambda x: x.stock_id == stock_id and x.reportdate == period_date)
-                xjllb_id = xjllb_ids.filtered(lambda x: x.ts_code == stock_id.ts_code)
+                xjllb_id = xjllb_ids.filtered(lambda x: x.stock_id == stock_id)
 
                 tmp_data = {
                     'secucode': stock_id.ts_code,
@@ -324,6 +324,9 @@ class FinanceFiscalData(models.Model):
                     # 净资产
                     'net_asset': '',
                 }
+                # 更新？
+                # if fiscal_id:
+                #     fiscal_id.write(tmp_data)
                 all_data.append(tmp_data)
         if all_data:
             res = self.create(all_data)
