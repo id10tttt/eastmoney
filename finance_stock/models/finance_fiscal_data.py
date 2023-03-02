@@ -129,7 +129,7 @@ class FinanceFiscalData(models.Model):
         report_ids = self.env['finance.stock.report'].search([('stock_id', '=', stock_id.id)])
 
         survey_id = survey_ids.filtered(lambda x: x.ts_code == stock_id.ts_code)
-        xjllb_id = xjllb_ids.filtered(lambda x: x.stock_id == stock_id)
+        xjllb_id = xjllb_ids.filtered(lambda x: x.stock_id == stock_id and x.report_date == period_date)
 
         # 主要指标
         main_id = main_ids.filtered(lambda x: x.stock_id == stock_id and x.report_date == period_date)
@@ -255,7 +255,7 @@ class FinanceFiscalData(models.Model):
                 zcfzb_id = zcfzb_ids.filtered(lambda x: x.stock_id == stock_id and x.report_date == period_date)
                 report_id = report_ids.filtered(
                     lambda x: x.stock_id == stock_id and x.reportdate == period_date)
-                xjllb_id = xjllb_ids.filtered(lambda x: x.stock_id == stock_id)
+                xjllb_id = xjllb_ids.filtered(lambda x: x.stock_id == stock_id and x.report_date == period_date)
 
                 tmp_data = {
                     'secucode': stock_id.ts_code,
