@@ -100,12 +100,15 @@ class FinanceFiscalData(models.Model):
         for fiscal_id in all_fiscal_ids:
             # 常规数据更新
             fiscal_id.with_delay().update_fiscal_data()
-            # 更新环比、增速等数据
-            fiscal_id.with_delay().update_mm_ratio_value()
 
     def update_fiscal_data(self):
         for line_id in self:
             update_data = self.parse_fiscal_data(self.stock_id, str(self.report_date))
+            # 更新环比、增速等数据
+            mm_value = self.parse_mm_ratio_value(line_id)
+            speed_value = self.parse_speed_value(line_id)
+            update_data.update(**mm_value)
+            update_data.update(**speed_value)
             line_id.write(update_data)
 
     def cron_fetch_fiscal_data(self):
@@ -181,7 +184,8 @@ class FinanceFiscalData(models.Model):
             # 应收账款
             'accounts_receivable': float_or_zero(zcfzb_id.total_other_rece),
             # 收入质量
-            'revenue_quality': '',
+            'revenue_quality': self.get_ratio(float_or_zero(zcfzb_id.total_other_rece),
+                                              self.get_lrb_value(lrb_id, 'OPERATE_INCOME')),
             # 总股本
             'total_share_capital': float_or_zero(stock_id.f84),
             # 市现率
@@ -296,7 +300,8 @@ class FinanceFiscalData(models.Model):
                     # 应收账款增速
                     # 'accounts_receivable_speed': '',
                     # 收入质量
-                    'revenue_quality': '',
+                    'revenue_quality': self.get_ratio(float_or_zero(zcfzb_id.total_other_rece),
+                                                      self.get_lrb_value(lrb_id, 'OPERATE_INCOME')),
                     # 总股本
                     'total_share_capital': float_or_zero(stock_id.f84),
                     # 市现率
@@ -349,68 +354,80 @@ class FinanceFiscalData(models.Model):
         for fiscal_id in all_fiscal_ids:
             fiscal_id.with_delay().update_mm_ratio_value()
 
+    def parse_mm_ratio_value(self, fiscal_id):
+        stock_fiscal_ids = self.env['finance.fiscal.data'].search([
+            ('stock_id', '=', fiscal_id.stock_id.id)
+        ])
+        current_date = fiscal_id.report_date
+        # 去年的期间
+        mm_date = current_date.replace(current_date.year - 1)
+
+        mm_fiscal_id = stock_fiscal_ids.filtered(lambda x: x.report_date == mm_date)
+        if not mm_fiscal_id:
+            return {}
+
+        result = {
+            'operate_revenue_mm_ratio': self.get_ratio(mm_fiscal_id.operate_revenue, fiscal_id.operate_revenue),
+            'per_share_mm_ratio': self.get_ratio(mm_fiscal_id.per_share, fiscal_id.per_share),
+            'roe_mm_ratio': self.get_ratio(mm_fiscal_id.roe, fiscal_id.roe),
+            'accounts_receivable_mm_ratio': self.get_ratio(mm_fiscal_id.accounts_receivable,
+                                                           fiscal_id.accounts_receivable)
+        }
+        return result
+
     def update_mm_ratio_value(self):
         for fiscal_id in self:
-            stock_fiscal_ids = self.env['finance.fiscal.data'].search([
-                ('stock_id', '=', fiscal_id.stock_id.id)
-            ])
-            current_date = fiscal_id.report_date
-            # 去年的期间
-            mm_date = current_date.replace(current_date.year - 1)
-
-            mm_fiscal_id = stock_fiscal_ids.filtered(lambda x: x.report_date == mm_date)
-            if not mm_fiscal_id:
-                continue
-
-            fiscal_id.write({
-                'operate_revenue_mm_ratio': self.get_ratio(mm_fiscal_id.operate_revenue, fiscal_id.operate_revenue),
-                'per_share_mm_ratio': self.get_ratio(mm_fiscal_id.per_share, fiscal_id.per_share),
-                'roe_mm_ratio': self.get_ratio(mm_fiscal_id.roe, fiscal_id.roe),
-                'accounts_receivable_mm_ratio': self.get_ratio(mm_fiscal_id.accounts_receivable,
-                                                               fiscal_id.accounts_receivable)
-            })
+            data = self.parse_mm_ratio_value(fiscal_id)
+            if data:
+                fiscal_id.write(data)
         self.update_value_speed()
+
+    def parse_speed_value(self, fiscal_id):
+        stock_fiscal_ids = self.env['finance.fiscal.data'].search([
+            ('stock_id', '=', fiscal_id.stock_id.id)
+        ])
+        current_date = fiscal_id.report_date
+
+        last_q_month = current_date.month - 3
+        if last_q_month == 0:
+            last_month_day = calendar.monthrange(current_date.year, 12)
+            last_q_date = datetime.datetime(current_date.year - 1, 12, last_month_day[1], current_date.hour,
+                                            current_date.minute, current_date.second, current_date.microsecond)
+        elif last_q_month > 0:
+            last_month_day = calendar.monthrange(current_date.year, current_date.month - 3)
+            last_q_date = datetime.datetime(current_date.year, current_date.month - 3, last_month_day[1],
+                                            current_date.hour, current_date.minute, current_date.second,
+                                            current_date.microsecond)
+        else:
+            last_q_date = None
+        if not last_q_date:
+            return {}
+        # 去年的期间
+        last_year_date = current_date.replace(current_date.year - 1)
+        ll_year_q_data = last_q_date.replace(current_date.year - 1)
+
+        last_fiscal_id = stock_fiscal_ids.filtered(lambda x: x.report_date == last_year_date)
+        ll_q_fiscal_id = stock_fiscal_ids.filtered(lambda x: x.report_date == ll_year_q_data)
+        last_q_fiscal_id = stock_fiscal_ids.filtered(lambda x: x.report_date == last_q_date)
+
+        result = {
+            'operate_revenue_speed': self.get_ratio(
+                self.get_ratio(fiscal_id.operate_revenue, last_q_fiscal_id.operate_revenue),
+                self.get_ratio(last_fiscal_id.operate_revenue, ll_q_fiscal_id.operate_revenue)),
+            'per_share_speed': self.get_ratio(
+                self.get_ratio(fiscal_id.per_share, last_q_fiscal_id.per_share),
+                self.get_ratio(last_fiscal_id.per_share, ll_q_fiscal_id.per_share)),
+            'roe_speed': self.get_ratio(
+                self.get_ratio(fiscal_id.roe, last_q_fiscal_id.roe),
+                self.get_ratio(last_fiscal_id.roe, ll_q_fiscal_id.roe)),
+            'accounts_receivable_speed': self.get_ratio(
+                self.get_ratio(fiscal_id.accounts_receivable, last_q_fiscal_id.accounts_receivable),
+                self.get_ratio(last_fiscal_id.accounts_receivable, ll_q_fiscal_id.accounts_receivable)),
+        }
+        return result
 
     def update_value_speed(self):
         for fiscal_id in self:
-            stock_fiscal_ids = self.env['finance.fiscal.data'].search([
-                ('stock_id', '=', fiscal_id.stock_id.id)
-            ])
-            current_date = fiscal_id.report_date
-
-            last_q_month = current_date.month - 3
-            if last_q_month == 0:
-                last_month_day = calendar.monthrange(current_date.year, 12)
-                last_q_date = datetime.datetime(current_date.year - 1, 12, last_month_day[1], current_date.hour,
-                                                current_date.minute, current_date.second, current_date.microsecond)
-            elif last_q_month > 0:
-                last_month_day = calendar.monthrange(current_date.year, current_date.month - 3)
-                last_q_date = datetime.datetime(current_date.year, current_date.month - 3, last_month_day[1],
-                                                current_date.hour, current_date.minute, current_date.second,
-                                                current_date.microsecond)
-            else:
-                last_q_date = None
-            if not last_q_date:
-                continue
-            # 去年的期间
-            last_year_date = current_date.replace(current_date.year - 1)
-            ll_year_q_data = last_q_date.replace(current_date.year - 1)
-
-            last_fiscal_id = stock_fiscal_ids.filtered(lambda x: x.report_date == last_year_date)
-            ll_q_fiscal_id = stock_fiscal_ids.filtered(lambda x: x.report_date == ll_year_q_data)
-            last_q_fiscal_id = stock_fiscal_ids.filtered(lambda x: x.report_date == last_q_date)
-
-            fiscal_id.write({
-                'operate_revenue_speed': self.get_ratio(
-                    self.get_ratio(fiscal_id.operate_revenue, last_q_fiscal_id.operate_revenue),
-                    self.get_ratio(last_fiscal_id.operate_revenue, ll_q_fiscal_id.operate_revenue)),
-                'per_share_speed': self.get_ratio(
-                    self.get_ratio(fiscal_id.per_share, last_q_fiscal_id.per_share),
-                    self.get_ratio(last_fiscal_id.per_share, ll_q_fiscal_id.per_share)),
-                'roe_speed': self.get_ratio(
-                    self.get_ratio(fiscal_id.roe, last_q_fiscal_id.roe),
-                    self.get_ratio(last_fiscal_id.roe, ll_q_fiscal_id.roe)),
-                'accounts_receivable_speed': self.get_ratio(
-                    self.get_ratio(fiscal_id.accounts_receivable, last_q_fiscal_id.accounts_receivable),
-                    self.get_ratio(last_fiscal_id.accounts_receivable, ll_q_fiscal_id.accounts_receivable)),
-            })
+            data = self.parse_speed_value(fiscal_id)
+            if data:
+                fiscal_id.write(data)
