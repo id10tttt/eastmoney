@@ -22,6 +22,7 @@ class FinanceFiscalData(models.Model):
     _sql_constraints = [
         ('unique_secucode_report_date', 'unique(secucode, report_date)', '股票、日期必须唯一')
     ]
+    _order = 'secucode, report_date desc'
 
     report_date = fields.Datetime('日期', index=True)
     period_type = fields.Selection([
