@@ -559,7 +559,12 @@ class FinanceStockBasic(models.Model):
             if not result:
                 continue
             stock_main_id = all_main_ids.filtered(lambda x: x.stock_id == stock_id)
-            main_data = [(0, 0, self.parse_main_data(stock_main_id, main_res)) for main_res in result]
+            main_data = []
+            for main_res in result:
+                data = self.parse_main_data(stock_main_id, main_res)
+                if not data:
+                    continue
+                main_data.append((0, 0, data))
             stock_id.write({
                 'main_data_ids': main_data
             })
