@@ -54,6 +54,7 @@ STOCK_DICT = {
 class FinanceStockBasic(models.Model):
     _name = 'finance.stock.basic'
     _description = '股票代码列表'
+    _inherit = 'finance.stock.mixin'
     _sql_constraints = [
         ('unique_symbol', 'unique(symbol)', '股票代码唯一')
     ]
@@ -248,7 +249,7 @@ class FinanceStockBasic(models.Model):
             })
 
     def cron_fetch_holder(self):
-        res = self.env['finance.stock.basic'].search([('holder_ids', '=', False)])
+        res = self.env['finance.stock.basic'].search([])
         for x in res:
             x.with_delay().get_org_holder()
 
@@ -310,7 +311,6 @@ class FinanceStockBasic(models.Model):
         res = self.env['finance.stock.basic'].search(['|', ('hypm', '=', False), ('hypm', '=', 0)])
         for x in res:
             x.with_delay().get_stock_relationship_data()
-        # res.get_stock_relationship_data()
 
     def get_stock_relationship_data(self):
         """
@@ -342,7 +342,6 @@ class FinanceStockBasic(models.Model):
         res = self.env['finance.stock.basic'].search([('f84', '=', False)])
         for x in res:
             x.with_delay().get_stock_info()
-            # res.get_stock_info()
 
     def get_stock_info(self):
         """
@@ -539,10 +538,9 @@ class FinanceStockBasic(models.Model):
         return res
 
     def cron_fetch_main_data(self):
-        res = self.env['finance.stock.basic'].search([('main_data_ids', '=', False)])
+        res = self.env['finance.stock.basic'].search([])
         for x in res:
             x.with_delay().get_update_main_data()
-        # res.get_update_main_data()
 
     def get_update_main_data(self):
         """
@@ -582,10 +580,9 @@ class FinanceStockBasic(models.Model):
         return res
 
     def cron_fetch_zcfzb(self):
-        res = self.env['finance.stock.basic'].search([('zcfzb_ids', '=', False)])
+        res = self.env['finance.stock.basic'].search([])
         for x in res:
             x.with_delay().get_zcfzb_data()
-        # res.get_zcfzb_data()
 
     def get_zcfzb_data(self):
         """
@@ -594,7 +591,6 @@ class FinanceStockBasic(models.Model):
 
         query_dates = self.get_default_period_date()
         query_dates = ','.join(str(x) for x in query_dates)
-        all_zcfzb = self.env['finance.stock.zcfzb'].search([])
         for stock_id in self:
             _logger.info('获取资产负债表信息: {}'.format(stock_id.symbol))
             security_code, sec_id = self.get_security_code(stock_id.symbol)
@@ -604,12 +600,16 @@ class FinanceStockBasic(models.Model):
             if not data:
                 continue
             all_data = []
-            stock_zcfzb = all_zcfzb.filtered(lambda x: x.stock_id.id == stock_id.id)
+            exist_period = []
+            stock_zcfzb = self.env['finance.stock.zcfzb'].search([('stock_id', '=', stock_id.id)])
             for line_data in data:
                 secucode = line_data.get('SECUCODE')
                 report_date = line_data.get('REPORT_DATE')
                 if stock_zcfzb.filtered(lambda x: x.report_date == report_date):
                     continue
+                if report_date in exist_period:
+                    continue
+                exist_period.append(report_date)
                 tmp_data = {
                     'zcfbb_json': json.dumps(line_data),
                     'secucode': secucode,
@@ -644,10 +644,9 @@ class FinanceStockBasic(models.Model):
                 })
 
     def cron_fetch_rpt_lico_fn_cpd(self):
-        res = self.env['finance.stock.basic'].search([('report_ids', '=', False)])
+        res = self.env['finance.stock.basic'].search([])
         for x in res:
             x.with_delay().get_rpt_lico_fn_cpd_data()
-        # res.get_rpt_lico_fn_cpd_data()
 
     def get_rpt_lico_fn_cpd_data(self):
         """
@@ -673,11 +672,15 @@ class FinanceStockBasic(models.Model):
             if not result:
                 continue
             stock_all_rpt = all_rpt_ids.filtered(lambda x: x.stock_id == stock_id)
+            exist_period = []
             for line_data in result:
                 secucode = line_data.get('SECUCODE')
                 report_date = line_data.get('REPORTDATE')
                 if stock_all_rpt.filtered(lambda x: x.reportdate == report_date):
                     continue
+                if report_date in exist_period:
+                    continue
+                exist_period.append(report_date)
                 data = {
                     'basic_eps': line_data.get('BASIC_EPS'),
                     'bps': line_data.get('BASIC_EPS'),
@@ -747,16 +750,14 @@ class FinanceStockBasic(models.Model):
         return res
 
     def cron_fetch_lrb(self):
-        res = self.env['finance.stock.basic'].search([('lrb_ids', '=', False)])
+        res = self.env['finance.stock.basic'].search([])
         for x in res:
             x.with_delay().get_lrb_data()
-        # res.get_lrb_data()
 
     def cron_fetch_xjllb(self):
-        res = self.env['finance.stock.basic'].search([('xjllb_ids', '=', False)])
+        res = self.env['finance.stock.basic'].search([])
         for x in res:
             x.with_delay().get_xjllb_data()
-        # res.get_lrb_data()
 
     def get_xjllb_data(self):
         """
@@ -765,6 +766,8 @@ class FinanceStockBasic(models.Model):
         query_dates = self.get_default_period_date()
         query_dates = ','.join(str(x) for x in query_dates)
         all_xjllb = self.env['finance.stock.xjllb'].search([('stock_id', 'in', self.ids)])
+        if not all_xjllb:
+            return False
         for stock_id in self:
             stock_xjllb_id = all_xjllb.filtered(lambda x: x.stock_id == stock_id)
             _logger.info('获取现金流量表信息: {}'.format(stock_id.symbol))
@@ -777,11 +780,16 @@ class FinanceStockBasic(models.Model):
             all_data = []
             if not data:
                 continue
+            exist_period = []
             for line_data in data:
                 secucode = line_data.get('SECUCODE')
                 report_date = line_data.get('REPORT_DATE')
                 if stock_xjllb_id.filtered(lambda x: x.report_date == report_date):
                     continue
+                if report_date in exist_period:
+                    continue
+                exist_period.append(report_date)
+                _logger.info('获取现金流量表期间数据: {}'.format(report_date))
                 data = {
                     'xjllb_json': json.dumps(line_data),
                     'secucode': secucode,
@@ -804,8 +812,11 @@ class FinanceStockBasic(models.Model):
         query_dates = self.get_default_period_date()
         query_dates = ','.join(str(x) for x in query_dates)
         all_lrb = self.env['finance.stock.lrb'].search([('stock_id', 'in', self.ids)])
+        if not all_lrb:
+            return False
         for stock_id in self:
             stock_lrb_id = all_lrb.filtered(lambda x: x.stock_id.id == stock_id.id)
+
             _logger.info('获取利润表信息: {}'.format(stock_id.symbol))
             security_code, sec_id = self.get_security_code(stock_id.symbol)
             res = self.fetch_lrb_data(query_dates, security_code)
@@ -816,11 +827,16 @@ class FinanceStockBasic(models.Model):
             all_data = []
             if not data:
                 continue
+            exist_period = []
             for line_data in data:
                 secucode = line_data.get('SECUCODE')
                 report_date = line_data.get('REPORT_DATE')
                 if stock_lrb_id.filtered(lambda x: x.report_date == report_date):
                     continue
+                if report_date in exist_period:
+                    continue
+                exist_period.append(report_date)
+                _logger.info('获取利润表期间数据: {}'.format(report_date))
                 data = {
                     'lrb_json': json.dumps(line_data),
                     'secucode': secucode,
@@ -835,10 +851,12 @@ class FinanceStockBasic(models.Model):
                 }
                 _logger.info('利润表: {}'.format(report_date))
                 all_data.append((0, 0, data))
-            print('all_data: ', all_data)
-            stock_id.write({
-                'lrb_ids': all_data
-            })
+            try:
+                stock_id.write({
+                    'lrb_ids': all_data
+                })
+            except Exception as e:
+                _logger.error('出错了: {}'.format(e))
 
     def cron_fetch_business(self):
         """
