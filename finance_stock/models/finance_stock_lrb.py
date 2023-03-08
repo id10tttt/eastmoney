@@ -11,7 +11,7 @@ class FinanceStockLRB(models.Model):
     _rec_name = 'secucode'
 
     lrb_json = fields.Char('LRB JSON')
-    stock_id = fields.Many2one('finance.stock.basic', string='股票代码')
+    stock_id = fields.Many2one('finance.stock.basic', string='股票代码', index=True)
     secucode = fields.Char('SECUCODE', index=True)
     security_code = fields.Char('SECURITY_CODE')
     security_name_abbr = fields.Char('SECURITY_NAME_ABBR')

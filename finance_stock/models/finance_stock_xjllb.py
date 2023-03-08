@@ -11,7 +11,7 @@ class FinanceStockXJLLB(models.Model):
     _rec_name = 'secucode'
 
     xjllb_json = fields.Char('XJLLB JSON')
-    stock_id = fields.Many2one('finance.stock.basic', string='股票代码')
+    stock_id = fields.Many2one('finance.stock.basic', string='股票代码', index=True)
     secucode = fields.Char('SECUCODE', index=True)
     security_code = fields.Char('SECURITY_CODE')
     report_date = fields.Char('REPORT DATE')
