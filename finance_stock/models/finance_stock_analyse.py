@@ -8,6 +8,7 @@ _logger = logging.getLogger(__name__)
 
 class FinanceStockAnalyse(models.Model):
     _name = 'finance.stock.analyse'
+    _inherit = 'finance.stock.mixin'
     _description = '数据分析'
     _sql_constraints = [
         ('unique_secucode_report_date', 'unique(secucode, report_date)', '股票代码和时间唯一')
@@ -79,7 +80,7 @@ class FinanceStockAnalyse(models.Model):
         search_year = int(search_year)
         search_month = int(search_month)
         search_period = []
-        for x in range(search_year - 2, search_year):
+        for x in range(search_year - 5, search_year):
             search_period += [f'{x}-03-31 00:00:00', f'{x}-06-30 00:00:00', f'{x}-09-30 00:00:00',
                               f'{x}-12-31 00:00:00']
         if all_period:

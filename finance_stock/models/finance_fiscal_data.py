@@ -4,6 +4,7 @@ import logging
 import datetime
 import calendar
 import json
+import itertools
 
 _logger = logging.getLogger(__name__)
 
@@ -15,8 +16,13 @@ def float_or_zero(float_str):
         return 0.0
 
 
+def verify_pairwise_increase(compare_list):
+    return all(s <= t for s, t in itertools.pairwise(compare_list))
+
+
 class FinanceFiscalData(models.Model):
     _name = 'finance.fiscal.data'
+    _inherit = 'finance.stock.mixin'
     _description = 'table: fiscal_data处理后的财务信息'
     _rec_name = 'secucode'
     _sql_constraints = [
@@ -66,34 +72,6 @@ class FinanceFiscalData(models.Model):
     gross_profit_ratio = fields.Float('毛利率')
     net_asset = fields.Float('净资产(股东权益合计)', help='资产负债表')
     sign = fields.Char('Sign')
-
-    def get_default_period(self, all_period=False):
-        search_today = datetime.date.today()
-        search_month = search_today.month
-        search_year = search_today.year
-        search_year = int(search_year)
-        search_month = int(search_month)
-        search_period = []
-        for x in range(search_year - 2, search_year):
-            search_period += [f'{x}-03-31 00:00:00', f'{x}-06-30 00:00:00', f'{x}-09-30 00:00:00',
-                              f'{x}-12-31 00:00:00']
-        if all_period:
-            search_period += [f'{search_year}-03-31 00:00:00', f'{search_year}-06-30 00:00:00',
-                              f'{search_year}-09-30 00:00:00', f'{search_year}-12-31 00:00:00']
-        else:
-            if search_month < 3:
-                search_period += [f'{search_year}-03-31 00:00:00']
-            elif 3 <= search_month < 6:
-                search_period += [f'{search_year}-03-31 00:00:00']
-            elif 6 <= search_month < 9:
-                search_period += [f'{search_year}-03-31 00:00:00', f'{search_year}-06-30 00:00:00']
-            elif 9 <= search_month < 12:
-                search_period += [f'{search_year}-03-31 00:00:00', f'{search_year}-06-30 00:00:00',
-                                  f'{search_year}-09-30 00:00:00']
-            else:
-                search_period += [f'{search_year}-03-31 00:00:00', f'{search_year}-06-30 00:00:00',
-                                  f'{search_year}-09-30 00:00:00', f'{search_year}-12-31 00:00:00']
-        return search_period
 
     def cron_update_finance_fiscal_data(self):
         # 更新数据
@@ -368,11 +346,13 @@ class FinanceFiscalData(models.Model):
             return {}
 
         result = {
-            'operate_revenue_mm_ratio': self.get_ratio(mm_fiscal_id.operate_revenue, fiscal_id.operate_revenue),
-            'per_share_mm_ratio': self.get_ratio(mm_fiscal_id.per_share, fiscal_id.per_share),
-            'roe_mm_ratio': self.get_ratio(mm_fiscal_id.roe, fiscal_id.roe),
-            'accounts_receivable_mm_ratio': self.get_ratio(mm_fiscal_id.accounts_receivable,
-                                                           fiscal_id.accounts_receivable)
+            'operate_revenue_mm_ratio': self.get_ratio(fiscal_id.operate_revenue - mm_fiscal_id.operate_revenue,
+                                                       mm_fiscal_id.operate_revenue),
+            'per_share_mm_ratio': self.get_ratio(fiscal_id.per_share - mm_fiscal_id.per_share, mm_fiscal_id.per_share),
+            'roe_mm_ratio': self.get_ratio(fiscal_id.roe - mm_fiscal_id.roe, mm_fiscal_id.roe),
+            'accounts_receivable_mm_ratio': self.get_ratio(
+                fiscal_id.accounts_receivable - mm_fiscal_id.accounts_receivable,
+                mm_fiscal_id.accounts_receivable)
         }
         return result
 
@@ -410,22 +390,45 @@ class FinanceFiscalData(models.Model):
         last_fiscal_id = stock_fiscal_ids.filtered(lambda x: x.report_date == last_year_date)
         ll_q_fiscal_id = stock_fiscal_ids.filtered(lambda x: x.report_date == ll_year_q_data)
         last_q_fiscal_id = stock_fiscal_ids.filtered(lambda x: x.report_date == last_q_date)
-
+        #
+        # result = {
+        #     'operate_revenue_speed': self.get_ratio(
+        #         self.get_ratio(fiscal_id.operate_revenue, last_q_fiscal_id.operate_revenue),
+        #         self.get_ratio(last_fiscal_id.operate_revenue, ll_q_fiscal_id.operate_revenue)),
+        #     'per_share_speed': self.get_ratio(
+        #         self.get_ratio(fiscal_id.per_share, last_q_fiscal_id.per_share),
+        #         self.get_ratio(last_fiscal_id.per_share, ll_q_fiscal_id.per_share)),
+        #     'roe_speed': self.get_ratio(
+        #         self.get_ratio(fiscal_id.roe, last_q_fiscal_id.roe),
+        #         self.get_ratio(last_fiscal_id.roe, ll_q_fiscal_id.roe)),
+        #     'accounts_receivable_speed': self.get_ratio(
+        #         self.get_ratio(fiscal_id.accounts_receivable, last_q_fiscal_id.accounts_receivable),
+        #         self.get_ratio(last_fiscal_id.accounts_receivable, ll_q_fiscal_id.accounts_receivable)),
+        # }
         result = {
-            'operate_revenue_speed': self.get_ratio(
-                self.get_ratio(fiscal_id.operate_revenue, last_q_fiscal_id.operate_revenue),
-                self.get_ratio(last_fiscal_id.operate_revenue, ll_q_fiscal_id.operate_revenue)),
-            'per_share_speed': self.get_ratio(
-                self.get_ratio(fiscal_id.per_share, last_q_fiscal_id.per_share),
-                self.get_ratio(last_fiscal_id.per_share, ll_q_fiscal_id.per_share)),
-            'roe_speed': self.get_ratio(
-                self.get_ratio(fiscal_id.roe, last_q_fiscal_id.roe),
-                self.get_ratio(last_fiscal_id.roe, ll_q_fiscal_id.roe)),
-            'accounts_receivable_speed': self.get_ratio(
-                self.get_ratio(fiscal_id.accounts_receivable, last_q_fiscal_id.accounts_receivable),
-                self.get_ratio(last_fiscal_id.accounts_receivable, ll_q_fiscal_id.accounts_receivable)),
+            'operate_revenue_speed': self.compute_value_speed(
+                fiscal_id.operate_revenue, last_fiscal_id.operate_revenue,
+                last_q_fiscal_id.operate_revenue, ll_q_fiscal_id.operate_revenue
+            ),
+            'per_share_speed': self.compute_value_speed(
+                fiscal_id.per_share, last_fiscal_id.per_share,
+                last_q_fiscal_id.per_share, ll_q_fiscal_id.per_share
+            ),
+            'roe_speed': self.compute_value_speed(
+                fiscal_id.roe, last_fiscal_id.roe,
+                last_q_fiscal_id.roe, ll_q_fiscal_id.roe
+            ),
+            'accounts_receivable_speed': self.compute_value_speed(
+                fiscal_id.accounts_receivable, last_fiscal_id.accounts_receivable,
+                last_q_fiscal_id.accounts_receivable, ll_q_fiscal_id.accounts_receivable
+            ),
         }
         return result
+
+    def compute_value_speed(self, val1, val2, val3, val4):
+        val5 = self.get_ratio(val1 - val2, val2)
+        val6 = self.get_ratio(val3 - val4, val4)
+        return self.get_ratio(val5 - val6, val6)
 
     def update_value_speed(self):
         for fiscal_id in self:
