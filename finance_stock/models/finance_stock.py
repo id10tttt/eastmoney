@@ -261,6 +261,7 @@ class FinanceStockBasic(models.Model):
         all_period = self.get_default_period()
         all_holder_ids = self.env['finance.stock.holder'].search([('stock_id', 'in', self.ids)])
         for stock_id in self:
+            continue
             _logger.info('获取基金机构信息: {}'.format(stock_id.symbol))
             all_data = []
             for period_id in all_period:
@@ -275,7 +276,11 @@ class FinanceStockBasic(models.Model):
                 }
                 res = requests.get(org_holder_url, params=payload_data, headers=headers)
 
-                result = res.json()
+                try:
+                    result = res.json()
+                except Exception as e:
+                    _logger.error('获取数据出错: {}, {}, {}'.format(period_id, e, res.text))
+                    continue
                 status_code = result.get('status_code')
                 if status_code != 0:
                     _logger.warning('没有获取到数据: {}, {}'.format(stock_id.symbol, search_period_date))
@@ -734,7 +739,11 @@ class FinanceStockBasic(models.Model):
             'code': security_code,
         }
         res = requests.get(finance_lrb_url, params=payloads, headers=headers)
-        data = res.json().get('data')
+        try:
+            data = res.json().get('data')
+        except Exception as e:
+            _logger.error('获取利润表出错: {}, {}'.format(e, res.text))
+            data = False
         if not data and not retry:
             return self.fetch_lrb_data(query_dates, security_code, default_company_type=3, retry=True)
         return res
@@ -749,7 +758,11 @@ class FinanceStockBasic(models.Model):
             'code': security_code,
         }
         res = requests.get(finance_xjllb_url, params=payloads, headers=headers)
-        data = res.json().get('data')
+        try:
+            data = res.json().get('data')
+        except Exception as e:
+            _logger.error('获取现金流量表出错: {}, {}'.format(e, res.text))
+            data = False
         if not data and not retry:
             return self.fetch_xjllb_data(query_dates, security_code, default_company_type=3, retry=True)
         return res
@@ -771,8 +784,6 @@ class FinanceStockBasic(models.Model):
         query_dates = self.get_default_period_date()
         query_dates = ','.join(str(x) for x in query_dates)
         all_xjllb = self.env['finance.stock.xjllb'].search([('stock_id', 'in', self.ids)])
-        if not all_xjllb:
-            return False
         for stock_id in self:
             stock_xjllb_id = all_xjllb.filtered(lambda x: x.stock_id == stock_id)
             _logger.info('获取现金流量表信息: {}'.format(stock_id.symbol))
@@ -783,8 +794,6 @@ class FinanceStockBasic(models.Model):
             if not data:
                 continue
             all_data = []
-            if not data:
-                continue
             exist_period = []
             for line_data in data:
                 secucode = line_data.get('SECUCODE')
@@ -817,8 +826,6 @@ class FinanceStockBasic(models.Model):
         query_dates = self.get_default_period_date()
         query_dates = ','.join(str(x) for x in query_dates)
         all_lrb = self.env['finance.stock.lrb'].search([('stock_id', 'in', self.ids)])
-        if not all_lrb:
-            return False
         for stock_id in self:
             stock_lrb_id = all_lrb.filtered(lambda x: x.stock_id.id == stock_id.id)
 
@@ -830,8 +837,6 @@ class FinanceStockBasic(models.Model):
             if not data:
                 continue
             all_data = []
-            if not data:
-                continue
             exist_period = []
             for line_data in data:
                 secucode = line_data.get('SECUCODE')
@@ -867,10 +872,9 @@ class FinanceStockBasic(models.Model):
         """
         经营分析
         """
-        res = self.env['finance.stock.basic'].search([('business_ids', '=', False)])
+        res = self.env['finance.stock.basic'].search([])
         for x in res:
             x.with_delay().get_business_analysis()
-        # res.get_business_analysis()
 
     def get_business_analysis(self):
         """

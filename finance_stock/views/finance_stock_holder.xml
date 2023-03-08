@@ -15,6 +15,20 @@
                 </tree>
             </field>
         </record>
+        <record id="view_finance_stock_holder_search" model="ir.ui.view">
+            <field name="name">finance.stock.holder search</field>
+            <field name="model">finance.stock.holder</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="ts_code"/>
+                    <field name="stock_id"/>
+                    <field name="security_code"/>
+                    <group>
+                        <filter name="group_by_report_date" string="期间" context="{'group_by': 'report_date'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
         <record id="action_finance_stock_holder" model="ir.actions.act_window">
             <field name="name">基金机构</field>
             <field name="res_model">finance.stock.holder</field>

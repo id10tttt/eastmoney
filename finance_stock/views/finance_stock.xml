@@ -331,6 +331,17 @@
                 </tree>
             </field>
         </record>
+        <record id="view_finance_stock_basic_search" model="ir.ui.view">
+            <field name="name">finance.stock.basic search</field>
+            <field name="model">finance.stock.basic</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="ts_code"/>
+                    <field name="symbol"/>
+                    <field name="name"/>
+                </search>
+            </field>
+        </record>
         <record id="action_finance_stock_base" model="ir.actions.act_window">
             <field name="name">股票列表</field>
             <field name="res_model">finance.stock.basic</field>

@@ -9,6 +9,7 @@ class FinanceStockXJLLB(models.Model):
         ('unique_secucode_report_date', 'unique(secucode, report_date)', '股票代码唯一')
     ]
     _rec_name = 'secucode'
+    _order = 'secucode, report_date desc'
 
     xjllb_json = fields.Char('XJLLB JSON')
     stock_id = fields.Many2one('finance.stock.basic', string='股票代码', index=True)

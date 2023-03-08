@@ -8,7 +8,8 @@
                 <form>
                     <header>
                         <button name="update_fiscal_data" string="更新数据" type="object" class="oe_highlight"/>
-                        <button name="update_mm_ratio_value" string="更新环比&amp;增速" type="object" class="oe_highlight"/>
+                        <button name="update_mm_ratio_value" string="更新环比&amp;增速" type="object"
+                                class="oe_highlight"/>
                     </header>
                     <sheet>
                         <group>
@@ -117,6 +118,20 @@
                     <field name="profit_margin" optional="hide"/>
                     <field name="gross_profit_ratio" optional="hide"/>
                 </tree>
+            </field>
+        </record>
+        <record id="view_finance_fiscal_data_search" model="ir.ui.view">
+            <field name="name">finance.fiscal.data search</field>
+            <field name="model">finance.fiscal.data</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="secucode"/>
+                    <field name="stock_id"/>
+                    <field name="security_code"/>
+                    <group>
+                        <filter name="group_by_report_date" string="期间" context="{'group_by': 'report_date'}"/>
+                    </group>
+                </search>
             </field>
         </record>
         <record id="action_finance_stock_fiscal_data" model="ir.actions.act_window">

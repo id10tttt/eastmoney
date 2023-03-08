@@ -9,6 +9,7 @@ class StockZCFZB(models.Model):
         ('unique_secucode_report_date', 'unique(secucode, report_date)', '股票代码唯一')
     ]
     _rec_name = 'secucode'
+    _order = 'secucode, report_date desc'
 
     stock_id = fields.Many2one('finance.stock.basic', string='股票代码')
     zcfbb_json = fields.Char('ZCFZB JSON')

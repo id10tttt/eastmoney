@@ -19,6 +19,20 @@
                 </tree>
             </field>
         </record>
+        <record id="view_finance_stock_lrb_search" model="ir.ui.view">
+            <field name="name">finance.stock.lrb search</field>
+            <field name="model">finance.stock.lrb</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="secucode"/>
+                    <field name="stock_id"/>
+                    <field name="security_code"/>
+                    <group>
+                        <filter name="group_by_report_date" string="期间" context="{'group_by': 'report_date'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
         <record id="action_finance_stock_lrb" model="ir.actions.act_window">
             <field name="name">利润表</field>
             <field name="res_model">finance.stock.lrb</field>

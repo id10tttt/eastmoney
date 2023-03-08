@@ -9,6 +9,7 @@ class FinanceStockReport(models.Model):
         ('unique_secucode_reportdate', 'unique(secucode, reportdate)', '股票代码唯一')
     ]
     _rec_name = 'secucode'
+    _order = 'secucode, reportdate desc'
 
     stock_id = fields.Many2one('finance.stock.basic')
 

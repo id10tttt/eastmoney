@@ -76,6 +76,20 @@
                 </tree>
             </field>
         </record>
+        <record id="view_finance_stock_main_data_search" model="ir.ui.view">
+            <field name="name">finance.stock.main.data search</field>
+            <field name="model">finance.stock.main.data</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="secucode"/>
+                    <field name="stock_id"/>
+                    <field name="security_code"/>
+                    <group>
+                        <filter name="group_by_report_date" string="期间" context="{'group_by': 'report_date'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
         <record model="ir.actions.server" id="action_view_stock_main_data_update_tree">
             <field name="name">更新主要指标</field>
             <field name="model_id" ref="model_finance_stock_main_data"/>

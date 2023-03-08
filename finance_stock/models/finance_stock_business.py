@@ -10,6 +10,7 @@ class FinanceStockBusiness(models.Model):
          '股票代码、时间、名称、mainop_type唯一')
     ]
     _rec_name = 'display_name'
+    _order = 'secucode, report_date desc'
 
     display_name = fields.Char(compute='_compute_display_name')
     stock_id = fields.Many2one('finance.stock.basic', index=True)
