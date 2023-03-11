@@ -5,27 +5,27 @@ from odoo.http import request
 from .base import BaseController
 import logging
 from .wxa_common import verify_auth_token
-from Crypto.Cipher import AES
-from Crypto.Util.Padding import pad
-from base64 import b64encode
-import binascii
+# from Crypto.Cipher import AES
+# from Crypto.Util.Padding import pad
+# from base64 import b64encode
+# import binascii
 
 _logger = logging.getLogger(__name__)
 
 AES_ENCRYPT_KEY = 'Hcl97tpCW3mc2Wd3'
 
 
-def aes_encrypt_msg(msg):
-    cipher = AES.new(AES_ENCRYPT_KEY.encode(), AES.MODE_CBC)
-    ct_bytes = cipher.encrypt(pad(msg.encode(), 16))
-    iv = b64encode(cipher.iv).decode('utf-8')
-    encrypt_msg = binascii.hexlify(ct_bytes)
-    # encrypt_msg = b64encode(ct_bytes)
-    return {
-        'iv': iv,
-        'data': msg
-        # 'data': encrypt_msg
-    }
+# def aes_encrypt_msg(msg):
+#     cipher = AES.new(AES_ENCRYPT_KEY.encode(), AES.MODE_CBC)
+#     ct_bytes = cipher.encrypt(pad(msg.encode(), 16))
+#     iv = b64encode(cipher.iv).decode('utf-8')
+#     encrypt_msg = binascii.hexlify(ct_bytes)
+#     # encrypt_msg = b64encode(ct_bytes)
+#     return {
+#         'iv': iv,
+#         'data': msg
+#         # 'data': encrypt_msg
+#     }
 
 
 class VIPContent(http.Controller, BaseController):
