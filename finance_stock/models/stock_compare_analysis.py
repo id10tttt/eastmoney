@@ -1,6 +1,20 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api, _
+import json
+import logging
+from odoo.exceptions import ValidationError
 import uuid
+import itertools
+
+_logger = logging.getLogger(__name__)
+
+
+def verify_pairwise_increase(compare_list):
+    return all(s <= t for s, t in itertools.pairwise(compare_list))
+
+
+def verify_pairwise_decrease(compare_list):
+    return all(s > t for s, t in itertools.pairwise(compare_list))
 
 
 class StockCompareAnalysis(models.Model):
@@ -17,36 +31,47 @@ class StockCompareAnalysis(models.Model):
         ('vs', u'比较'),
         ('other', u'其它')
     ], string='取值类别', default='value')
-    inequality_operator = fields.Selection([
-        ('>', '大于'),
-        ('<', '小于'),
-        ('=', '等于'),
-        ('>=', '大于等于'),
-        ('<=', '小于等于'),
-        ('between', '介于')
-    ], string='比较', required=True)
-    benchmark = fields.Float('Benchmark', required=True)
-    benchmark_between_right = fields.Float('Benchmark')
-
-    value_model_id = fields.Many2one('ir.model', string='取值表', ondelete='cascade')
-    value_field_name = fields.Many2one('ir.model.fields', string='取值字段', ondelete='cascade')
-    value_model_domain = fields.Char(string='取值WHERE')
-
-    left_model_id = fields.Many2one('ir.model', string='表', required=False, ondelete='cascade')
-    left_field_name = fields.Many2one('ir.model.fields', string='字段', required=False, ondelete='cascade')
-    left_filter_field = fields.Many2one('ir.model.fields', string='筛选字段A', required=False, ondelete='cascade')
-    left_domain = fields.Char('筛选条件A', required=False)
-
-    right_model_id = fields.Many2one('ir.model', string='比较表', required=False, ondelete='cascade')
-    right_field_name = fields.Many2one('ir.model.fields', string='比较字段', required=False, ondelete='cascade')
-    right_filter_field = fields.Many2one('ir.model.fields', string='筛选字段B', required=False, ondelete='cascade')
-    right_domain = fields.Char('筛选条件B', required=False)
+    line_ids = fields.One2many('stock.compare.analysis.line', 'compare_id', string='明细行')
 
     type_id = fields.Many2one('finance.mine.type', string='类别')
     usage = fields.Selection([
         ('free', '免费使用'),
         ('vip', 'VIP专属')
     ], string='使用范围', default='free', required=True)
+    stock_code = fields.Char('Stock code')
+
+    def get_benchmark_result_value(self, security_code='000001'):
+        self.ensure_one()
+        all_result = []
+        all_benchmark_result = []
+        if not self.line_ids:
+            raise ValidationError('没有定义规则!')
+        for compare_line in self.line_ids:
+            sql_result, benchmark_result = compare_line.get_benchmark_result(self.stock_code or security_code)
+            all_result.append(sql_result)
+            all_benchmark_result.append(benchmark_result)
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'type': 'success',
+                'title': '{} 指标: {}'.format(self.stock_code or security_code, self.name),
+                'message': '值: {},\n Benchmark结果: {}'.format(all_result, all_benchmark_result),
+                'next': {
+                    'type': 'ir.actions.act_window_close'
+                },
+            }
+        }
+
+    def get_benchmark_result_vs(self):
+        pass
+
+    def get_benchmark_result_other(self):
+        pass
+
+    def get_benchmark_result(self):
+        self.ensure_one()
+        return getattr(self, 'get_benchmark_result_{}'.format(self.value_type))()
 
     def get_default_uuid(self):
         return str(uuid.uuid4())
@@ -59,32 +84,15 @@ class StockCompareAnalysis(models.Model):
         return self.env['stock.compare.analysis'].search_read(domain=filter_domain, fields=['name', 'uuid'])
 
     def get_mine_value(self, security_code='000001'):
-        left_record = self.env[self.left_model_id.model].search([
-            (self.left_filter_field.name, '=', self.left_domain),
-            ('security_code', '=', security_code)
-        ])
-        right_record = self.env[self.right_model_id.model].search([
-            (self.right_filter_field.name, '=', self.right_domain),
-            ('security_code', '=', security_code)
-        ])
-        notif_message = ''
-        left_value = ''
-        right_value = ''
-        if hasattr(left_record, self.left_field_name.name):
-            notif_message += '{}: {}, {}; \n'.format(self.left_field_name.field_description, self.left_domain,
-                                                     getattr(left_record, self.left_field_name.name))
-            left_value = getattr(left_record, self.left_field_name.name)
-        if hasattr(right_record, self.right_field_name.name):
-            notif_message += '{}: {}, {}; \n'.format(self.right_field_name.field_description, self.right_domain,
-                                                     getattr(right_record, self.right_field_name.name))
-            right_value = getattr(right_record, self.right_field_name.name)
+        self.ensure_one()
+        result = getattr(self, '_query_mine_data_{}'.format(self.value_type))(security_code=security_code)
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
                 'type': 'success',
                 'title': '{} 指标: {}'.format(security_code, self.name),
-                'message': notif_message,
+                'message': result,
                 'next': {
                     'type': 'ir.actions.act_window_close'
                 },
@@ -95,8 +103,8 @@ class StockCompareAnalysis(models.Model):
         return self._query_mine_data_vs_value(security_code=security_code)
 
     def _query_mine_data_value(self, security_code='000001'):
-        record_id = self.env[self.left_model_id.model].search([
-            (self.left_filter_field.name, '=', self.left_domain),
+        record_id = self.env[self.value_model_id.model].search([
+            (self.value_field_name.name, '=', self.value_model_domain),
             ('security_code', '=', security_code)
         ])
         value = getattr(record_id, self.value_field_name.name)
@@ -169,6 +177,118 @@ class StockCompareAnalysis(models.Model):
         if not record_id or len(record_id) > 1:
             return self.return_error_msg(security_code, mine_uuid)
         try:
-            return getattr(record_id, '_query_mine_data_{}'.format(record_id))(security_code=security_code)
+            return getattr(record_id, '_query_mine_data_{}'.format(record_id.value_type))(security_code=security_code)
         except Exception as e:
             return self.return_error_msg(security_code, mine_uuid)
+
+
+class StockCompareLine(models.Model):
+    _inherit = 'finance.stock.mixin'
+    _name = 'stock.compare.analysis.line'
+    _description = '明细行'
+
+    compare_id = fields.Many2one('stock.compare.analysis', string='Compare')
+    source_data = fields.Text('Data Source', required=True)
+    source_args = fields.Text('Args Source')
+    use_latest_period = fields.Integer('最近多少期间？', default=12)
+    period_detail = fields.Char('期间明细', compute='_compute_period_detail')
+    benchmark_line_ids = fields.One2many('stock.compare.benchmark.line', 'compare_line_id', string='Benchmark 明细')
+
+    @api.depends('use_latest_period')
+    def _compute_period_detail(self):
+        for line_id in self:
+            default_period = self.get_default_period()[::-1]
+            period_detail = '\',\''.join("{}".format(x) for x in default_period[:self.use_latest_period])
+            line_id.period_detail = '\'{}\''.format(period_detail)
+
+    def fetch_metric_select_sql_result(self, security_code):
+        select_sql = self.get_metric_parsed_sql(security_code)
+        try:
+            self.env.cr.execute(select_sql)
+        except Exception as e:
+            raise ValidationError('错误: {}'.format(e))
+        res = self.env.cr.fetchall()
+        return res
+
+    def get_metric_parsed_sql(self, security_code):
+        return self._get_metric_parsed_sql(security_code)
+
+    def _get_metric_parsed_sql(self, security_code):
+        source_data = self._get_metric_source_data()
+        source_args = self._get_metric_source_args(security_code)
+        if self.use_latest_period > 0:
+            source_args.update({
+                'report_date': self.period_detail
+            })
+        try:
+            select_sql = source_data.format(**source_args)
+        except Exception as e:
+            _logger.error('错误 {}'.format(e))
+            raise ValidationError('Params error!')
+        return select_sql
+
+    def _get_metric_source_data(self):
+        source_data = self.source_data
+        return source_data
+
+    def _get_metric_source_args(self, security_code):
+        source_args = self.source_args
+        source_args = json.loads(source_args)
+        if 'secucode' not in source_args.keys():
+            source_args.update({
+                'secucode': security_code
+            })
+        return source_args
+
+    def verify_benchmark_result_sign(self, sql_result):
+        benchmark_result = []
+        for line_id in self.benchmark_line_ids:
+            if line_id.inequality_operator == '>':
+                benchmark_data = [x[0] > line_id.benchmark_left for x in sql_result]
+            elif line_id.inequality_operator == '<':
+                benchmark_data = [x[0] < line_id.benchmark_left for x in sql_result]
+            elif line_id.inequality_operator == '=':
+                benchmark_data = [x[0] == line_id.benchmark_left for x in sql_result]
+            elif line_id.inequality_operator == '>=':
+                benchmark_data = [x[0] >= line_id.benchmark_left for x in sql_result]
+            elif line_id.inequality_operator == '<=':
+                benchmark_data = [x[0] <= line_id.benchmark_left for x in sql_result]
+            elif line_id.inequality_operator == 'between':
+                benchmark_data = [line_id.benchmark_left < x[0] < line_id.benchmark_right for x in sql_result]
+            elif line_id.inequality_operator == 'increase':
+                benchmark_data = verify_pairwise_increase(sql_result)
+            elif line_id.inequality_operator == 'decrease':
+                benchmark_data = verify_pairwise_decrease(sql_result)
+            else:
+                benchmark_data = None
+            benchmark_result.append(benchmark_data)
+        return benchmark_result
+
+    def get_benchmark_result(self, security_code='000001'):
+        sql_result = self.fetch_metric_select_sql_result(security_code)
+        benchmark_result = self.verify_benchmark_result_sign(sql_result)
+        return sql_result, benchmark_result
+
+
+class CompareBenchmarkLine(models.Model):
+    _name = 'stock.compare.benchmark.line'
+    _description = 'Benchmark'
+
+    compare_line_id = fields.Many2one('stock.compare.analysis.line')
+    inequality_operator = fields.Selection([
+        ('>', '大于'),
+        ('<', '小于'),
+        ('=', '等于'),
+        ('>=', '大于等于'),
+        ('<=', '小于等于'),
+        ('between', '介于'),
+        ('increase', '递增'),
+        ('decrease', '递减'),
+    ], string='比较', required=True)
+    benchmark_right = fields.Float('Benchmark')
+    benchmark_left = fields.Float('Benchmark')
+    sign = fields.Selection([
+        ('sun', '阳'),
+        ('rain', '阴'),
+        ('danger', '雷')
+    ], string='Sign')

@@ -5,6 +5,7 @@ import datetime
 
 class FinanceStockMixin(models.AbstractModel):
     _name = 'finance.stock.mixin'
+    _description = 'mixin'
 
     def get_default_period(self, default_year=5, all_period=False):
         search_today = datetime.date.today()

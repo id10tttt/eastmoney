@@ -49,7 +49,7 @@ class WxaSubscribeOrder(models.Model):
         ])
         if not all_ids:
             return False
-        if all_ids.filtered(lambda x: x.start_date < fields.Date.now() < x.end_date):
+        if all_ids.filtered(lambda x: x.start_date < fields.Date.today() < x.end_date):
             return True
         return False
 

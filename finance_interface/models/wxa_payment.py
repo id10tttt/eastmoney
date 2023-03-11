@@ -37,3 +37,9 @@ class WxaPayment(models.Model):
         'UNIQUE (payment_number)',
         'wechat payment payment_number is existed！'
     )]
+
+    def action_pay(self):
+        for line_id in self:
+            if line_id.status == 'success':
+                continue
+            line_id.status = 'success'

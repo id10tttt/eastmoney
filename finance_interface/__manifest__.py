@@ -9,6 +9,7 @@
     'data': [
         'security/ir.model.access.csv',
         'data/payment_seq.xml',
+        'data/subscribe.xml',
         'views/menu.xml',
         'views/wxa_user_view.xml',
         'views/wxa_payment_view.xml',

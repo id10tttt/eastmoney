@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="finance_compare_1" model="stock.compare.analysis">
+            <field name="name">过去3年每股收益季度环比是否连续增长？</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_1')"/>
+        </record>
+        <record id="finance_compare_line_1" model="stock.compare.analysis.line">
+            <field name="source_data">
+                select
+                    per_share_mm_ratio
+                from
+                    finance_fiscal_data ffd
+                where
+                    report_date in ({report_date}) and security_code = '{secucode}'
+                order by report_date asc
+            </field>
+            <field name="use_latest_period">12</field>
+            <field name="source_args">{}</field>
+            <field name="compare_id" eval="ref('finance_compare_1')"/>
+        </record>
+        <record id="finance_compare_benchmark_1" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">increase</field>
+            <field name="benchmark_left">0</field>
+            <field name="benchmark_right">0</field>
+            <field name="sign">sun</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_1')"/>
+        </record>
+
+        <record id="finance_compare_2" model="stock.compare.analysis">
+            <field name="name">过去3年每股收益环比增速是否大于0？</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_1')"/>
+        </record>
+        <record id="finance_compare_line_2" model="stock.compare.analysis.line">
+            <field name="source_data">
+                select
+                    per_share_speed
+                from
+                    finance_fiscal_data ffd
+                where
+                    report_date in ({report_date}) and security_code = '{secucode}'
+                order by report_date asc
+            </field>
+            <field name="use_latest_period">12</field>
+            <field name="source_args">{}</field>
+            <field name="compare_id" eval="ref('finance_compare_2')"/>
+        </record>
+        <record id="finance_compare_benchmark_2" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">></field>
+            <field name="benchmark_left">0</field>
+            <field name="benchmark_right">0</field>
+            <field name="sign">sun</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_2')"/>
+        </record>
+
+        <record id="finance_compare_3" model="stock.compare.analysis">
+            <field name="name">过去3年营业收入季度环比是否大于0？</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_1')"/>
+        </record>
+        <record id="finance_compare_line_3" model="stock.compare.analysis.line">
+            <field name="source_data">
+                select
+                    operate_revenue_mm_ratio
+                from
+                    finance_fiscal_data ffd
+                where
+                    report_date in ({report_date}) and security_code = '{secucode}'
+                order by report_date asc
+            </field>
+            <field name="use_latest_period">12</field>
+            <field name="source_args">{}</field>
+            <field name="compare_id" eval="ref('finance_compare_3')"/>
+        </record>
+        <record id="finance_compare_benchmark_3" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">></field>
+            <field name="benchmark_left">0</field>
+            <field name="benchmark_right">0</field>
+            <field name="sign">sun</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_3')"/>
+        </record>
+
+        <record id="finance_compare_4" model="stock.compare.analysis">
+            <field name="name">过去3年营业收入环比增速是否大于0？</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_1')"/>
+        </record>
+        <record id="finance_compare_line_4" model="stock.compare.analysis.line">
+            <field name="source_data">
+                select
+                    operate_revenue_speed
+                from
+                    finance_fiscal_data ffd
+                where
+                    report_date in ({report_date}) and security_code = '{secucode}'
+                order by report_date asc
+            </field>
+            <field name="use_latest_period">12</field>
+            <field name="source_args">{}</field>
+            <field name="compare_id" eval="ref('finance_compare_4')"/>
+        </record>
+        <record id="finance_compare_benchmark_4" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">></field>
+            <field name="benchmark_left">0</field>
+            <field name="benchmark_right">0</field>
+            <field name="sign">sun</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_4')"/>
+        </record>
+
+        <record id="finance_compare_5" model="stock.compare.analysis">
+            <field name="name">过去3年ROE季度环比是否大于5%？</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_1')"/>
+        </record>
+        <record id="finance_compare_line_5" model="stock.compare.analysis.line">
+            <field name="source_data">
+                select
+                    roe_mm_ratio
+                from
+                    finance_fiscal_data ffd
+                where
+                    report_date in ({report_date}) and security_code = '{secucode}'
+                order by report_date asc
+            </field>
+            <field name="use_latest_period">12</field>
+            <field name="source_args">{}</field>
+            <field name="compare_id" eval="ref('finance_compare_5')"/>
+        </record>
+        <record id="finance_compare_benchmark_5" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">></field>
+            <field name="benchmark_left">0.05</field>
+            <field name="benchmark_right">0</field>
+            <field name="sign">sun</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_5')"/>
+        </record>
+
+        <record id="finance_compare_6" model="stock.compare.analysis">
+            <field name="name">过去3年ROE环比增速是否大于0%？</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_1')"/>
+        </record>
+        <record id="finance_compare_line_6" model="stock.compare.analysis.line">
+            <field name="source_data">
+                select
+                    roe_speed
+                from
+                    finance_fiscal_data ffd
+                where
+                    report_date in ({report_date}) and security_code = '{secucode}'
+                order by report_date asc
+            </field>
+            <field name="use_latest_period">12</field>
+            <field name="source_args">{}</field>
+            <field name="compare_id" eval="ref('finance_compare_6')"/>
+        </record>
+        <record id="finance_compare_benchmark_6" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">></field>
+            <field name="benchmark_left">0</field>
+            <field name="benchmark_right">0</field>
+            <field name="sign">sun</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_6')"/>
+        </record>
+
+        <record id="finance_compare_8" model="stock.compare.analysis">
+            <field name="name">每年都有分红记录？</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_2')"/>
+        </record>
+        <record id="finance_compare_9" model="stock.compare.analysis">
+            <field name="name">经营现金流是否持续健康？</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_3')"/>
+        </record>
+        <record id="finance_compare_10" model="stock.compare.analysis">
+            <field name="name">经营现金流是否持续健康？</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_4')"/>
+        </record>
+        <record id="finance_compare_11" model="stock.compare.analysis">
+            <field name="name">收入质量是否好？</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_4')"/>
+        </record>
+        <record id="finance_compare_12" model="stock.compare.analysis">
+            <field name="name">库存周转是否过慢？</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_5')"/>
+        </record>
+        <record id="finance_compare_13" model="stock.compare.analysis">
+            <field name="name">新产品创新能力是否强？</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_6')"/>
+        </record>
+        <record id="finance_compare_14" model="stock.compare.analysis">
+            <field name="name">毛利率是否过低？</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_7')"/>
+        </record>
+        <record id="finance_compare_15" model="stock.compare.analysis">
+            <field name="name">负债率是否过高？</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_8')"/>
+        </record>
+        <record id="finance_compare_16" model="stock.compare.analysis">
+            <field name="name">前五客户销售额对总销售占比是否过高？</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_9')"/>
+        </record>
+        <record id="finance_compare_17" model="stock.compare.analysis">
+            <field name="name">每员工年度贡献收入金额？</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_10')"/>
+        </record>
+        <record id="finance_compare_18" model="stock.compare.analysis">
+            <field name="name">商誉是否高估？</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_11')"/>
+        </record>
+        <record id="finance_compare_19" model="stock.compare.analysis">
+            <field name="name">管理层是否有动力好好努力？</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_12')"/>
+        </record>
+        <record id="finance_compare_30" model="stock.compare.analysis">
+            <field name="name">当前股价是否在200天均线之下？</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_99')"/>
+        </record>
+        <record id="finance_compare_31" model="stock.compare.analysis">
+            <field name="name">三线是否距离接近？</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_99')"/>
+        </record>
+        <record id="finance_compare_32" model="stock.compare.analysis">
+            <field name="name">最近两个最低价（或两个最高价）之间是否出现MACD背离？</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_99')"/>
+        </record>
+        <record id="finance_compare_33" model="stock.compare.analysis">
+            <field name="name">最近两个最低价（或两个最高价）之间是否出现量价背离</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_99')"/>
+        </record>
+        <record id="finance_compare_34" model="stock.compare.analysis">
+            <field name="name">MACD中轴上方死叉</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_99')"/>
+        </record>
+        <record id="finance_compare_35" model="stock.compare.analysis">
+            <field name="name">70%筹码集中度是否小于10%</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_99')"/>
+        </record>
+        <record id="finance_compare_36" model="stock.compare.analysis">
+            <field name="name">90%筹码集中度是否小于15%</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_99')"/>
+        </record>
+    </data>
+</odoo>

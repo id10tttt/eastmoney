@@ -4,3 +4,4 @@ from . import mine_sweep
 from . import wechat_user
 from . import finance_stock
 from . import subscribe
+from . import vip

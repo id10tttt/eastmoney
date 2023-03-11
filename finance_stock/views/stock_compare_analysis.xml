@@ -7,7 +7,7 @@
             <field name="arch" type="xml">
                 <form>
                     <header>
-                        <button name="get_mine_value" string="获取值" type="object"/>
+                        <button name="get_benchmark_result" string="获取值" type="object"/>
                     </header>
                     <sheet>
                         <group>
@@ -23,42 +23,43 @@
                         </group>
                         <group>
                             <group>
-                                <field name="inequality_operator"/>
-                            </group>
-                            <group>
-                                <field name="benchmark"/>
-                                <field name="benchmark_between_right"
-                                       attrs="{'invisible': [('inequality_operator', '!=', 'between')], 'required': [('inequality_operator', '=', 'between')]}"/>
+                                <field name="stock_code"/>
                             </group>
                         </group>
-                        <group string="取值" attrs="{'invisible': [('value_type', '=', 'vs')]}">
-                            <group>
-                                <field name="value_model_id" attrs="{'required': [('value_type', '!=', 'vs')]}"/>
-                                <field name="value_model_domain" attrs="{'required': [('value_type', '!=', 'vs')]}"/>
-                            </group>
-                            <group>
-                                <field name="value_field_name" domain="[('model_id', '=', value_model_id)]"
-                                       attrs="{'required': [('value_type', '!=', 'vs')]}"/>
-                            </group>
-                        </group>
-                        <group string="比较" attrs="{'invisible': [('value_type', '!=', 'vs')]}">
-                            <group>
-                                <field name="left_model_id" attrs="{'required': [('value_type', '=', 'vs')]}"/>
-                                <field name="left_field_name" domain="[('model_id', '=', left_model_id)]"
-                                       attrs="{'required': [('value_type', '=', 'vs')]}"/>
-                                <field name="left_filter_field" domain="[('model_id', '=', left_model_id)]"
-                                       attrs="{'required': [('value_type', '=', 'vs')]}"/>
-                                <field name="left_domain" attrs="{'required': [('value_type', '=', 'vs')]}"/>
-                            </group>
-                            <group>
-                                <field name="right_model_id" attrs="{'required': [('value_type', '=', 'vs')]}"/>
-                                <field name="right_field_name" domain="[('model_id', '=', right_model_id)]"
-                                       attrs="{'required': [('value_type', '=', 'vs')]}"/>
-                                <field name="right_filter_field" domain="[('model_id', '=', right_model_id)]"
-                                       attrs="{'required': [('value_type', '=', 'vs')]}"/>
-                                <field name="right_domain" attrs="{'required': [('value_type', '=', 'vs')]}"/>
-                            </group>
-                        </group>
+                        <notebook>
+                            <page string="Benchmark">
+                                <field name="line_ids">
+                                    <form>
+                                        <sheet>
+                                            <group>
+                                                <field name="source_data" widget="ace"/>
+                                            </group>
+                                            <group>
+                                                <field name="use_latest_period"/>
+                                                <field name="period_detail"/>
+                                                <field name="source_args" widget="ace"/>
+                                            </group>
+                                            <notebook>
+                                                <page string="Benchmark">
+                                                    <field name="benchmark_line_ids">
+                                                        <tree editable="bottom">
+                                                            <field name="inequality_operator"/>
+                                                            <field name="benchmark_left"/>
+                                                            <field name="benchmark_right"/>
+                                                            <field name="sign"/>
+                                                        </tree>
+                                                    </field>
+                                                </page>
+                                            </notebook>
+                                        </sheet>
+                                    </form>
+                                    <tree>
+                                        <field name="source_data"/>
+                                        <field name="source_args"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
                     </sheet>
                 </form>
             </field>
@@ -71,13 +72,6 @@
                 <tree>
                     <field name="name"/>
                     <field name="uuid"/>
-                    <field name="benchmark"/>
-                    <field name="left_model_id"/>
-                    <field name="left_field_name"/>
-                    <field name="left_filter_field"/>
-                    <field name="right_model_id"/>
-                    <field name="right_field_name"/>
-                    <field name="right_filter_field"/>
                     <field name="usage"/>
                     <field name="type_id"/>
                 </tree>

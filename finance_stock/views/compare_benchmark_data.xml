@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_compare_benchmark_data_form" model="ir.ui.view">
+            <field name="name">compare.benchmark.data form</field>
+            <field name="model">compare.benchmark.data</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="stock_id"/>
+                                <field name="stock_code"/>
+                                <field name="value"/>
+                            </group>
+                            <group>
+                                <field name="compare_id"/>
+                                <field name="sign"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="view_compare_benchmark_data_tree" model="ir.ui.view">
+            <field name="name">compare.benchmark.data tree</field>
+            <field name="model">compare.benchmark.data</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="stock_id"/>
+                    <field name="stock_code"/>
+                    <field name="compare_id"/>
+                    <field name="value"/>
+                    <field name="sign"/>
+                </tree>
+            </field>
+        </record>
+        <record id="view_compare_benchmark_data_search" model="ir.ui.view">
+            <field name="name">compare.benchmark.data search</field>
+            <field name="model">compare.benchmark.data</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="stock_id"/>
+                    <field name="stock_code"/>
+                    <field name="compare_id"/>
+                    <group>
+                        <filter name="group_by_stock_id" string="股票" context="{'group_by': 'stock_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record id="action_compare_benchmark_data" model="ir.actions.act_window">
+            <field name="name">Benchmark Data</field>
+            <field name="res_model">compare.benchmark.data</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem id="menu_compare_benchmark_data"
+                  name="Benchmark Data"
+                  action="action_compare_benchmark_data"
+                  parent="menu_finance_stock_fiscal_data_menu"
+                  sequence="3"/>
+    </data>
+</odoo>

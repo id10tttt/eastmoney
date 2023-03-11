@@ -178,7 +178,7 @@
     </record>
     <record id="ir_cron_sync_finance_stock_mine_sweep" model="ir.cron">
         <field name='name'>避雷针：扫雷</field>
-        <field name='interval_number'>1</field>
+        <field name='interval_number'>15</field>
         <field name='interval_type'>days</field>
         <field name="numbercall">-1</field>
         <field name="active" eval="True"/>

@@ -13,6 +13,7 @@
         'security/ir.model.access.csv',
         'data/ir_cron.xml',
         'data/mine_type.xml',
+        'data/stock_compare.xml',
         'views/finance_stock.xml',
         'views/stock_main_data.xml',
         'views/stock_zcfzb.xml',
@@ -29,5 +30,6 @@
         'views/finance_event_type.xml',
         'views/stock_fiscal_data.xml',
         'views/finance_stock_xjllb.xml',
+        'views/compare_benchmark_data.xml',
     ],
 }

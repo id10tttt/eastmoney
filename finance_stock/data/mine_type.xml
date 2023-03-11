@@ -1,26 +1,44 @@
 <?xml version="1.0"?>
 <odoo>
-    <data noupdate="1">
+    <data>
         <record id="finance_mine_type_1" model="finance.mine.type">
-            <field name="name">是持续赚钱的公司吗？</field>
+            <field name="name">是持续赚钱的公司吗?</field>
         </record>
         <record id="finance_mine_type_2" model="finance.mine.type">
-            <field name="name">运营能力</field>
+            <field name="name">有在持续分红吗?</field>
         </record>
         <record id="finance_mine_type_3" model="finance.mine.type">
-            <field name="name">品牌力</field>
+            <field name="name">经营现金流是否持续健康?</field>
         </record>
         <record id="finance_mine_type_4" model="finance.mine.type">
-            <field name="name">产品及其可替代性</field>
+            <field name="name">收入质量是否好</field>
         </record>
         <record id="finance_mine_type_5" model="finance.mine.type">
-            <field name="name">是否有优秀持股机构持股</field>
+            <field name="name">库存周转是否过慢</field>
         </record>
         <record id="finance_mine_type_6" model="finance.mine.type">
-            <field name="name">技术面</field>
+            <field name="name">新产品创新能力是否强</field>
         </record>
         <record id="finance_mine_type_7" model="finance.mine.type">
-            <field name="name">管理层持股</field>
+            <field name="name">毛利率是否过低</field>
+        </record>
+        <record id="finance_mine_type_8" model="finance.mine.type">
+            <field name="name">负债率是否过高</field>
+        </record>
+        <record id="finance_mine_type_9" model="finance.mine.type">
+            <field name="name">前五客户销售额对总销售占比是否过高</field>
+        </record>
+        <record id="finance_mine_type_10" model="finance.mine.type">
+            <field name="name">每员工年度贡献收入金额</field>
+        </record>
+        <record id="finance_mine_type_11" model="finance.mine.type">
+            <field name="name">商誉是否高估</field>
+        </record>
+        <record id="finance_mine_type_12" model="finance.mine.type">
+            <field name="name">管理层是否有动力好好努力</field>
+        </record>
+        <record id="finance_mine_type_99" model="finance.mine.type">
+            <field name="name">其它</field>
         </record>
     </data>
 </odoo>

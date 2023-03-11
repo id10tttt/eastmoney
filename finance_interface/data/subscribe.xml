@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="subscribe_type_1" model="wxa.subscribe">
+            <field name="name">1个月订阅</field>
+            <field name="price_total">30</field>
+            <field name="type">vip</field>
+            <field name="duration_time">30</field>
+        </record>
+        <record id="subscribe_type_2" model="wxa.subscribe">
+            <field name="name">3个月订阅</field>
+            <field name="price_total">60</field>
+            <field name="type">vip</field>
+            <field name="duration_time">90</field>
+        </record>
+        <record id="subscribe_type_3" model="wxa.subscribe">
+            <field name="name">12个月订阅</field>
+            <field name="price_total">200</field>
+            <field name="type">vip</field>
+            <field name="duration_time">365</field>
+        </record>
+    </data>
+</odoo>
