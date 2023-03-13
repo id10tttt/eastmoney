@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields
 import requests
+import math
 from random import choice
 from odoo.tools import ormcache
 from itertools import groupby
@@ -258,10 +259,9 @@ class FinanceStockBasic(models.Model):
         基金机构<数据来源-同花顺>
         """
         org_holder_url = 'http://basic.10jqka.com.cn/basicapi/holder/stock/org_holder/detail'
-        all_period = self.get_default_period()
+        all_period = self.get_default_period_date()
         all_holder_ids = self.env['finance.stock.holder'].search([('stock_id', 'in', self.ids)])
         for stock_id in self:
-            continue
             _logger.info('获取基金机构信息: {}'.format(stock_id.symbol))
             all_data = []
             for period_id in all_period:
@@ -594,16 +594,48 @@ class FinanceStockBasic(models.Model):
         for x in res:
             x.with_delay().get_zcfzb_data()
 
-    def get_zcfzb_data(self):
+    def split_default_period_5(self, query_dates, split_count=5):
+        date_split = []
+        for loop_count in range(0, math.ceil(len(query_dates) / split_count)):
+            try:
+                current_date = query_dates[loop_count * 5: (loop_count + 1) * 5]
+            except Exception as e:
+                continue
+            date_split.append(current_date)
+        return date_split
+
+    def get_diff_date(self, all_report_date, query_dates):
+        all_date = [self.convert_datetime_to_date(x) for x in all_report_date if self.convert_datetime_to_date(x)]
+        diff_date = set(query_dates) - set(all_date)
+        if diff_date:
+            return sorted(diff_date)
+        return []
+
+    def convert_str_to_datetime(self, datetime_str):
+        date = datetime.datetime.strptime(datetime_str, '%Y-%m-%d %H:%M:%S')
+        return date
+
+    def convert_datetime_to_date(self, date_datetime):
+        try:
+            return date_datetime.strftime('%Y-%m-%d')
+        except Exception as e:
+            return None
+
+    def _get_zcfzb_data(self, query_dates):
         """
         资产负债表
         """
 
-        query_dates = self.get_default_period_date()
-        query_dates = ','.join(str(x) for x in query_dates)
         for stock_id in self:
+
             _logger.info('获取资产负债表信息: {}'.format(stock_id.symbol))
             security_code, sec_id = self.get_security_code(stock_id.symbol)
+            stock_zcfzb = self.env['finance.stock.zcfzb'].search([('stock_id', '=', stock_id.id)])
+
+            diff_date = self.get_diff_date(stock_zcfzb.mapped('report_date'), query_dates)
+            if not diff_date:
+                continue
+            query_dates = ','.join(str(x) for x in diff_date)
             res = self.fetch_zcfbz_data(query_dates, security_code)
 
             data = res.json().get('data')
@@ -611,7 +643,7 @@ class FinanceStockBasic(models.Model):
                 continue
             all_data = []
             exist_period = []
-            stock_zcfzb = self.env['finance.stock.zcfzb'].search([('stock_id', '=', stock_id.id)])
+
             for line_data in data:
                 secucode = line_data.get('SECUCODE')
                 report_date = line_data.get('REPORT_DATE')
@@ -652,6 +684,20 @@ class FinanceStockBasic(models.Model):
                 stock_id.write({
                     'zcfzb_ids': all_data
                 })
+
+    def get_zcfzb_data(self):
+        """
+        资产负债表
+        """
+
+        query_dates = self.get_default_period_date()
+        split_date = self.split_default_period_5(query_dates)
+        for current_date in split_date:
+            try:
+                self._get_zcfzb_data(current_date)
+            except Exception as e:
+                _logger.error('资产负债表获取出错! {}'.format(e))
+                continue
 
     def cron_fetch_rpt_lico_fn_cpd(self):
         res = self.env['finance.stock.basic'].search([])
@@ -782,12 +828,29 @@ class FinanceStockBasic(models.Model):
             现金流量表
         """
         query_dates = self.get_default_period_date()
-        query_dates = ','.join(str(x) for x in query_dates)
+        split_date = self.split_default_period_5(query_dates)
+        for current_date in split_date:
+            try:
+                self._get_xjllb_data(current_date)
+            except Exception as e:
+                _logger.error('资产利润表获取出错! {}'.format(e))
+                continue
+
+    def _get_xjllb_data(self, query_dates):
+        """
+            现金流量表
+        """
         all_xjllb = self.env['finance.stock.xjllb'].search([('stock_id', 'in', self.ids)])
         for stock_id in self:
             stock_xjllb_id = all_xjllb.filtered(lambda x: x.stock_id == stock_id)
             _logger.info('获取现金流量表信息: {}'.format(stock_id.symbol))
             security_code, sec_id = self.get_security_code(stock_id.symbol)
+
+            diff_date = self.get_diff_date(stock_xjllb_id.mapped('report_date'), query_dates)
+            if not diff_date:
+                continue
+            query_dates = ','.join(str(x) for x in diff_date)
+
             res = self.fetch_xjllb_data(query_dates, security_code)
 
             data = res.json().get('data')
@@ -824,10 +887,26 @@ class FinanceStockBasic(models.Model):
             利润表
         """
         query_dates = self.get_default_period_date()
-        query_dates = ','.join(str(x) for x in query_dates)
+        split_date = self.split_default_period_5(query_dates)
+        for current_date in split_date:
+            try:
+                self._get_lrb_data(current_date)
+            except Exception as e:
+                _logger.error('资产利润表获取出错! {}'.format(e))
+                continue
+
+    def _get_lrb_data(self, query_dates):
+        """
+            利润表
+        """
         all_lrb = self.env['finance.stock.lrb'].search([('stock_id', 'in', self.ids)])
         for stock_id in self:
             stock_lrb_id = all_lrb.filtered(lambda x: x.stock_id.id == stock_id.id)
+
+            diff_date = self.get_diff_date(stock_lrb_id.mapped('report_date'), query_dates)
+            if not diff_date:
+                continue
+            query_dates = ','.join(str(x) for x in diff_date)
 
             _logger.info('获取利润表信息: {}'.format(stock_id.symbol))
             security_code, sec_id = self.get_security_code(stock_id.symbol)
