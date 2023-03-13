@@ -75,19 +75,20 @@ class FinanceFiscalData(models.Model):
 
     def cron_update_finance_fiscal_data(self):
         # 更新数据
-        all_fiscal_ids = self.env['finance.fiscal.data'].search([])
-        for fiscal_id in all_fiscal_ids:
-            # 常规数据更新
-            fiscal_id.with_delay().update_fiscal_data()
+        all_stock = self.env['finance.stock.basic'].search([])
+        for stock_id in all_stock:
+            all_fiscal_ids = self.env['finance.fiscal.data'].search([('stock_id', '=', stock_id.id)])
+            all_fiscal_ids.with_delay().update_fiscal_data()
 
     def update_fiscal_data(self):
         for line_id in self:
-            update_data = self.parse_fiscal_data(self.stock_id, str(self.report_date))
+            update_data = self.parse_fiscal_data(line_id.stock_id, str(line_id.report_date))
             # 更新环比、增速等数据
             mm_value = self.parse_mm_ratio_value(line_id)
             speed_value = self.parse_speed_value(line_id)
             update_data.update(**mm_value)
             update_data.update(**speed_value)
+            _logger.info('开始更新: {}'.format(line_id.security_code))
             line_id.write(update_data)
 
     def cron_fetch_fiscal_data(self):
@@ -153,7 +154,7 @@ class FinanceFiscalData(models.Model):
             # 每股收益
             'per_share': self.get_lrb_value(lrb_id, 'DILUTED_EPS'),
             # 营业收入
-            'operate_revenue': float_or_zero(main_id.total_operate_reve),
+            'operate_revenue': self.get_lrb_value(lrb_id, 'OPERATE_INCOME'),
             # ROE
             'roe': float_or_zero(main_id.roejq),
             # 经营性现金流
@@ -257,7 +258,7 @@ class FinanceFiscalData(models.Model):
                     # 每股收益增速
                     # 'per_share_speed': '',
                     # 营业收入
-                    'operate_revenue': float_or_zero(main_id.total_operate_reve),
+                    'operate_revenue': self.get_lrb_value(lrb_id, 'OPERATE_INCOME'),
                     # 营业收入环比
                     # 'operate_revenue_mm_ratio': '',
                     # 营业收入增速
