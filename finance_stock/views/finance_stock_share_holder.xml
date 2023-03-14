@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_finance_stock_share_holder_tree" model="ir.ui.view">
+            <field name="name">finance.stock.share.holder tree</field>
+            <field name="model">finance.stock.share.holder</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="stock_id"/>
+                    <field name="secucode"/>
+                    <field name="security_code"/>
+                    <field name="report_date"/>
+                    <field name="free_holder_number_ratio"/>
+                    <field name="holder_name"/>
+                    <field name="holder_rank"/>
+                    <field name="hold_num"/>
+                    <field name="hold_num_change"/>
+                    <field name="share_type"/>
+                </tree>
+            </field>
+        </record>
+        <record id="view_finance_stock_share_holder_search" model="ir.ui.view">
+            <field name="name">finance.stock.holder search</field>
+            <field name="model">finance.stock.holder</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="stock_id"/>
+                    <field name="security_code"/>
+                    <group>
+                        <filter name="group_by_report_date" string="期间" context="{'group_by': 'report_date'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record id="action_finance_stock_share_holder" model="ir.actions.act_window">
+            <field name="name">流通股东</field>
+            <field name="res_model">finance.stock.share.holder</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem id="menu_finance_stock_share_holder"
+                  name="流通股东"
+                  action="action_finance_stock_share_holder"
+                  parent="menu_finance_stock_menu"
+                  sequence="11"/>
+    </data>
+</odoo>

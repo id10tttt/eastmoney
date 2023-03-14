@@ -129,6 +129,7 @@ class FinanceStockBasic(models.Model):
     xjllb_ids = fields.One2many('finance.stock.xjllb', 'stock_id', string='现金流量表')
     business_ids = fields.One2many('finance.stock.business', 'stock_id', string='主营构成分析')
     holder_ids = fields.One2many('finance.stock.holder', 'stock_id', string='基金机构')
+    share_holder_ids = fields.One2many('finance.stock.share.holder', 'stock_id', string='流通股东')
 
     plge_rat = fields.Char('质押比例')
     blt_hld_rat = fields.Char('合计持股比')
@@ -249,6 +250,65 @@ class FinanceStockBasic(models.Model):
                 'mine_json': json.dumps(result)
             })
 
+    def cron_fetch_share_holder(self):
+        res = self.env['finance.stock.basic'].search([])
+        for x in res:
+            x.with_delay().get_stock_share_holder()
+
+    def get_stock_share_holder(self):
+        """
+        流通股东<数据来源-东方财富>
+        """
+        share_holder_url = 'https://emweb.securities.eastmoney.com/PC_HSF10/ShareholderResearch/PageSDLTGD'
+        all_period = self.get_default_period_date()
+        all_holder_ids = self.env['finance.stock.share.holder'].search([('stock_id', 'in', self.ids)])
+        security_code, sec_id = self.get_security_code(self.symbol)
+        all_data = []
+        for period_date in all_period:
+            _logger.info('获取流通股东信息: {}, {}'.format(security_code, period_date))
+            payload_data = {
+                'code': security_code,
+                'date': period_date,
+            }
+            res = requests.get(share_holder_url, params=payload_data, headers=headers)
+
+            try:
+                result = res.json()
+            except Exception as e:
+                _logger.error('获取数据出错: {}, {}, {}'.format(period_date, e, res.text))
+                continue
+            sdltgd_data = result.get('sdltgd', {})
+            if not sdltgd_data:
+                continue
+            stock_share_holder_ids = all_holder_ids.filtered(lambda x: x.stock_id == self)
+            for x in sdltgd_data:
+                holder_name = x.get('HOLDER_NAME')
+                if stock_share_holder_ids.filtered(lambda x: x.report_date == x.get('END_DATE') and
+                                                             x.holder_name == holder_name):
+                    continue
+                data = {
+                    'secucode': self.ts_code,
+                    'security_code': self.symbol,
+                    'holder_name': holder_name,
+                    'free_holder_number_ratio': x.get('FREE_HOLDNUM_RATIO'),
+                    'holder_type': x.get('HOLDER_TYPE'),
+                    'holder_rank': x.get('HOLDER_RANK'),
+                    'hold_num': x.get('HOLD_NUM'),
+                    'hold_num_change': x.get('HOLD_NUM_CHANGE'),
+                    'share_type': x.get('SHARES_TYPE'),
+                    'share_holder_json': json.dumps(x),
+                    'stock_id': self.id,
+                    'report_date': x.get('END_DATE')
+                }
+                _logger.info('流通股东: {}'.format(x.get('END_DATE')))
+                all_data.append((0, 0, data))
+        if all_data:
+            # delete first
+            self.share_holder_ids.unlink()
+            self.write({
+                'share_holder_ids': all_data
+            })
+
     def cron_fetch_holder(self):
         res = self.env['finance.stock.basic'].search([])
         for x in res:
@@ -308,6 +368,7 @@ class FinanceStockBasic(models.Model):
                     tmp_data.append((0, 0, data))
                 all_data += tmp_data
             if all_data:
+                self.holder_ids.unlink()
                 stock_id.write({
                     'holder_ids': all_data
                 })

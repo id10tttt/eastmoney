@@ -21,6 +21,7 @@
         'views/stock_business.xml',
         'views/stock_analyse.xml',
         'views/finance_stock_holder.xml',
+        'views/finance_stock_share_holder.xml',
         'views/stock_lrb.xml',
         'views/finance_settings.xml',
         'views/stock_compare_analysis.xml',

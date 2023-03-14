@@ -77,7 +77,8 @@ class FinanceFiscalData(models.Model):
         # 更新数据
         all_stock = self.env['finance.stock.basic'].search([])
         for stock_id in all_stock:
-            all_fiscal_ids = self.env['finance.fiscal.data'].search([('stock_id', '=', stock_id.id)])
+            all_fiscal_ids = self.env['finance.fiscal.data'].search([('stock_id', '=', stock_id.id)],
+                                                                    order='report_date asc')
             all_fiscal_ids.with_delay().update_fiscal_data()
 
     def update_fiscal_data(self):
@@ -88,13 +89,11 @@ class FinanceFiscalData(models.Model):
             speed_value = self.parse_speed_value(line_id)
             update_data.update(**mm_value)
             update_data.update(**speed_value)
-            _logger.info('开始更新: {}'.format(line_id.security_code))
+            _logger.info('开始更新: {}, {}'.format(line_id.security_code, line_id.report_date))
             line_id.write(update_data)
 
     def cron_fetch_fiscal_data(self):
         all_period = self.get_default_period()
-        # all_period = all_period[:-4]
-        # all_fiscal_ids = self.env['finance.fiscal.data'].search([])
         all_stock_ids = self.env['finance.stock.basic'].search([])
         for stock_id in all_stock_ids:
             self.with_delay().generate_fiscal_data(stock_ids=stock_id, report_date=all_period)
@@ -201,6 +200,10 @@ class FinanceFiscalData(models.Model):
         }
         return tmp_data
 
+    def convert_str_to_datetime(self, datetime_str):
+        date = datetime.datetime.strptime(datetime_str, '%Y-%m-%d %H:%M:%S')
+        return date
+
     def generate_fiscal_data(self, stock_ids=None, report_date=None):
         if report_date:
             all_period = report_date
@@ -220,11 +223,13 @@ class FinanceFiscalData(models.Model):
             lrb_ids = self.env['finance.stock.lrb'].search([('stock_id', '=', stock_id.id)])
             zcfzb_ids = self.env['finance.stock.zcfzb'].search([('stock_id', '=', stock_id.id)])
             report_ids = self.env['finance.stock.report'].search([('stock_id', '=', stock_id.id)])
-            all_fiscal_ids = self.env['finance.fiscal.data'].search([('stock_id', '=', stock_id.id)])
+            all_fiscal_ids = self.env['finance.fiscal.data'].search([
+                ('stock_id', '=', stock_id.id)
+            ])
             xjllb_ids = self.env['finance.stock.xjllb'].search([('stock_id', '=', stock_id.id)])
 
             for period_date in all_period:
-                fiscal_id = all_fiscal_ids.filtered(lambda x: x.stock_id == stock_id and x.report_date == period_date)
+                fiscal_id = all_fiscal_ids.filtered(lambda x: x.stock_id == stock_id and x.report_date == self.convert_str_to_datetime(period_date))
                 if fiscal_id:
                     continue
                 survey_id = survey_ids.filtered(lambda x: x.ts_code == stock_id.ts_code)

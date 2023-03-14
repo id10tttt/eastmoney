@@ -93,6 +93,7 @@
                         <button name="get_east_money_peg_value" string="PEG" type="object"/>
                         <button name="get_stock_relationship_data" string="行业排名" type="object"/>
                         <button name="get_org_holder" string="基金机构" type="object"/>
+                        <button name="get_stock_share_holder" string="十大流通股东" type="object"/>
                         <button name="get_mine_brief" string="扫雷" type="object"/>
                     </header>
                     <sheet>
@@ -258,6 +259,16 @@
                                         <field name="report_date"/>
                                         <field name="org_name"/>
                                         <field name="rate"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page name="share_holder" string="流通股东">
+                                <field name="share_holder_ids">
+                                    <tree>
+                                        <field name="report_date"/>
+                                        <field name="holder_name"/>
+                                        <field name="free_holder_number_ratio"/>
+                                        <field name="holder_rank"/>
                                     </tree>
                                 </field>
                             </page>
