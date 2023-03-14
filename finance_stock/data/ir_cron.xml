@@ -154,9 +154,20 @@
         <field name="state">code</field>
         <field name="model_id" ref="model_finance_stock_basic"/>
     </record>
+    <record id="ir_cron_sync_finance_company_event" model="ir.cron">
+        <field name='name'>避雷针：公司事件</field>
+        <field name='interval_number'>10</field>
+        <field name='interval_type'>days</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="True"/>
+        <field name="doall" eval="False"/>
+        <field name="code">model.cron_fetch_stock_event()</field>
+        <field name="state">code</field>
+        <field name="model_id" ref="model_finance_stock_basic"/>
+    </record>
     <record id="ir_cron_sync_finance_stock_analyse" model="ir.cron">
         <field name='name'>避雷针：报表</field>
-        <field name='interval_number'>5</field>
+        <field name='interval_number'>50</field>
         <field name='interval_type'>days</field>
         <field name="numbercall">-1</field>
         <field name="active" eval="True"/>
@@ -167,7 +178,7 @@
     </record>
     <record id="ir_cron_sync_finance_fiscal_data" model="ir.cron">
         <field name='name'>避雷针：处理后财务信息</field>
-        <field name='interval_number'>5</field>
+        <field name='interval_number'>15</field>
         <field name='interval_type'>days</field>
         <field name="numbercall">-1</field>
         <field name="active" eval="True"/>
@@ -178,7 +189,7 @@
     </record>
     <record id="ir_cron_sync_update_finance_fiscal_data" model="ir.cron">
         <field name='name'>避雷针：更新-处理后财务信息</field>
-        <field name='interval_number'>5</field>
+        <field name='interval_number'>16</field>
         <field name='interval_type'>days</field>
         <field name="numbercall">-1</field>
         <field name="active" eval="True"/>

@@ -9,3 +9,6 @@ class FinanceCompanyEvent(models.Model):
     stock_id = fields.Many2one('finance.stock.basic', index=True)
     name = fields.Char('事件')
     event_date = fields.Date('事件日期')
+    event_type = fields.Char('类型')
+    specific_event_type = fields.Char('Specific Event Type')
+    event_content_other = fields.Char('Other Content')

@@ -7,7 +7,7 @@ class FinanceStockShareHolder(models.Model):
     _description = '流通股东'
     _order = 'report_date, holder_rank'
     _sql_constraints = [
-        ("name_report_date", "unique(holder_name, report_date)", "股票、日期必须唯一")
+        ("name_report_date_stock_id", "unique(holder_name, report_date, stock_id)", "股票、日期必须唯一")
     ]
 
     stock_id = fields.Many2one('finance.stock.basic', string='股票')

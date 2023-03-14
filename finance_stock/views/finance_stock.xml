@@ -94,6 +94,7 @@
                         <button name="get_stock_relationship_data" string="行业排名" type="object"/>
                         <button name="get_org_holder" string="基金机构" type="object"/>
                         <button name="get_stock_share_holder" string="十大流通股东" type="object"/>
+                        <button name="get_stock_event" string="公司事件" type="object"/>
                         <button name="get_mine_brief" string="扫雷" type="object"/>
                     </header>
                     <sheet>
@@ -269,6 +270,15 @@
                                         <field name="holder_name"/>
                                         <field name="free_holder_number_ratio"/>
                                         <field name="holder_rank"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page name="company_event" string="事件">
+                                <field name="event_ids">
+                                    <tree>
+                                        <field name="event_date"/>
+                                        <field name="event_type"/>
+                                        <field name="name"/>
                                     </tree>
                                 </field>
                             </page>
