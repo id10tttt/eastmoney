@@ -30,6 +30,7 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="name"/>
+                    <field name="security_code"/>
                     <field name="stock_id"/>
                     <field name="event_date"/>
                     <field name="event_type"/>
@@ -44,6 +45,7 @@
             <field name="arch" type="xml">
                 <search>
                     <field name="name"/>
+                    <field name="security_code"/>
                     <field name="stock_id"/>
                     <field name="event_type"/>
                     <field name="specific_event_type"/>
