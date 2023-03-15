@@ -20,8 +20,8 @@
             </field>
         </record>
         <record id="view_finance_stock_share_holder_search" model="ir.ui.view">
-            <field name="name">finance.stock.holder search</field>
-            <field name="model">finance.stock.holder</field>
+            <field name="name">finance.stock.share.holder search</field>
+            <field name="model">finance.stock.share.holder</field>
             <field name="arch" type="xml">
                 <search>
                     <field name="stock_id"/>
