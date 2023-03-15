@@ -254,7 +254,7 @@ class FinanceStockBasic(models.Model):
     def cron_fetch_stock_event(self):
         res = self.env['finance.stock.basic'].search([])
         for x in res:
-            x.with_delay().get_stock_share_holder()
+            x.with_delay().get_stock_event()
 
     def get_stock_event(self, max_query_page=4):
         """
