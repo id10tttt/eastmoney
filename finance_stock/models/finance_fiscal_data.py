@@ -121,6 +121,9 @@ class FinanceFiscalData(models.Model):
         lrb_json = json.loads(zcfbb_json)
         return float_or_zero(lrb_json.get(field_name))
 
+    def get_pb_mrq(self):
+        pass
+
     def parse_fiscal_data(self, stock_id, period_date):
         survey_ids = self.env['finance.stock.company'].search([('ts_code', '=', stock_id.ts_code)])
         main_ids = self.env['finance.stock.main.data'].search([('stock_id', '=', stock_id.id)])
@@ -169,7 +172,7 @@ class FinanceFiscalData(models.Model):
             'total_share_capital': float_or_zero(stock_id.f84),
             # 市现率
             'pcf_ocf_tim': float_or_zero(stock_id.pcf_ocf_tim),
-            # 市净率
+            # 市净率 = 股票价格/每股净资产(f102)
             'pb_mrq': float_or_zero(stock_id.pb_mrq),
             # 市盈率
             'pe_ratio': '',

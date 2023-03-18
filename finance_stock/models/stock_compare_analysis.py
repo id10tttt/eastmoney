@@ -40,6 +40,32 @@ class StockCompareAnalysis(models.Model):
     ], string='使用范围', default='free', required=True)
     stock_code = fields.Char('Stock code')
 
+    def get_stock_id(self, stock_code):
+        stock_id = self.env['finance.stock.basic'].search([
+            ('symbol', '=', stock_code)
+        ])
+        return stock_id.id if stock_id else False
+
+    def save_benchmark_data(self, security_code, all_result, all_benchmark_result):
+        benchmark_obj = self.env['compare.benchmark.data']
+        benchmark_id = benchmark_obj.search([
+            ('compare_id', '=', self.id),
+            ('stock_code', '=', security_code)
+        ])
+        if not benchmark_id:
+            data = {
+                'data': all_result,
+                'benchmark_data': all_benchmark_result
+            }
+            benchmark_data = {
+                'compare_id': self.id,
+                'stock_code': security_code,
+                'stock_id': self.get_stock_id(security_code),
+                'value': json.dumps(data)
+            }
+            res = benchmark_obj.create(benchmark_data)
+            _logger.info('创建记录: {}'.format(res))
+
     def get_benchmark_result_value(self, security_code='000001'):
         self.ensure_one()
         all_result = []
@@ -50,6 +76,7 @@ class StockCompareAnalysis(models.Model):
             sql_result, benchmark_result = compare_line.get_benchmark_result(self.stock_code or security_code)
             all_result.append(sql_result)
             all_benchmark_result.append(benchmark_result)
+        self.save_benchmark_data(security_code, all_result, benchmark_result)
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -71,7 +98,8 @@ class StockCompareAnalysis(models.Model):
 
     def get_benchmark_result(self):
         self.ensure_one()
-        return getattr(self, 'get_benchmark_result_{}'.format(self.value_type))()
+        return getattr(self, 'get_benchmark_result_{}'.format(self.value_type))(
+            security_code=self.stock_code or '000001')
 
     def get_default_uuid(self):
         return str(uuid.uuid4())
@@ -208,7 +236,11 @@ class StockCompareLine(models.Model):
         except Exception as e:
             raise ValidationError('错误: {}'.format(e))
         res = self.env.cr.fetchall()
-        return res
+        result = {
+            'compare_id': self.id,
+            'data': res
+        }
+        return result
 
     def get_metric_parsed_sql(self, security_code):
         return self._get_metric_parsed_sql(security_code)
@@ -217,9 +249,10 @@ class StockCompareLine(models.Model):
         source_data = self._get_metric_source_data()
         source_args = self._get_metric_source_args(security_code)
         if self.use_latest_period > 0:
-            source_args.update({
-                'report_date': self.period_detail
-            })
+            if 'report_date' not in source_args.keys():
+                source_args.update({
+                    'report_date': self.period_detail
+                })
         try:
             select_sql = source_data.format(**source_args)
         except Exception as e:
@@ -240,7 +273,8 @@ class StockCompareLine(models.Model):
             })
         return source_args
 
-    def verify_benchmark_result_sign(self, sql_result):
+    def verify_benchmark_result_sign(self, compare_result):
+        sql_result = compare_result.get('data')
         benchmark_result = []
         for line_id in self.benchmark_line_ids:
             if line_id.inequality_operator == '>':
@@ -261,7 +295,11 @@ class StockCompareLine(models.Model):
                 benchmark_data = verify_pairwise_decrease(sql_result)
             else:
                 benchmark_data = None
-            benchmark_result.append(benchmark_data)
+            benchmark_result.append({
+                'sign': line_id.sign,
+                'benchmark_line': line_id.id,
+                'data': benchmark_data
+            })
         return benchmark_result
 
     def get_benchmark_result(self, security_code='000001'):
