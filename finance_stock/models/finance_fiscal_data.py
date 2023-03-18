@@ -73,6 +73,40 @@ class FinanceFiscalData(models.Model):
     net_asset = fields.Float('净资产(股东权益合计)', help='资产负债表')
     sign = fields.Char('Sign')
 
+    def _delete_invalidate_records(self, all_period, stock_ids):
+        unlink_records = self.env['finance.fiscal.data']
+        for stock_id in stock_ids:
+            _logger.info('开始生成 [{}] 报表'.format(stock_id.symbol))
+            lrb_ids = self.env['finance.stock.lrb'].search([('stock_id', '=', stock_id.id)])
+            zcfzb_ids = self.env['finance.stock.zcfzb'].search([('stock_id', '=', stock_id.id)])
+            all_fiscal_ids = self.env['finance.fiscal.data'].search([
+                ('stock_id', '=', stock_id.id)
+            ])
+            xjllb_ids = self.env['finance.stock.xjllb'].search([('stock_id', '=', stock_id.id)])
+
+            for period_date in all_period:
+                fiscal_id = all_fiscal_ids.filtered(
+                    lambda x: x.stock_id == stock_id and x.report_date == self.convert_str_to_datetime(period_date))
+                if not fiscal_id:
+                    continue
+
+                # 利润表
+                lrb_id = lrb_ids.filtered(lambda x: x.stock_id == stock_id and x.report_date == period_date)
+                # 资产负债表
+                zcfzb_id = zcfzb_ids.filtered(lambda x: x.stock_id == stock_id and x.report_date == period_date)
+                # 现金流量表
+                xjllb_id = xjllb_ids.filtered(lambda x: x.stock_id == stock_id and x.report_date == period_date)
+
+                if not all([zcfzb_id, lrb_id, xjllb_id]):
+                    unlink_records += fiscal_id
+        unlink_records.unlink()
+
+    def cron_delete_invalidate_records(self):
+        all_period = self.get_default_period()
+        all_stock_ids = self.env['finance.stock.basic'].search([])
+        for stock_id in all_stock_ids:
+            self.with_delay()._delete_invalidate_records(all_period, stock_id)
+
     def cron_update_finance_fiscal_data(self):
         # 更新数据
         all_stock = self.env['finance.stock.basic'].search([])
@@ -232,7 +266,8 @@ class FinanceFiscalData(models.Model):
             xjllb_ids = self.env['finance.stock.xjllb'].search([('stock_id', '=', stock_id.id)])
 
             for period_date in all_period:
-                fiscal_id = all_fiscal_ids.filtered(lambda x: x.stock_id == stock_id and x.report_date == self.convert_str_to_datetime(period_date))
+                fiscal_id = all_fiscal_ids.filtered(
+                    lambda x: x.stock_id == stock_id and x.report_date == self.convert_str_to_datetime(period_date))
                 if fiscal_id:
                     continue
                 survey_id = survey_ids.filtered(lambda x: x.ts_code == stock_id.ts_code)
@@ -253,6 +288,8 @@ class FinanceFiscalData(models.Model):
                     lambda x: x.stock_id == stock_id and x.reportdate == period_date)
                 xjllb_id = xjllb_ids.filtered(lambda x: x.stock_id == stock_id and x.report_date == period_date)
 
+                if not all([zcfzb_id, lrb_id, xjllb_id]):
+                    continue
                 tmp_data = {
                     'secucode': stock_id.ts_code,
                     'security_code': stock_id.symbol,

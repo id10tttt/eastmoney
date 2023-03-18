@@ -24,7 +24,9 @@ class BenchmarkData(models.Model):
         for benchmark_line_id in benchmark_data:
             if all(benchmark_line_id.get('data')):
                 return benchmark_line_id.get('sign')
-        return 'danger'
+            if benchmark_line_id.get('sign') == 'danger' and any(benchmark_line_id.get('data')):
+                return benchmark_line_id.get('sign')
+        return 'rain'
 
     @api.depends('value')
     def _compute_benchmark_sign(self):
