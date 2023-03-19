@@ -63,7 +63,8 @@ class FinanceStockBonus(models.Model):
                 continue
 
             fhyx_data = result.get('fhyx')
-
+            if not fhyx_data:
+                continue
             for fhyx_line in fhyx_data:
                 if bonus_id.filtered(lambda b: b.notice_date == fhyx_line.get('NOTICE_DATE')):
                     continue

@@ -65,6 +65,8 @@ class FinanceStockBonus(models.Model):
 
             ggcgbd_data = result.get('ggcgbd')
 
+            if not ggcgbd_data:
+                continue
             for ggcgbd_line in ggcgbd_data:
                 if share_news_ids.filtered(lambda b: b.change_date == ggcgbd_line.get('CHANGE_DATE')):
                     continue
