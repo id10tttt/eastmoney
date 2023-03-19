@@ -231,4 +231,15 @@
         <field name="state">code</field>
         <field name="model_id" ref="model_finance_stock_bonus"/>
     </record>
+    <record id="ir_cron_sync_finance_stock_share_holder_news" model="ir.cron">
+        <field name='name'>避雷针：高管持股变动</field>
+        <field name='interval_number'>20</field>
+        <field name='interval_type'>days</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="True"/>
+        <field name="doall" eval="False"/>
+        <field name="code">model.cron_fetch_share_holder_news()</field>
+        <field name="state">code</field>
+        <field name="model_id" ref="model_finance_stock_share_holder_news"/>
+    </record>
 </odoo>
