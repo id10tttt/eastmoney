@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_finance_stock_bonus_tree" model="ir.ui.view">
+            <field name="name">finance.stock.bonus tree</field>
+            <field name="model">finance.stock.bonus</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="stock_id"/>
+                    <field name="secucode"/>
+                    <field name="security_code"/>
+                    <field name="notice_date"/>
+                    <field name="impl_plan_profile"/>
+                    <field name="equity_record_date"/>
+                    <field name="ex_dividend_date"/>
+                    <field name="pay_cash_date"/>
+                    <field name="assign_progress"/>
+                </tree>
+            </field>
+        </record>
+        <record id="view_finance_stock_bonus_search" model="ir.ui.view">
+            <field name="name">finance.stock.bonus search</field>
+            <field name="model">finance.stock.bonus</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="stock_id"/>
+                    <field name="security_code"/>
+                </search>
+            </field>
+        </record>
+        <record id="action_finance_stock_bonus" model="ir.actions.act_window">
+            <field name="name">分红融资</field>
+            <field name="res_model">finance.stock.bonus</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem id="menu_finance_stock_bonus"
+                  name="分红融资"
+                  action="action_finance_stock_bonus"
+                  parent="menu_finance_stock_event"
+                  sequence="2"/>
+    </data>
+</odoo>

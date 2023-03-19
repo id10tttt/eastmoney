@@ -32,5 +32,7 @@
         'views/stock_fiscal_data.xml',
         'views/finance_stock_xjllb.xml',
         'views/compare_benchmark_data.xml',
+        'views/finance_stock_bonus.xml',
+        'views/finance_stock_share_holder_news.xml',
     ],
 }

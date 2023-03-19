@@ -294,6 +294,7 @@ class FinanceStockBasic(models.Model):
                         'event_date': event_data.get('NOTICE_DATE'),
                         'event_type': event_data.get('EVENT_TYPE'),
                         'specific_event_type': event_data.get('SPECIFIC_EVENTTYPE'),
+                        'origin_json': json.dumps(event_data)
                     }
                     all_data.append((0, 0, data))
 
@@ -301,6 +302,20 @@ class FinanceStockBasic(models.Model):
             self.write({
                 'event_ids': all_data
             })
+
+    def get_finance_stock_bonus_data(self):
+        """
+        分红
+        """
+        for stock_id in self:
+            self.env['finance.stock.bonus'].get_bonus_data(stock_id)
+
+    def get_finance_stock_share_holder_news(self):
+        """
+        高管持股变动
+        """
+        for stock_id in self:
+            self.env['finance.stock.share.holder.news'].get_share_holder_news(stock_id)
 
     def cron_fetch_share_holder(self):
         res = self.env['finance.stock.basic'].search([])

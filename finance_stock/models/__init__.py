@@ -15,3 +15,5 @@ from . import finance_fiscal_data
 from . import finance_stock_xjllb
 from . import benchmark_data
 from . import finance_stock_share_holder
+from . import finance_stock_bonus
+from . import finance_share_holder_news

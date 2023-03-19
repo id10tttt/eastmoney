@@ -64,7 +64,7 @@
         <menuitem id="menu_finance_company_event"
                   name="公司事件"
                   action="action_finance_stock_company_event"
-                  parent="menu_finance_stock_mine_sweep"
+                  parent="menu_finance_stock_event"
                   sequence="1"/>
     </data>
 </odoo>

@@ -86,6 +86,6 @@
                   name="比较规则"
                   action="action_finance_stock_compare_analysis"
                   parent="menu_finance_stock_mine_sweep"
-                  sequence="10"/>
+                  sequence="3"/>
     </data>
 </odoo>

@@ -142,7 +142,7 @@
         <menuitem id="menu_finance_stock_fiscal_data"
                   name="处理后财务信息"
                   action="action_finance_stock_fiscal_data"
-                  parent="menu_finance_stock_fiscal_data_menu"
-                  sequence="2"/>
+                  parent="menu_finance_stock_mine_sweep"
+                  sequence="4"/>
     </data>
 </odoo>

@@ -95,6 +95,8 @@
                         <button name="get_org_holder" string="基金机构" type="object"/>
                         <button name="get_stock_share_holder" string="十大流通股东" type="object"/>
                         <button name="get_stock_event" string="公司事件" type="object"/>
+                        <button name="get_finance_stock_bonus_data" string="分红融资" type="object"/>
+                        <button name="get_finance_stock_share_holder_news" string="高管持股变动" type="object"/>
                         <button name="get_mine_brief" string="扫雷" type="object"/>
                     </header>
                     <sheet>
@@ -391,13 +393,17 @@
                   name="公司财务数据"
                   parent="menu_finance_stock_root"
                   sequence="3"/>
-        <menuitem id="menu_finance_stock_fiscal_data_menu"
-                  name="财务信息"
+<!--        <menuitem id="menu_finance_stock_fiscal_data_menu"-->
+<!--                  name="财务信息"-->
+<!--                  parent="menu_finance_stock_root"-->
+<!--                  sequence="4"/>-->
+        <menuitem id="menu_finance_stock_event"
+                  name="事件"
                   parent="menu_finance_stock_root"
-                  sequence="4"/>
+                  sequence="10"/>
         <menuitem id="menu_finance_stock_mine_sweep"
                   name="避雷针"
                   parent="menu_finance_stock_root"
-                  sequence="10"/>
+                  sequence="11"/>
     </data>
 </odoo>

@@ -13,3 +13,4 @@ class FinanceCompanyEvent(models.Model):
     event_type = fields.Char('类型')
     specific_event_type = fields.Char('Specific Event Type')
     event_content_other = fields.Char('Other Content')
+    origin_json = fields.Text('Origin json')

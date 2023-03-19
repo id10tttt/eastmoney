@@ -57,7 +57,7 @@
         <menuitem id="menu_compare_benchmark_data"
                   name="Benchmark Data"
                   action="action_compare_benchmark_data"
-                  parent="menu_finance_stock_fiscal_data_menu"
-                  sequence="3"/>
+                  parent="menu_finance_stock_mine_sweep"
+                  sequence="5"/>
     </data>
 </odoo>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_finance_stock_share_holder_news_tree" model="ir.ui.view">
+            <field name="name">finance.stock.share.holder.news tree</field>
+            <field name="model">finance.stock.share.holder.news</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="stock_id"/>
+                    <field name="secucode"/>
+                    <field name="security_code"/>
+                    <field name="change_date"/>
+                    <field name="person_name"/>
+                    <field name="change_shares"/>
+                    <field name="change_after_holdnum"/>
+                    <field name="average_price"/>
+                    <field name="position_name"/>
+                    <field name="position_des_relation"/>
+                    <field name="change_reason"/>
+                </tree>
+            </field>
+        </record>
+        <record id="view_finance_stock_share_holder_news_search" model="ir.ui.view">
+            <field name="name">finance.stock.share.holder.news search</field>
+            <field name="model">finance.stock.share.holder.news</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="stock_id"/>
+                    <field name="security_code"/>
+                </search>
+            </field>
+        </record>
+        <record id="action_finance_stock_share_holder_news" model="ir.actions.act_window">
+            <field name="name">高管持股变动</field>
+            <field name="res_model">finance.stock.share.holder.news</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem id="menu_finance_stock_share_holder_news"
+                  name="高管持股变动"
+                  action="action_finance_stock_share_holder_news"
+                  parent="menu_finance_stock_event"
+                  sequence="3"/>
+    </data>
+</odoo>
