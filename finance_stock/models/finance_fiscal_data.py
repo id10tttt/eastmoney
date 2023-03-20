@@ -198,9 +198,9 @@ class FinanceFiscalData(models.Model):
             # 净运营资本
             'net_working_capital': '',
             # 应收账款
-            'accounts_receivable': float_or_zero(zcfzb_id.total_other_rece),
+            'accounts_receivable': self.get_zcfzb_value(zcfzb_id, 'ACCOUNTS_RECE'),
             # 收入质量
-            'revenue_quality': self.get_ratio(float_or_zero(zcfzb_id.total_other_rece),
+            'revenue_quality': self.get_ratio(self.get_zcfzb_value(zcfzb_id, 'ACCOUNTS_RECE'),
                                               self.get_lrb_value(lrb_id, 'OPERATE_INCOME')),
             # 总股本
             'total_share_capital': float_or_zero(stock_id.f84),
@@ -319,7 +319,7 @@ class FinanceFiscalData(models.Model):
                     # 净运营资本
                     'net_working_capital': '',
                     # 应收账款
-                    'accounts_receivable': float_or_zero(zcfzb_id.total_other_rece),
+                    'accounts_receivable': self.get_zcfzb_value(zcfzb_id, 'ACCOUNTS_RECE'),
                     # 应收账款环比
                     # 'accounts_receivable_mm_ratio': '',
                     # 应收账款增速
@@ -436,21 +436,7 @@ class FinanceFiscalData(models.Model):
         last_fiscal_id = stock_fiscal_ids.filtered(lambda x: x.report_date == last_year_date)
         ll_q_fiscal_id = stock_fiscal_ids.filtered(lambda x: x.report_date == ll_year_q_data)
         last_q_fiscal_id = stock_fiscal_ids.filtered(lambda x: x.report_date == last_q_date)
-        #
-        # result = {
-        #     'operate_revenue_speed': self.get_ratio(
-        #         self.get_ratio(fiscal_id.operate_revenue, last_q_fiscal_id.operate_revenue),
-        #         self.get_ratio(last_fiscal_id.operate_revenue, ll_q_fiscal_id.operate_revenue)),
-        #     'per_share_speed': self.get_ratio(
-        #         self.get_ratio(fiscal_id.per_share, last_q_fiscal_id.per_share),
-        #         self.get_ratio(last_fiscal_id.per_share, ll_q_fiscal_id.per_share)),
-        #     'roe_speed': self.get_ratio(
-        #         self.get_ratio(fiscal_id.roe, last_q_fiscal_id.roe),
-        #         self.get_ratio(last_fiscal_id.roe, ll_q_fiscal_id.roe)),
-        #     'accounts_receivable_speed': self.get_ratio(
-        #         self.get_ratio(fiscal_id.accounts_receivable, last_q_fiscal_id.accounts_receivable),
-        #         self.get_ratio(last_fiscal_id.accounts_receivable, ll_q_fiscal_id.accounts_receivable)),
-        # }
+
         result = {
             'operate_revenue_speed': self.compute_value_speed(
                 fiscal_id.operate_revenue, last_fiscal_id.operate_revenue,

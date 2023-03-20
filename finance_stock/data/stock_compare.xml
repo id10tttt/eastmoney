@@ -14,7 +14,7 @@
                 from
                     finance_fiscal_data ffd
                 where
-                    report_date in ({report_date}) and security_code = '{secucode}'
+                    report_date in ({report_date}) and security_code = '{security_code}'
                 order by report_date asc
             </field>
             <field name="use_latest_period">12</field>
@@ -42,7 +42,7 @@
                 from
                     finance_fiscal_data ffd
                 where
-                    report_date in ({report_date}) and security_code = '{secucode}'
+                    report_date in ({report_date}) and security_code = '{security_code}'
                 order by report_date asc
             </field>
             <field name="use_latest_period">12</field>
@@ -70,7 +70,7 @@
                 from
                     finance_fiscal_data ffd
                 where
-                    report_date in ({report_date}) and security_code = '{secucode}'
+                    report_date in ({report_date}) and security_code = '{security_code}'
                 order by report_date asc
             </field>
             <field name="use_latest_period">12</field>
@@ -98,7 +98,7 @@
                 from
                     finance_fiscal_data ffd
                 where
-                    report_date in ({report_date}) and security_code = '{secucode}'
+                    report_date in ({report_date}) and security_code = '{security_code}'
                 order by report_date asc
             </field>
             <field name="use_latest_period">12</field>
@@ -126,7 +126,7 @@
                 from
                     finance_fiscal_data ffd
                 where
-                    report_date in ({report_date}) and security_code = '{secucode}'
+                    report_date in ({report_date}) and security_code = '{security_code}'
                 order by report_date asc
             </field>
             <field name="use_latest_period">12</field>
@@ -154,7 +154,7 @@
                 from
                     finance_fiscal_data ffd
                 where
-                    report_date in ({report_date}) and security_code = '{secucode}'
+                    report_date in ({report_date}) and security_code = '{security_code}'
                 order by report_date asc
             </field>
             <field name="use_latest_period">12</field>
@@ -175,12 +175,39 @@
             <field name="usage">vip</field>
             <field name="type_id" eval="ref('finance_mine_type_2')"/>
         </record>
-        <record id="finance_compare_9" model="stock.compare.analysis">
-            <field name="name">经营现金流是否持续健康？</field>
-            <field name="value_type">value</field>
-            <field name="usage">vip</field>
-            <field name="type_id" eval="ref('finance_mine_type_3')"/>
+        <record id="finance_compare_line_8" model="stock.compare.analysis.line">
+            <field name="source_data">
+                with res as (
+                    select
+                        count(*),
+                        array_agg(notice_date)
+                    from
+                        finance_stock_bonus fsb
+                    where
+                        impl_plan_profile like '10派%'
+                        and security_code = '000001'
+                    group by
+                        to_date(notice_date, 'YYYY')
+                    order by
+                        to_date(notice_date, 'YYYY') desc
+                    limit 3)
+                select
+                    count(*)
+                from
+                    res
+            </field>
+            <field name="use_latest_period">12</field>
+            <field name="source_args">{}</field>
+            <field name="compare_id" eval="ref('finance_compare_8')"/>
         </record>
+        <record id="finance_compare_benchmark_8" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">>=</field>
+            <field name="benchmark_left">3</field>
+            <field name="benchmark_right">0</field>
+            <field name="sign">sun</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_8')"/>
+        </record>
+
         <record id="finance_compare_10" model="stock.compare.analysis">
             <field name="name">经营现金流是否持续健康？</field>
             <field name="value_type">value</field>
@@ -193,12 +220,54 @@
             <field name="usage">vip</field>
             <field name="type_id" eval="ref('finance_mine_type_4')"/>
         </record>
+        <record id="finance_compare_line_11" model="stock.compare.analysis.line">
+            <field name="source_data">
+                select
+                    revenue_quality
+                from
+                    finance_fiscal_data ffd
+                where
+                    report_date in ({report_date}) and security_code = '{security_code}'
+            </field>
+            <field name="use_latest_period">12</field>
+            <field name="source_args">{}</field>
+            <field name="compare_id" eval="ref('finance_compare_11')"/>
+        </record>
+        <record id="finance_compare_benchmark_11" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">></field>
+            <field name="benchmark_left">0.35</field>
+            <field name="benchmark_right">0</field>
+            <field name="sign">danger</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_11')"/>
+        </record>
+
         <record id="finance_compare_12" model="stock.compare.analysis">
             <field name="name">库存周转是否过慢？</field>
             <field name="value_type">value</field>
             <field name="usage">vip</field>
             <field name="type_id" eval="ref('finance_mine_type_5')"/>
         </record>
+        <record id="finance_compare_line_12" model="stock.compare.analysis.line">
+            <field name="source_data">
+                select
+                    revenue_quality
+                from
+                    finance_fiscal_data ffd
+                where
+                    report_date in ({report_date}) and security_code = '{security_code}'
+            </field>
+            <field name="use_latest_period">12</field>
+            <field name="source_args">{}</field>
+            <field name="compare_id" eval="ref('finance_compare_12')"/>
+        </record>
+        <record id="finance_compare_benchmark_12" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">&lt;</field>
+            <field name="benchmark_left">1</field>
+            <field name="benchmark_right">0</field>
+            <field name="sign">danger</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_12')"/>
+        </record>
+
         <record id="finance_compare_13" model="stock.compare.analysis">
             <field name="name">新产品创新能力是否强？</field>
             <field name="value_type">value</field>
@@ -211,6 +280,27 @@
             <field name="usage">vip</field>
             <field name="type_id" eval="ref('finance_mine_type_7')"/>
         </record>
+        <record id="finance_compare_line_14" model="stock.compare.analysis.line">
+            <field name="source_data">
+                select
+                    gross_profit_ratio
+                from
+                    finance_fiscal_data ffd
+                where
+                    report_date in ({report_date}) and security_code = '{security_code}'
+            </field>
+            <field name="use_latest_period">12</field>
+            <field name="source_args">{}</field>
+            <field name="compare_id" eval="ref('finance_compare_14')"/>
+        </record>
+        <record id="finance_compare_benchmark_14" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">&lt;</field>
+            <field name="benchmark_left">0.25</field>
+            <field name="benchmark_right">0</field>
+            <field name="sign">danger</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_14')"/>
+        </record>
+
         <record id="finance_compare_15" model="stock.compare.analysis">
             <field name="name">负债率是否过高？</field>
             <field name="value_type">value</field>
@@ -235,6 +325,27 @@
             <field name="usage">vip</field>
             <field name="type_id" eval="ref('finance_mine_type_11')"/>
         </record>
+        <record id="finance_compare_line_18" model="stock.compare.analysis.line">
+            <field name="source_data">
+                select
+                    net_asset_ratio
+                from
+                    finance_fiscal_data ffd
+                where
+                    report_date in ({report_date}) and security_code = '{security_code}'
+            </field>
+            <field name="use_latest_period">12</field>
+            <field name="source_args">{}</field>
+            <field name="compare_id" eval="ref('finance_compare_18')"/>
+        </record>
+        <record id="finance_compare_benchmark_18" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">></field>
+            <field name="benchmark_left">0.2</field>
+            <field name="benchmark_right">0</field>
+            <field name="sign">danger</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_18')"/>
+        </record>
+
         <record id="finance_compare_19" model="stock.compare.analysis">
             <field name="name">管理层是否有动力好好努力？</field>
             <field name="value_type">value</field>

@@ -22,10 +22,16 @@ class BenchmarkData(models.Model):
 
     def analyse_benchmark_result(self, benchmark_data):
         for benchmark_line_id in benchmark_data:
-            if all(benchmark_line_id.get('data')):
-                return benchmark_line_id.get('sign')
-            if benchmark_line_id.get('sign') == 'danger' and any(benchmark_line_id.get('data')):
-                return benchmark_line_id.get('sign')
+            for benchmark_line_rule_id in benchmark_line_id:
+                if isinstance(benchmark_line_rule_id.get('data'), bool):
+                    if benchmark_line_rule_id.get('data'):
+                        return benchmark_line_rule_id.get('sign')
+                    else:
+                        continue
+                if all(benchmark_line_rule_id.get('data')):
+                    return benchmark_line_rule_id.get('sign')
+                if benchmark_line_rule_id.get('sign') == 'danger' and any(benchmark_line_rule_id.get('data')):
+                    return benchmark_line_rule_id.get('sign')
         return 'rain'
 
     @api.depends('value')

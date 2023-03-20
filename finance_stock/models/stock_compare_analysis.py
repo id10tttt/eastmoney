@@ -66,6 +66,34 @@ class StockCompareAnalysis(models.Model):
             res = benchmark_obj.create(benchmark_data)
             _logger.info('创建记录: {}'.format(res))
 
+    def _get_benchmark_result(self, stock_id, compare_ids, benchmark_data_ids):
+        for compare_id in compare_ids:
+            if benchmark_data_ids.filtered(lambda bd: bd.stock_id == stock_id and bd.compare_id == compare_id):
+                continue
+            if compare_id.value_type != 'value':
+                continue
+            compare_id._get_benchmark_result_value(stock_id.symbol)
+
+    def cron_get_benchmark_result(self):
+        stock_ids = self.env['finance.stock.basic'].search([])
+        compare_ids = self.env['stock.compare.analysis'].search([])
+        for stock_id in stock_ids:
+            benchmark_data_ids = self.env['compare.benchmark.data'].search([('stock_id', '=', stock_id.id)])
+            self.with_delay()._get_benchmark_result(stock_id, compare_ids, benchmark_data_ids)
+
+    def _get_benchmark_result_value(self, security_code='000001'):
+        self.ensure_one()
+        all_result = []
+        all_benchmark_result = []
+        if not self.line_ids:
+            return False
+        for compare_line in self.line_ids:
+            sql_result, benchmark_result = compare_line.get_benchmark_result(self.stock_code or security_code)
+            all_result.append(sql_result)
+            all_benchmark_result.append(benchmark_result)
+        if all_result and all_benchmark_result:
+            self.save_benchmark_data(security_code, all_result, all_benchmark_result)
+
     def get_benchmark_result_value(self, security_code='000001'):
         self.ensure_one()
         all_result = []
@@ -76,7 +104,9 @@ class StockCompareAnalysis(models.Model):
             sql_result, benchmark_result = compare_line.get_benchmark_result(self.stock_code or security_code)
             all_result.append(sql_result)
             all_benchmark_result.append(benchmark_result)
-        self.save_benchmark_data(security_code, all_result, benchmark_result)
+        if all_result and all_benchmark_result:
+            self.save_benchmark_data(security_code, all_result, all_benchmark_result)
+
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -226,7 +256,7 @@ class StockCompareLine(models.Model):
     def _compute_period_detail(self):
         for line_id in self:
             default_period = self.get_default_period()[::-1]
-            period_detail = '\',\''.join("{}".format(x) for x in default_period[:self.use_latest_period])
+            period_detail = '\',\''.join("{}".format(x) for x in default_period[:line_id.use_latest_period])
             line_id.period_detail = '\'{}\''.format(period_detail)
 
     def fetch_metric_select_sql_result(self, security_code):
@@ -247,12 +277,13 @@ class StockCompareLine(models.Model):
 
     def _get_metric_parsed_sql(self, security_code):
         source_data = self._get_metric_source_data()
-        source_args = self._get_metric_source_args(security_code)
+        source_args = self._get_metric_source_args(security_code, source_data)
         if self.use_latest_period > 0:
-            if 'report_date' not in source_args.keys():
-                source_args.update({
-                    'report_date': self.period_detail
-                })
+            if '{report_date}' in source_data:
+                if 'report_date' not in source_args.keys():
+                    source_args.update({
+                        'report_date': self.period_detail
+                    })
         try:
             select_sql = source_data.format(**source_args)
         except Exception as e:
@@ -264,13 +295,14 @@ class StockCompareLine(models.Model):
         source_data = self.source_data
         return source_data
 
-    def _get_metric_source_args(self, security_code):
+    def _get_metric_source_args(self, security_code, source_data):
         source_args = self.source_args
         source_args = json.loads(source_args)
-        if 'secucode' not in source_args.keys():
-            source_args.update({
-                'secucode': security_code
-            })
+        if 'security_code' not in source_args.keys():
+            if '{security_code}' in source_data:
+                source_args.update({
+                    'security_code': security_code
+                })
         return source_args
 
     def verify_benchmark_result_sign(self, compare_result):
