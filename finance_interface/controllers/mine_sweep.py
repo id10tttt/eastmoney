@@ -47,7 +47,7 @@ class FinanceMineSweep(http.Controller, BaseController):
     @verify_auth_token()
     def mine_sweep_list(self):
         payload_data = json.loads(request.httprequest.data)
-        print('payload_data: ', payload_data)
+
         headers = payload_data.get('header')
         body = payload_data.get('body')
         token = headers.get('token', None)
@@ -65,7 +65,7 @@ class FinanceMineSweep(http.Controller, BaseController):
                 type='json')
     def get_free_stock_value(self):
         payload_data = json.loads(request.httprequest.data)
-        print('payload_data: ', payload_data)
+
         headers = payload_data.get('header')
         body = payload_data.get('body')
         token = headers.get('token', None)
