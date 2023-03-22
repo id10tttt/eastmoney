@@ -52,11 +52,11 @@ class StockCompareAnalysis(models.Model):
             ('compare_id', '=', self.id),
             ('stock_code', '=', security_code)
         ])
+        data = {
+            'data': all_result,
+            'benchmark_data': all_benchmark_result
+        }
         if not benchmark_id:
-            data = {
-                'data': all_result,
-                'benchmark_data': all_benchmark_result
-            }
             benchmark_data = {
                 'compare_id': self.id,
                 'stock_code': security_code,
@@ -65,6 +65,11 @@ class StockCompareAnalysis(models.Model):
             }
             res = benchmark_obj.create(benchmark_data)
             _logger.info('创建记录: {}'.format(res))
+        else:
+            benchmark_id.write({
+                'value': json.dumps(data)
+            })
+            _logger.info('更新记录: {}'.format(benchmark_id))
 
     def _get_benchmark_result(self, stock_id, compare_ids, benchmark_data_ids):
         for compare_id in compare_ids:
