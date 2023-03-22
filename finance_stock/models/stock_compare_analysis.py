@@ -2,6 +2,7 @@
 from odoo import models, fields, api, _
 import json
 import logging
+import datetime
 from odoo.exceptions import ValidationError
 import uuid
 import itertools
@@ -256,6 +257,33 @@ class StockCompareLine(models.Model):
     use_latest_period = fields.Integer('最近多少期间？', default=12)
     period_detail = fields.Char('期间明细', compute='_compute_period_detail')
     benchmark_line_ids = fields.One2many('stock.compare.benchmark.line', 'compare_line_id', string='Benchmark 明细')
+
+    def get_default_period(self, default_year=5, all_period=False):
+        search_today = datetime.date.today()
+        search_month = search_today.month
+        search_day = search_today.day
+        search_year = search_today.year
+        search_year = int(search_year)
+        search_month = int(search_month)
+        search_period = []
+        for x in range(search_year - default_year, search_year):
+            search_period += [f'{x}-03-31 00:00:00', f'{x}-06-30 00:00:00', f'{x}-09-30 00:00:00',
+                              f'{x}-12-31 00:00:00']
+        if all_period:
+            search_period += [f'{search_year}-03-31 00:00:00', f'{search_year}-06-30 00:00:00',
+                              f'{search_year}-09-30 00:00:00', f'{search_year}-12-31 00:00:00']
+        else:
+            if 4 <= search_month < 6:
+                search_period += [f'{search_year}-03-31 00:00:00']
+            elif 7 <= search_month < 9:
+                search_period += [f'{search_year}-03-31 00:00:00', f'{search_year}-06-30 00:00:00']
+            elif 10 <= search_month < 12:
+                search_period += [f'{search_year}-03-31 00:00:00', f'{search_year}-06-30 00:00:00',
+                                  f'{search_year}-09-30 00:00:00']
+            elif search_day == 31 and search_month == 12:
+                search_period += [f'{search_year}-03-31 00:00:00', f'{search_year}-06-30 00:00:00',
+                                  f'{search_year}-09-30 00:00:00', f'{search_year}-12-31 00:00:00']
+        return search_period
 
     @api.depends('use_latest_period')
     def _compute_period_detail(self):
