@@ -325,7 +325,7 @@ class FinanceFiscalData(models.Model):
                     # 应收账款增速
                     # 'accounts_receivable_speed': '',
                     # 收入质量
-                    'revenue_quality': self.get_ratio(float_or_zero(zcfzb_id.total_other_rece),
+                    'revenue_quality': self.get_ratio(self.get_zcfzb_value(zcfzb_id, 'ACCOUNTS_RECE'),
                                                       self.get_lrb_value(lrb_id, 'OPERATE_INCOME')),
                     # 总股本
                     'total_share_capital': float_or_zero(stock_id.f84),

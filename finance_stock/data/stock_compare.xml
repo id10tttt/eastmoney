@@ -249,12 +249,24 @@
         </record>
         <record id="finance_compare_line_12" model="stock.compare.analysis.line">
             <field name="source_data">
+                with res as (
                 select
-                    revenue_quality
+                    to_char(report_date::DATE, 'MM') as period_month,
+                    to_char(report_date::DATE, 'YYYY') as period_year,
+                    sum(inventory_turnover) as inventory_turnover
                 from
                     finance_fiscal_data ffd
                 where
-                    report_date in ({report_date}) and security_code = '{security_code}'
+                    report_date in ({report_date})
+                    and security_code = '{security_code}'
+                group by
+                    report_date::DATE)
+                select
+                    inventory_turnover
+                from
+                    res
+                where
+                    period_month = '12'
             </field>
             <field name="use_latest_period">12</field>
             <field name="source_args">{}</field>
