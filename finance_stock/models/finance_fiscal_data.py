@@ -382,7 +382,7 @@ class FinanceFiscalData(models.Model):
     def parse_mm_ratio_value(self, fiscal_id):
         stock_fiscal_ids = self.env['finance.fiscal.data'].search([
             ('stock_id', '=', fiscal_id.stock_id.id)
-        ])
+        ], order='report_date asc')
         current_date = fiscal_id.report_date
         # 去年的期间
         mm_date = current_date.replace(current_date.year - 1)

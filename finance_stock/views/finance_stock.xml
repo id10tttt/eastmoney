@@ -97,6 +97,7 @@
                         <button name="get_stock_event" string="公司事件" type="object"/>
                         <button name="get_finance_stock_bonus_data" string="分红融资" type="object"/>
                         <button name="get_finance_stock_share_holder_news" string="高管持股变动" type="object"/>
+                        <button name="update_fiscal_data" string="更新-处理后财务信息" type="object"/>
                         <button name="get_mine_brief" string="扫雷" type="object"/>
                     </header>
                     <sheet>

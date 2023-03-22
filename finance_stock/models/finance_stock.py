@@ -158,6 +158,12 @@ class FinanceStockBasic(models.Model):
     law_case = fields.Char('诉讼仲裁')
     mine_json = fields.Char('MINE SWEEP JSON')
 
+    def update_fiscal_data(self):
+        self.ensure_one()
+        all_fiscal_ids = self.env['finance.fiscal.data'].search([('stock_id', '=', self.id)],
+                                                                order='report_date asc')
+        all_fiscal_ids.update_fiscal_data()
+
     @ormcache('exchange')
     def get_finance_basic_value(self, exchange):
         stock_data = self.env['finance.stock.basic'].sudo().search_read(
