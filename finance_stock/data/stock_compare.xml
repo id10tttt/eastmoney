@@ -185,7 +185,7 @@
                         finance_stock_bonus fsb
                     where
                         impl_plan_profile like '10派%'
-                        and security_code = '000001'
+                        and security_code = '{security_code}'
                     group by
                         to_date(notice_date, 'YYYY')
                     order by
