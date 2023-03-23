@@ -211,6 +211,20 @@
             <field name="sign">sun</field>
             <field name="compare_line_id" eval="ref('finance_compare_line_8')"/>
         </record>
+        <record id="finance_compare_benchmark_8_2" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">between</field>
+            <field name="benchmark_left">1</field>
+            <field name="benchmark_right">3</field>
+            <field name="sign">rain</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_8')"/>
+        </record>
+        <record id="finance_compare_benchmark_8_3" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">&lt;=</field>
+            <field name="benchmark_left">1</field>
+            <field name="benchmark_right">0</field>
+            <field name="sign">danger</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_8')"/>
+        </record>
 
         <record id="finance_compare_10" model="stock.compare.analysis">
             <field name="name">经营现金流是否持续健康？</field>

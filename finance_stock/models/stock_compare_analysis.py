@@ -94,7 +94,7 @@ class StockCompareAnalysis(models.Model):
         if not self.line_ids:
             return False
         for compare_line in self.line_ids:
-            sql_result, benchmark_result = compare_line.get_benchmark_result(self.stock_code or security_code)
+            sql_result, benchmark_result = compare_line.get_benchmark_result(security_code)
             all_result.append(sql_result)
             all_benchmark_result.append(benchmark_result)
         if all_result and all_benchmark_result:
@@ -107,7 +107,7 @@ class StockCompareAnalysis(models.Model):
         if not self.line_ids:
             raise ValidationError('没有定义规则!')
         for compare_line in self.line_ids:
-            sql_result, benchmark_result = compare_line.get_benchmark_result(self.stock_code or security_code)
+            sql_result, benchmark_result = compare_line.get_benchmark_result(security_code)
             all_result.append(sql_result)
             all_benchmark_result.append(benchmark_result)
         if all_result and all_benchmark_result:
