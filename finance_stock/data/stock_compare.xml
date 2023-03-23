@@ -178,20 +178,24 @@
         <record id="finance_compare_line_8" model="stock.compare.analysis.line">
             <field name="source_data">
                 with res as (
-                    select
-                        count(*),
-                        array_agg(notice_date)
-                    from
-                        finance_stock_bonus fsb
-                    where
-                        impl_plan_profile like '10派%'
-                        and security_code = '{security_code}'
-                    group by
-                        to_date(notice_date, 'YYYY')
-                    order by
-                        to_date(notice_date, 'YYYY') desc
-                    limit 3)
                 select
+                    count(*) as total_count,
+                    to_date(notice_date, 'YYYY'),
+                    security_code
+                from
+                    finance_stock_bonus fsb
+                where
+                    impl_plan_profile like '10派%'
+                    and notice_date >= to_char((now() + interval '-3 year'), 'YYYY-01-01')
+                        and notice_date &lt;= to_char(now(), 'YYYY-MM-DD')
+                            and security_code = '{security_code}'
+                        group by
+                            to_date(notice_date, 'YYYY'),
+                            security_code
+                        order by
+                            to_date(notice_date, 'YYYY') desc,
+                            security_code
+                )select
                     count(*)
                 from
                     res
