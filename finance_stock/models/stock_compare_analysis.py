@@ -5,17 +5,27 @@ import logging
 import datetime
 from odoo.exceptions import ValidationError
 import uuid
-import itertools
+
+try:
+    from itertools import pairwise as itertools_pairwise
+except Exception as e:
+    from itertools import tee
+
+
+    def itertools_pairwise(iterable):
+        a, b = tee(iterable)
+        next(b, None)
+        return zip(a, b)
 
 _logger = logging.getLogger(__name__)
 
 
 def verify_pairwise_increase(compare_list):
-    return all(s <= t for s, t in itertools.pairwise(compare_list))
+    return all(s <= t for s, t in itertools_pairwise(compare_list))
 
 
 def verify_pairwise_decrease(compare_list):
-    return all(s > t for s, t in itertools.pairwise(compare_list))
+    return all(s > t for s, t in itertools_pairwise(compare_list))
 
 
 class StockCompareAnalysis(models.Model):
