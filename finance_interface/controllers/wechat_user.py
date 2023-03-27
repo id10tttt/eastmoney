@@ -89,7 +89,6 @@ class WeChatUser(http.Controller, BaseController):
         body = payload_data.get('body')
         user_code = body.get('code', None)
 
-        print('APP_MINI_ID: ', APP_MINI_ID, APP_MINI_SECRET)
         # 为啥code to session 如此慢呢？
         wechat_client = WeChatClient(APP_MINI_ID, APP_MINI_SECRET)
         try:
