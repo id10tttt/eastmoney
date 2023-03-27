@@ -14,13 +14,8 @@ from odoo.tools import config
 
 _logger = logging.getLogger(__name__)
 
-# APP_MINI_ID = config.get('wxa_app_id')
-# APP_MINI_SECRET = config.get('wxa_app_secret')
-
-
-# 测试账号
-APP_MINI_ID = 'wxb0d07325ab5d8d9b'
-APP_MINI_SECRET = '0d1b8355aff72dd0c83d910d1353e224'
+APP_MINI_ID = config.get('wxa_app_id')
+APP_MINI_SECRET = config.get('wxa_app_secret')
 
 
 class WeChatUser(http.Controller, BaseController):
