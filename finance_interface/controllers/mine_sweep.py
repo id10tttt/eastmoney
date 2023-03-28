@@ -2,9 +2,11 @@
 import sys
 import json
 from .wxa_common import verify_auth_token
+from odoo.tools import config
 from odoo import http
 from odoo.http import request
-
+import redis
+from ..utils import get_redis_client
 from .base import BaseController
 
 import logging
@@ -16,6 +18,16 @@ class FinanceMineSweep(http.Controller, BaseController):
 
     def pre_check(self, entry, wechat_user, post_data):
         return None
+
+    def save_query_to_redis(self, stock_code):
+        wx_uid = http.request.wxa_uid
+        store_key = '{}:{}:query:stock'.format(config.get('redis_cache_prefix'), wx_uid)
+        redis_client = get_redis_client(config.get('redis_cache_db'))
+        all_values = redis_client.lrange(store_key, 0, -1 )
+        all_values = [x.decode() for x in all_values]
+        if stock_code not in all_values:
+            redis_client.lpush(store_key, stock_code)
+            redis_client.close()
 
     @http.route(['/api/wechat/mini/stock/validate'], auth='public', methods=['POST'], csrf=False,
                 type='json')
@@ -63,6 +75,7 @@ class FinanceMineSweep(http.Controller, BaseController):
 
     @http.route(['/api/wechat/mini/sweep/value/free'], auth='public', methods=['GET', 'POST'], csrf=False,
                 type='json')
+    @verify_auth_token()
     def get_free_stock_value(self):
         payload_data = json.loads(request.httprequest.data)
 
@@ -96,6 +109,7 @@ class FinanceMineSweep(http.Controller, BaseController):
             'options': stock_id.options_rslt or '暂无',
             'law_case': stock_id.law_case or 0
         }
+        self.save_query_to_redis(stock_code)
         return self.response_json_success(result)
 
     @http.route(['/api/wechat/mini/sweep/value/vip'], auth='public', methods=['POST'], csrf=False, type='json')

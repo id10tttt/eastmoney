@@ -3,8 +3,13 @@ import re
 import copy
 import warnings
 from types import GeneratorType
-
+from odoo.tools import config
+import redis
 import six
+
+
+def get_redis_client(db):
+    return redis.Redis(db=db, password=config.get('redis_password'))
 
 
 class SortedDict(dict):
