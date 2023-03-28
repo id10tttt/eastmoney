@@ -84,8 +84,8 @@ class StockCompareAnalysis(models.Model):
 
     def _get_benchmark_result(self, stock_id, compare_ids, benchmark_data_ids):
         for compare_id in compare_ids:
-            if benchmark_data_ids.filtered(lambda bd: bd.stock_id == stock_id and bd.compare_id == compare_id):
-                continue
+            # if benchmark_data_ids.filtered(lambda bd: bd.stock_id == stock_id and bd.compare_id == compare_id):
+            #     continue
             if compare_id.value_type != 'value':
                 continue
             compare_id._get_benchmark_result_value(stock_id.symbol)
