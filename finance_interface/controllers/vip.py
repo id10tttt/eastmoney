@@ -53,6 +53,11 @@ class VIPContent(http.Controller, BaseController):
         if False not in type_ids:
             type_ids.append(False)
         vip_content = []
+        benchmark_count = {
+            'danger': 0,
+            'rain': 0,
+            'sun': 0,
+        }
         for type_id in type_ids:
             tmp_data = []
 
@@ -67,6 +72,9 @@ class VIPContent(http.Controller, BaseController):
                     'sign': benchmark_data_id.sign,
                     'benchmark_id': benchmark_data_id.id,
                 })
+                benchmark_count.update({
+                    benchmark_data_id.sign: benchmark_count.get(benchmark_data_id.sign) + 1
+                })
             if tmp_data:
                 vip_content.append({
                     'type': type_id.name if type_id else '其它',
@@ -79,7 +87,8 @@ class VIPContent(http.Controller, BaseController):
             'stock_code': stock_id[0].symbol,
             'stock_name': stock_id[0].name,
             'default_content': type_ids[0].id if type_ids else -1,
-            'data': vip_content
+            'data': vip_content,
+            'benchmark_count': benchmark_count
         }
         # data.update(**encrypt_data)
         return self.response_json_success(data)
@@ -135,57 +144,3 @@ class VIPContent(http.Controller, BaseController):
             'benchmark': benchmark_data_id.compare_id.name
         }
         return self.response_json_success(data)
-
-    # @http.route('/api/wechat/mini/vip/content/sync', auth='public', methods=['POST'],
-    #             csrf=False, type='json')
-    # @verify_auth_token()
-    # def sync_vip_content(self, **kwargs):
-    #     payload_data = json.loads(request.httprequest.data)
-    #     headers = payload_data.get('header')
-    #     body = payload_data.get('body')
-    #
-    #     stock_code = body.get('stock_code')
-    #     type_id = body.get('type_id')
-    #
-    #     stock_id = request.env['finance.stock.basic'].sudo().search([('symbol', '=', stock_code)])
-    #
-    #     if not stock_id:
-    #         return self.response_json_error(-1, '股票不存在!')
-    #     user_vip = request.env['wxa.subscribe.order'].sudo().wx_user_is_vip(request.wxa_uid)
-    #     if not user_vip:
-    #         return self.response_json_error(-1, '没有权限查看')
-    #
-    #     compare_type_data = request.env['stock.compare.analysis'].sudo().read_group(
-    #         domain=[], fields=['type_id'],
-    #         groupby=['type_id'])
-    #     compare_ids = request.env['stock.compare.analysis'].sudo().search([])
-    #     type_ids = sorted(list(set(compare_ids.mapped('type_id'))))
-    #     if False not in type_ids:
-    #         type_ids.append(False)
-    #
-    #     vip_content = []
-    #     for type_id in type_ids:
-    #         tmp_data = []
-    #
-    #         if type_id:
-    #             compare_type_ids = compare_ids.filtered(lambda x: x.type_id == type_id)
-    #         else:
-    #             compare_type_ids = compare_ids.filtered(lambda x: not x.type_id)
-    #         for compare_id in compare_type_ids:
-    #             tmp_data.append({
-    #                 'name': compare_id.name,
-    #                 'value': 1,
-    #                 'uuid': compare_id.uuid
-    #             })
-    #         vip_content.append({
-    #             'type': type_id.name if type_id else '其它',
-    #             'type_id': type_id.id if type_id else -1,
-    #             'data': tmp_data
-    #         })
-    #     data = {
-    #         'stock_code': stock_id[0].symbol,
-    #         'stock_name': stock_id[0].name,
-    #         'default_content': type_ids[0].id if type_ids else -1,
-    #         'data': vip_content
-    #     }
-    #     return self.response_json_success(data)
