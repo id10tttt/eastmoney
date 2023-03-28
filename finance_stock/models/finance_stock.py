@@ -289,9 +289,13 @@ class FinanceStockBasic(models.Model):
                 continue
             for event_type_data in dstx_data:
                 for event_data in event_type_data:
-                    if all_event_ids.filtered(
-                            lambda e: e.event_date == self.convert_str_to_datetime(event_data.get('NOTICE_DATE')) and
-                                      e.name == event_data.get('LEVEL1_CONTENT')):
+                    try:
+                        if all_event_ids.filtered(
+                                lambda e: e.event_date == self.convert_str_to_datetime(event_data.get('NOTICE_DATE')) and
+                                          e.name == event_data.get('LEVEL1_CONTENT')):
+                            continue
+                    except Exception as e:
+                        _logger.error('发生错误: {}'.format(e))
                         continue
                     data = {
                         'stock_id': self.id,
@@ -750,8 +754,11 @@ class FinanceStockBasic(models.Model):
         return []
 
     def convert_str_to_datetime(self, datetime_str):
-        date = datetime.datetime.strptime(datetime_str, '%Y-%m-%d %H:%M:%S')
-        return date
+        try:
+            date = datetime.datetime.strptime(datetime_str, '%Y-%m-%d %H:%M:%S')
+            return date
+        except Exception as e:
+            return datetime_str
 
     def convert_datetime_to_date(self, date_datetime):
         try:

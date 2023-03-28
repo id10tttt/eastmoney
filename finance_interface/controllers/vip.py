@@ -84,6 +84,58 @@ class VIPContent(http.Controller, BaseController):
         # data.update(**encrypt_data)
         return self.response_json_success(data)
 
+    def parse_vip_content_detail(self, data):
+        result = json.loads(data)
+        return_data = []
+        for line_data in result.get('data'):
+            for compare_line_data in line_data.get('data'):
+                if len(compare_line_data) > 1:
+                    return_data.append({
+                        'date': compare_line_data[1] if len(compare_line_data) > 1 else None,
+                        'value': compare_line_data[0]
+                    })
+        if return_data:
+            return_data = sorted(return_data, key=lambda x: x.get('date'))
+        return return_data
+
+    @http.route('/api/wechat/mini/vip/content/detail', auth='public', methods=['POST'],
+                csrf=False, type='json')
+    @verify_auth_token()
+    def query_vip_content_detail(self, **kwargs):
+        payload_data = json.loads(request.httprequest.data)
+        headers = payload_data.get('header')
+        body = payload_data.get('body')
+
+        stock_code = body.get('stock_code')
+        benchmark_id = body.get('benchmark_id')
+
+        stock_id = request.env['finance.stock.basic'].sudo().search([('symbol', '=', stock_code)])
+
+        if not stock_id:
+            return self.response_json_error(-1, '股票不存在!')
+        user_vip = request.env['wxa.subscribe.order'].sudo().wx_user_is_vip(request.wxa_uid)
+        if not user_vip:
+            return self.response_json_error(-1, '没有权限查看')
+
+        try:
+            benchmark_id = int(benchmark_id)
+        except Exception as e:
+            return self.response_json_error(-1, '参数错误')
+
+        benchmark_data_id = request.env['compare.benchmark.data'].sudo().browse(benchmark_id)
+
+        content_detail = self.parse_vip_content_detail(benchmark_data_id.value)
+        if not content_detail:
+            return self.response_json_error(-1, '暂无数据')
+
+        data = {
+            'stock_code': stock_id[0].symbol,
+            'stock_name': stock_id[0].name,
+            'data': self.parse_vip_content_detail(benchmark_data_id.value),
+            'benchmark': benchmark_data_id.compare_id.name
+        }
+        return self.response_json_success(data)
+
     # @http.route('/api/wechat/mini/vip/content/sync', auth='public', methods=['POST'],
     #             csrf=False, type='json')
     # @verify_auth_token()

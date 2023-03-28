@@ -72,7 +72,7 @@ class StockCompareAnalysis(models.Model):
                 'compare_id': self.id,
                 'stock_code': security_code,
                 'stock_id': self.get_stock_id(security_code),
-                'value': json.dumps(data)
+                'value': json.dumps(data),
             }
             res = benchmark_obj.create(benchmark_data)
             _logger.info('创建记录: {}'.format(res))
@@ -311,7 +311,11 @@ class StockCompareLine(models.Model):
         res = self.env.cr.fetchall()
         result = {
             'compare_id': self.id,
-            'data': res
+            'data': res,
+            'sql': select_sql,
+            'source_data': self.source_data,
+            'source_args': self.source_args,
+            'period_detail': self.period_detail,
         }
         return result
 

@@ -10,7 +10,8 @@
         <record id="finance_compare_line_1" model="stock.compare.analysis.line">
             <field name="source_data">
                 select
-                    per_share_mm_ratio
+                    per_share_mm_ratio,
+                    to_char(report_date, 'YYYY-MM-DD') as report_date
                 from
                     finance_fiscal_data ffd
                 where
@@ -38,7 +39,8 @@
         <record id="finance_compare_line_2" model="stock.compare.analysis.line">
             <field name="source_data">
                 select
-                    per_share_speed
+                    per_share_speed,
+                    to_char(report_date, 'YYYY-MM-DD') as report_date
                 from
                     finance_fiscal_data ffd
                 where
@@ -66,7 +68,8 @@
         <record id="finance_compare_line_3" model="stock.compare.analysis.line">
             <field name="source_data">
                 select
-                    operate_revenue_mm_ratio
+                    operate_revenue_mm_ratio,
+                    to_char(report_date, 'YYYY-MM-DD') as report_date
                 from
                     finance_fiscal_data ffd
                 where
@@ -94,7 +97,8 @@
         <record id="finance_compare_line_4" model="stock.compare.analysis.line">
             <field name="source_data">
                 select
-                    operate_revenue_speed
+                    operate_revenue_speed,
+                    to_char(report_date, 'YYYY-MM-DD') as report_date
                 from
                     finance_fiscal_data ffd
                 where
@@ -122,7 +126,8 @@
         <record id="finance_compare_line_5" model="stock.compare.analysis.line">
             <field name="source_data">
                 select
-                    roe_mm_ratio
+                    roe_mm_ratio,
+                    to_char(report_date, 'YYYY-MM-DD') as report_date
                 from
                     finance_fiscal_data ffd
                 where
@@ -150,7 +155,8 @@
         <record id="finance_compare_line_6" model="stock.compare.analysis.line">
             <field name="source_data">
                 select
-                    roe_speed
+                    roe_speed,
+                    to_char(report_date, 'YYYY-MM-DD') as report_date
                 from
                     finance_fiscal_data ffd
                 where
@@ -241,11 +247,13 @@
         <record id="finance_compare_line_11" model="stock.compare.analysis.line">
             <field name="source_data">
                 select
-                    revenue_quality
+                    revenue_quality,
+                    to_char(report_date, 'YYYY-MM-DD') as report_date
                 from
                     finance_fiscal_data ffd
                 where
                     report_date in ({report_date}) and security_code = '{security_code}'
+                order by report_date asc
             </field>
             <field name="use_latest_period">12</field>
             <field name="source_args">{}</field>
@@ -313,11 +321,13 @@
         <record id="finance_compare_line_14" model="stock.compare.analysis.line">
             <field name="source_data">
                 select
-                    gross_profit_ratio
+                    gross_profit_ratio,
+                    to_char(report_date, 'YYYY-MM-DD') as report_date
                 from
                     finance_fiscal_data ffd
                 where
                     report_date in ({report_date}) and security_code = '{security_code}'
+                order by report_date asc
             </field>
             <field name="use_latest_period">12</field>
             <field name="source_args">{}</field>
@@ -358,11 +368,13 @@
         <record id="finance_compare_line_18" model="stock.compare.analysis.line">
             <field name="source_data">
                 select
-                    net_asset_ratio
+                    net_asset_ratio,
+                    to_char(report_date, 'YYYY-MM-DD') as report_date
                 from
                     finance_fiscal_data ffd
                 where
                     report_date in ({report_date}) and security_code = '{security_code}'
+                order by report_date asc
             </field>
             <field name="use_latest_period">12</field>
             <field name="source_args">{}</field>
