@@ -295,6 +295,8 @@
                                         <field name="plge_shr"/>
                                     </group>
                                     <group string="限售解禁">
+                                        <field name="rls_tshr_rat"/>
+                                        <field name="shr_type"/>
                                         <field name="restricted_json"/>
                                     </group>
                                 </group>
@@ -314,6 +316,10 @@
                                 </group>
                                 <group>
                                     <group string="股东减持">
+                                        <field name="shr_redu"/>
+                                        <field name="stat_dt"/>
+                                        <field name="stat_datetime"/>
+                                        <field name="redu_tshr_rat"/>
                                         <field name="shr_red_json"/>
                                     </group>
                                     <group string="会计师审计">

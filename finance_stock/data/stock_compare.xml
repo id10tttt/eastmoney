@@ -436,5 +436,33 @@
             <field name="usage">vip</field>
             <field name="type_id" eval="ref('finance_mine_type_99')"/>
         </record>
+
+        <record id="finance_compare_1001" model="stock.compare.analysis">
+            <field name="name">股权质押</field>
+            <field name="value_type">value</field>
+            <field name="usage">free</field>
+            <field name="type_id" eval="ref('finance_mine_type_99')"/>
+        </record>
+
+        <record id="finance_compare_1002" model="stock.compare.analysis">
+            <field name="name">股东减持</field>
+            <field name="value_type">value</field>
+            <field name="usage">free</field>
+            <field name="type_id" eval="ref('finance_mine_type_99')"/>
+        </record>
+
+        <record id="finance_compare_1003" model="stock.compare.analysis">
+            <field name="name">诉讼仲裁</field>
+            <field name="value_type">value</field>
+            <field name="usage">free</field>
+            <field name="type_id" eval="ref('finance_mine_type_99')"/>
+        </record>
+
+        <record id="finance_compare_1004" model="stock.compare.analysis">
+            <field name="name">限售解禁</field>
+            <field name="value_type">value</field>
+            <field name="usage">free</field>
+            <field name="type_id" eval="ref('finance_mine_type_99')"/>
+        </record>
     </data>
 </odoo>

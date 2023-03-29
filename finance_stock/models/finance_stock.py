@@ -139,7 +139,14 @@ class FinanceStockBasic(models.Model):
     plge_shr = fields.Char('累计质押股总数')
 
     restricted_json = fields.Char('限售解禁')
-    shr_red_json = fields.Char('股东减持')
+    rls_tshr_rat = fields.Char('比例')
+    shr_type = fields.Char('shrTyp')
+
+    shr_red_json = fields.Char('股东减持JSON')
+    shr_redu = fields.Char('股东减持')
+    stat_dt = fields.Char('减持时间戳')
+    stat_datetime = fields.Char('减持时间')
+    redu_tshr_rat = fields.Char('减持比例')
     # nearest_unshr_red = fields.Char('股东减持')
 
     pred_typ_name = fields.Char('业绩名称')
@@ -193,6 +200,36 @@ class FinanceStockBasic(models.Model):
         for x in res:
             x.with_delay().get_mine_brief()
 
+    def convert_timestamp_to_datetime(self, timestamp):
+        try:
+            dt = datetime.datetime.fromtimestamp(timestamp)
+            return str(dt)
+        except Exception as e:
+            _logger.error('error: {}'.format(e))
+            return timestamp
+
+    def is_negative_result(self, result):
+        """
+        # TODO: 不清楚这儿的逻辑是啥，怎么判断ecode 是 0 还是 1 呢？
+        :param result:
+        :return:
+        """
+        if all([result.get('plge'), result.get('gw'), result.get('pred')]):
+            return True
+        return False
+
+    def http_get_mine_brief_from_cmschina(self, mine_sweep_url, stock_id, headers, ecode=0, retries=5):
+        payload_data = {
+            'scode': stock_id.symbol,
+            'ecode': '{}'.format(ecode)
+        }
+        res = requests.post(mine_sweep_url, data=json.dumps(payload_data), headers=headers)
+        result = res.json().get('body')
+        if not self.is_negative_result(result) and retries > 0:
+            return self.http_get_mine_brief_from_cmschina(mine_sweep_url, stock_id, headers, ecode=ecode + 1,
+                                                          retries=retries - 1)
+        return result
+
     def get_mine_brief(self):
         """
         数据源： 招商财富APP
@@ -205,12 +242,8 @@ class FinanceStockBasic(models.Model):
         }
         for stock_id in self:
             _logger.info('获取扫雷信息: {}'.format(stock_id.symbol))
-            payload_data = {
-                'scode': stock_id.symbol,
-                'ecode': '0'
-            }
-            res = requests.post(mine_sweep_url, data=json.dumps(payload_data), headers=headers)
-            result = res.json().get('body')
+            result = self.http_get_mine_brief_from_cmschina(mine_sweep_url, stock_id, headers)
+
             if not result:
                 continue
 
@@ -222,7 +255,7 @@ class FinanceStockBasic(models.Model):
                 plge = {}
             restricted = result.get('restricted', {})
             if not restricted:
-                restricted = {}
+                restricted = '暂无'
             pred = result.get('pred', {})
             if not pred:
                 pred = {}
@@ -242,7 +275,13 @@ class FinanceStockBasic(models.Model):
                 'blt_plge_shr': plge.get('bltPlgeShr'),
                 'plge_shr': plge.get('plgeShr'),
                 'restricted_json': json.dumps(restricted),
+                'rls_tshr_rat': restricted.get('rlsTshrRat') or 0,
+                'shr_type': restricted.get('nearestUnrestricted', {}).get('shrTyp') or '暂无',
                 'shr_red_json': json.dumps(shr_red),
+                'shr_redu': shr_red.get('shrRedu'),
+                'stat_dt': shr_red.get('statDt'),
+                # 'stat_datetime': self.convert_timestamp_to_datetime(shr_red.get('statDt')),
+                'redu_tshr_rat': shr_red.get('reduTshrRat'),
                 'pred_typ_name': pred.get('predTypName'),
                 'pred_big_typ': pred.get('predBigTyp'),
                 'end_dt': pred.get('endDT'),
@@ -291,7 +330,8 @@ class FinanceStockBasic(models.Model):
                 for event_data in event_type_data:
                     try:
                         if all_event_ids.filtered(
-                                lambda e: e.event_date == self.convert_str_to_datetime(event_data.get('NOTICE_DATE')) and
+                                lambda e: e.event_date == self.convert_str_to_datetime(
+                                    event_data.get('NOTICE_DATE')) and
                                           e.name == event_data.get('LEVEL1_CONTENT')):
                             continue
                     except Exception as e:

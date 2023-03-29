@@ -73,6 +73,50 @@ class FinanceMineSweep(http.Controller, BaseController):
             _logger.exception(e)
             return self.res_err(-1, str(e))
 
+    def get_peg_sign(self, peg_value):
+        try:
+            if 0 < float(peg_value) < 1:
+                return 'sun', float(peg_value)
+            return 'danger', float(peg_value)
+        except Exception as e:
+            return 'danger', 0
+
+    def get_plge_rat_sign(self, plge_rat_value):
+        try:
+            if float(plge_rat_value) > 0.1:
+                return 'danger', float(plge_rat_value)
+            return 'sun', float(plge_rat_value)
+        except Exception as e:
+            return 'sun', 0
+
+    def get_shr_redu_sign(self, shr_redu_value):
+        try:
+            if float(shr_redu_value) > 0:
+                return 'danger', float(shr_redu_value)
+            return 'sun', float(shr_redu_value)
+        except Exception as e:
+            return 'sun', 0
+
+    def get_rls_tshr_rat_sign(self, rls_tshr_rat, shr_type):
+        try:
+            if not rls_tshr_rat or float(rls_tshr_rat) == 0:
+                return 'sun', '暂无'
+            return 'danger', shr_type or rls_tshr_rat
+        except Exception as e:
+            return 'sun', '暂无'
+
+    def get_law_case_sign(self, law_case_value):
+        try:
+            if not law_case_value:
+                return 'sun', 0
+            if float(law_case_value) == 0:
+                return 'danger', float(law_case_value)
+            if 0 < float(law_case_value) <= 5:
+                return 'rain', float(law_case_value)
+            return 'danger', float(law_case_value)
+        except Exception as e:
+            return 'sun', 0
+
     @http.route(['/api/wechat/mini/sweep/value/free'], auth='public', methods=['GET', 'POST'], csrf=False,
                 type='json')
     @verify_auth_token()
@@ -99,15 +143,27 @@ class FinanceMineSweep(http.Controller, BaseController):
                 'law_case': ''
             }
             return self.response_json_success(result)
+        peg_sign, peg_result = self.get_peg_sign(stock_id.peg_car)
+        plge_sign, plge_result = self.get_plge_rat_sign(stock_id.plge_rat)
+
+        shr_red_sign, shr_redu_result = self.get_shr_redu_sign(stock_id.shr_redu)
+        law_case_sign, law_case_result = self.get_law_case_sign(stock_id.law_case)
+        restricted_sign, restricted_value = self.get_rls_tshr_rat_sign(stock_id.rls_tshr_rat, stock_id.shr_type)
         result = {
-            'peg': stock_id.peg_car or '暂无',
-            'plge': stock_id.plge_rat or '暂无',
+            'peg': peg_result or '暂无',
+            'peg_sign': peg_sign,
+            'plge': plge_result or '暂无',
+            'plge_sign': plge_sign,
             'plge_freeze': stock_id.plge_shr or '暂无',
-            'restricted': stock_id.restricted_json or '暂无',
-            'shr_red': stock_id.shr_red_json or '暂无',
+            'restricted': restricted_value or '暂无',
+            'restricted_sign': restricted_sign,
+            'shr_red': shr_redu_result or '暂无',
+            'shr_red_sign': shr_red_sign,
             'gw_netast': stock_id.gw_netast_rat or '暂无',
             'options': stock_id.options_rslt or '暂无',
-            'law_case': stock_id.law_case or 0
+            'options_sign': 'sun' if stock_id.options_rslt == '标准的无保留意见' else 'danger',
+            'law_case': stock_id.law_case or 0,
+            'law_case_sign': law_case_sign
         }
         self.save_query_to_redis(stock_code)
         return self.response_json_success(result)
