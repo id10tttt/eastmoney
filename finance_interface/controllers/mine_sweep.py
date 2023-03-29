@@ -105,6 +105,16 @@ class FinanceMineSweep(http.Controller, BaseController):
         except Exception as e:
             return 'sun', '暂无'
 
+    def get_options_rslt_sign(self, options_rslt):
+        try:
+            if not options_rslt:
+                return 'rain', '暂无'
+            if options_rslt == '标准的无保留意见':
+                return 'sun', options_rslt
+            return 'danger', options_rslt
+        except Exception as e:
+            return 'rain', '暂无'
+
     def get_law_case_sign(self, law_case_value):
         try:
             if not law_case_value:
@@ -149,6 +159,7 @@ class FinanceMineSweep(http.Controller, BaseController):
         shr_red_sign, shr_redu_result = self.get_shr_redu_sign(stock_id.shr_redu)
         law_case_sign, law_case_result = self.get_law_case_sign(stock_id.law_case)
         restricted_sign, restricted_value = self.get_rls_tshr_rat_sign(stock_id.rls_tshr_rat, stock_id.shr_type)
+        options_sign, options_result = self.get_options_rslt_sign(stock_id.options_rslt)
         result = {
             'peg': peg_result or '暂无',
             'peg_sign': peg_sign,
@@ -160,8 +171,8 @@ class FinanceMineSweep(http.Controller, BaseController):
             'shr_red': shr_redu_result or '暂无',
             'shr_red_sign': shr_red_sign,
             'gw_netast': stock_id.gw_netast_rat or '暂无',
-            'options': stock_id.options_rslt or '暂无',
-            'options_sign': 'sun' if stock_id.options_rslt == '标准的无保留意见' else 'danger',
+            'options': options_result,
+            'options_sign': options_sign,
             'law_case': stock_id.law_case or 0,
             'law_case_sign': law_case_sign
         }
