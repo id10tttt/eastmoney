@@ -29,6 +29,13 @@
             <field name="sign">sun</field>
             <field name="compare_line_id" eval="ref('finance_compare_line_1')"/>
         </record>
+        <record id="finance_compare_benchmark_1_1" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">decrease</field>
+            <field name="benchmark_left">0</field>
+            <field name="benchmark_right">0</field>
+            <field name="sign">danger</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_1')"/>
+        </record>
 
         <record id="finance_compare_2" model="stock.compare.analysis">
             <field name="name">过去3年每股收益环比增速是否大于0？</field>
@@ -58,9 +65,16 @@
             <field name="sign">sun</field>
             <field name="compare_line_id" eval="ref('finance_compare_line_2')"/>
         </record>
+        <record id="finance_compare_benchmark_2_1" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">&lt;</field>
+            <field name="benchmark_left">0</field>
+            <field name="benchmark_right">0</field>
+            <field name="sign">danger</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_2')"/>
+        </record>
 
         <record id="finance_compare_3" model="stock.compare.analysis">
-            <field name="name">过去3年营业收入季度环比是否大于0？</field>
+            <field name="name">过去3年营业收入季度环比是否保持增长</field>
             <field name="value_type">value</field>
             <field name="usage">vip</field>
             <field name="type_id" eval="ref('finance_mine_type_1')"/>
@@ -87,9 +101,16 @@
             <field name="sign">sun</field>
             <field name="compare_line_id" eval="ref('finance_compare_line_3')"/>
         </record>
+        <record id="finance_compare_benchmark_3_1" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">&lt;</field>
+            <field name="benchmark_left">0</field>
+            <field name="benchmark_right">0</field>
+            <field name="sign">danger</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_3')"/>
+        </record>
 
         <record id="finance_compare_4" model="stock.compare.analysis">
-            <field name="name">过去3年营业收入环比增速是否大于0？</field>
+            <field name="name">过去3年营业收入环比增速是否也在增长</field>
             <field name="value_type">value</field>
             <field name="usage">vip</field>
             <field name="type_id" eval="ref('finance_mine_type_1')"/>
@@ -116,9 +137,52 @@
             <field name="sign">sun</field>
             <field name="compare_line_id" eval="ref('finance_compare_line_4')"/>
         </record>
+        <record id="finance_compare_benchmark_4_1" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">&lt;</field>
+            <field name="benchmark_left">0</field>
+            <field name="benchmark_right">0</field>
+            <field name="sign">danger</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_4')"/>
+        </record>
+
+        <record id="finance_compare_50001" model="stock.compare.analysis">
+            <field name="name">是有稳定投资回报的公司吗</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_1')"/>
+        </record>
+        <record id="finance_compare_50001_line_1" model="stock.compare.analysis.line">
+            <field name="source_data">
+                select
+                    roe,
+                    to_char(report_date, 'YYYY-MM-DD') as report_date
+                from
+                    finance_fiscal_data ffd
+                where
+                    report_date in ({report_date}) and security_code = '{security_code}'
+                order by report_date asc
+            </field>
+            <field name="use_latest_period">12</field>
+            <field name="source_args">{}</field>
+            <field name="compare_id" eval="ref('finance_compare_50001')"/>
+        </record>
+        <record id="finance_compare_50001_line_1_benchmark_1" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">between</field>
+            <field name="benchmark_left">0.15</field>
+            <field name="benchmark_right">0.40</field>
+            <field name="sign">sun</field>
+            <field name="compare_line_id" eval="ref('finance_compare_50001_line_1')"/>
+        </record>
+        <record id="finance_compare_50001_line_1_benchmark_2" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">&lt;</field>
+            <field name="benchmark_left">0</field>
+            <field name="benchmark_right">0</field>
+            <field name="sign">danger</field>
+            <field name="compare_line_id" eval="ref('finance_compare_50001_line_1')"/>
+        </record>
 
         <record id="finance_compare_5" model="stock.compare.analysis">
-            <field name="name">过去3年ROE季度环比是否大于5%？</field>
+            <field name="name">过去年度ROE环比是否保持增长</field>
             <field name="value_type">value</field>
             <field name="usage">vip</field>
             <field name="type_id" eval="ref('finance_mine_type_1')"/>
@@ -140,14 +204,21 @@
         </record>
         <record id="finance_compare_benchmark_5" model="stock.compare.benchmark.line">
             <field name="inequality_operator">></field>
-            <field name="benchmark_left">0.05</field>
+            <field name="benchmark_left">0</field>
             <field name="benchmark_right">0</field>
             <field name="sign">sun</field>
             <field name="compare_line_id" eval="ref('finance_compare_line_5')"/>
         </record>
+        <record id="finance_compare_benchmark_5_1" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">&lt;</field>
+            <field name="benchmark_left">0</field>
+            <field name="benchmark_right">0</field>
+            <field name="sign">danger</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_5')"/>
+        </record>
 
         <record id="finance_compare_6" model="stock.compare.analysis">
-            <field name="name">过去3年ROE环比增速是否大于0%？</field>
+            <field name="name">年度ROE环比增速是否也在增长？</field>
             <field name="value_type">value</field>
             <field name="usage">vip</field>
             <field name="type_id" eval="ref('finance_mine_type_1')"/>
@@ -174,9 +245,16 @@
             <field name="sign">sun</field>
             <field name="compare_line_id" eval="ref('finance_compare_line_6')"/>
         </record>
+        <record id="finance_compare_benchmark_6_1" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">&lt;</field>
+            <field name="benchmark_left">0</field>
+            <field name="benchmark_right">0</field>
+            <field name="sign">danger</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_6')"/>
+        </record>
 
         <record id="finance_compare_8" model="stock.compare.analysis">
-            <field name="name">每年都有分红记录？</field>
+            <field name="name">有在持续分红吗？</field>
             <field name="value_type">value</field>
             <field name="usage">vip</field>
             <field name="type_id" eval="ref('finance_mine_type_2')"/>
@@ -260,8 +338,29 @@
             <field name="compare_id" eval="ref('finance_compare_11')"/>
         </record>
         <record id="finance_compare_benchmark_11" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">between</field>
+            <field name="benchmark_left">0</field>
+            <field name="benchmark_right">0.10</field>
+            <field name="sign">sun</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_11')"/>
+        </record>
+        <record id="finance_compare_benchmark_11_1" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">between</field>
+            <field name="benchmark_left">0.1</field>
+            <field name="benchmark_right">0.3</field>
+            <field name="sign">rain</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_11')"/>
+        </record>
+        <record id="finance_compare_benchmark_11_2" model="stock.compare.benchmark.line">
             <field name="inequality_operator">></field>
-            <field name="benchmark_left">0.35</field>
+            <field name="benchmark_left">0.3</field>
+            <field name="benchmark_right">0</field>
+            <field name="sign">danger</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_11')"/>
+        </record>
+        <record id="finance_compare_benchmark_11_3" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">&lt;</field>
+            <field name="benchmark_left">0</field>
             <field name="benchmark_right">0</field>
             <field name="sign">danger</field>
             <field name="compare_line_id" eval="ref('finance_compare_line_11')"/>
@@ -300,18 +399,32 @@
         </record>
         <record id="finance_compare_benchmark_12" model="stock.compare.benchmark.line">
             <field name="inequality_operator">&lt;</field>
-            <field name="benchmark_left">1</field>
+            <field name="benchmark_left">2</field>
             <field name="benchmark_right">0</field>
             <field name="sign">danger</field>
             <field name="compare_line_id" eval="ref('finance_compare_line_12')"/>
         </record>
-
-        <record id="finance_compare_13" model="stock.compare.analysis">
-            <field name="name">新产品创新能力是否强？</field>
-            <field name="value_type">value</field>
-            <field name="usage">vip</field>
-            <field name="type_id" eval="ref('finance_mine_type_6')"/>
+        <record id="finance_compare_benchmark_12_1" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">between</field>
+            <field name="benchmark_left">2</field>
+            <field name="benchmark_right">4</field>
+            <field name="sign">rain</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_12')"/>
         </record>
+        <record id="finance_compare_benchmark_12_2" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">></field>
+            <field name="benchmark_left">4</field>
+            <field name="benchmark_right">0</field>
+            <field name="sign">sun</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_12')"/>
+        </record>
+
+<!--        <record id="finance_compare_13" model="stock.compare.analysis">-->
+<!--            <field name="name">新产品创新能力是否强？</field>-->
+<!--            <field name="value_type">value</field>-->
+<!--            <field name="usage">vip</field>-->
+<!--            <field name="type_id" eval="ref('finance_mine_type_6')"/>-->
+<!--        </record>-->
         <record id="finance_compare_14" model="stock.compare.analysis">
             <field name="name">毛利率是否过低？</field>
             <field name="value_type">value</field>
@@ -338,6 +451,13 @@
             <field name="benchmark_left">0.25</field>
             <field name="benchmark_right">0</field>
             <field name="sign">danger</field>
+            <field name="compare_line_id" eval="ref('finance_compare_line_14')"/>
+        </record>
+        <record id="finance_compare_benchmark_14_1" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">></field>
+            <field name="benchmark_left">0.40</field>
+            <field name="benchmark_right">0</field>
+            <field name="sign">sun</field>
             <field name="compare_line_id" eval="ref('finance_compare_line_14')"/>
         </record>
 
