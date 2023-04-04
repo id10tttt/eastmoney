@@ -9,7 +9,8 @@ import six
 
 
 def get_redis_client(db):
-    return redis.Redis(db=db, password=config.get('redis_password'), port=config.get('redis_port'))
+    return redis.Redis(host=config.get('redis_host'), db=db, password=config.get('redis_password'),
+                       port=config.get('redis_port'))
 
 
 class SortedDict(dict):
