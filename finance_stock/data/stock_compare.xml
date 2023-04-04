@@ -461,6 +461,42 @@
             <field name="compare_line_id" eval="ref('finance_compare_line_14')"/>
         </record>
 
+        <record id="finance_compare_1000_1" model="stock.compare.analysis">
+            <field name="name">净利率是否过低？</field>
+            <field name="value_type">value</field>
+            <field name="usage">vip</field>
+            <field name="type_id" eval="ref('finance_mine_type_7')"/>
+        </record>
+        <record id="finance_compare_1000_line_1" model="stock.compare.analysis.line">
+            <field name="source_data">
+                select
+                    profit_margin,
+                    to_char(report_date, 'YYYY-MM-DD') as report_date
+                from
+                    finance_fiscal_data ffd
+                where
+                    report_date in ({report_date}) and security_code = '{security_code}'
+                order by report_date asc
+            </field>
+            <field name="use_latest_period">12</field>
+            <field name="source_args">{}</field>
+            <field name="compare_id" eval="ref('finance_compare_1000_1')"/>
+        </record>
+        <record id="finance_compare_1000_line_1_benchmark_1" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">&lt;</field>
+            <field name="benchmark_left">0.05</field>
+            <field name="benchmark_right">0</field>
+            <field name="sign">danger</field>
+            <field name="compare_line_id" eval="ref('finance_compare_1000_line_1')"/>
+        </record>
+        <record id="finance_compare_1000_line_1_benchmark_2" model="stock.compare.benchmark.line">
+            <field name="inequality_operator">></field>
+            <field name="benchmark_left">0.10</field>
+            <field name="benchmark_right">0</field>
+            <field name="sign">sun</field>
+            <field name="compare_line_id" eval="ref('finance_compare_1000_line_1')"/>
+        </record>
+
         <record id="finance_compare_15" model="stock.compare.analysis">
             <field name="name">负债率是否过高？</field>
             <field name="value_type">value</field>
