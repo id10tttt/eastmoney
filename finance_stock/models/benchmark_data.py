@@ -41,3 +41,9 @@ class BenchmarkData(models.Model):
             benchmark_data = benchmark_value.get('benchmark_data')
             benchmark_sign = self.analyse_benchmark_result(benchmark_data)
             line_id.sign = benchmark_sign
+
+    def cron_unlink_invalidate_data(self):
+        all_data_ids = self.env['compare.benchmark.data'].sudo().search([
+            ('compare_id', '=', False)
+        ])
+        all_data_ids.unlink()

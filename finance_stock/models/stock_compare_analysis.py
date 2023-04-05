@@ -255,6 +255,13 @@ class StockCompareAnalysis(models.Model):
         except Exception as e:
             return self.return_error_msg(security_code, mine_uuid)
 
+    def unlink(self):
+        all_benchmark_data = self.env['compare.benchmark.data'].sudo().search([
+            ('compare_id', 'in', self.ids)
+        ])
+        all_benchmark_data.with_delay().unlink()
+        return super().unlink()
+
 
 class StockCompareLine(models.Model):
     _inherit = 'finance.stock.mixin'
