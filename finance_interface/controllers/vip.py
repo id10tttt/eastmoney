@@ -71,6 +71,7 @@ class VIPContent(http.Controller, BaseController):
                     'value': benchmark_data_id.value,
                     'sign': benchmark_data_id.sign,
                     'benchmark_id': benchmark_data_id.id,
+                    'compare_type': benchmark_data_id.compare_id.value_type
                 })
                 benchmark_count.update({
                     benchmark_data_id.sign: benchmark_count.get(benchmark_data_id.sign) + 1
