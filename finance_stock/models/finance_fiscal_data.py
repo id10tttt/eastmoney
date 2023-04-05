@@ -223,7 +223,7 @@ class FinanceFiscalData(models.Model):
             # 员工数
             'employee': float_or_zero(survey_id.emp_num),
             # 营业收入/员工数量
-            'operate_revenue_per': self.get_ratio(report_id.total_operate_income, survey_id.emp_num),
+            'operate_revenue_per': self.get_ratio(self.get_lrb_value(lrb_id, 'OPERATE_INCOME'), survey_id.emp_num),
             # 库存周转次数
             'inventory_turnover': float_or_zero(main_id.chzzl),
             # 资产负债率
@@ -347,7 +347,8 @@ class FinanceFiscalData(models.Model):
                     # 员工数
                     'employee': float_or_zero(survey_id.emp_num),
                     # 营业收入/员工数量
-                    'operate_revenue_per': self.get_ratio(report_id.total_operate_income, survey_id.emp_num),
+                    'operate_revenue_per': self.get_ratio(self.get_lrb_value(lrb_id, 'OPERATE_INCOME'),
+                                                          survey_id.emp_num),
                     # 库存周转次数
                     'inventory_turnover': float_or_zero(main_id.chzzl),
                     # 资产负债率

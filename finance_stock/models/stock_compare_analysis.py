@@ -84,11 +84,12 @@ class StockCompareAnalysis(models.Model):
 
     def _get_benchmark_result(self, stock_id, compare_ids, benchmark_data_ids):
         for compare_id in compare_ids:
-            # if benchmark_data_ids.filtered(lambda bd: bd.stock_id == stock_id and bd.compare_id == compare_id):
-            #     continue
-            if compare_id.value_type != 'value':
+            if compare_id.value_type == 'value':
+                compare_id._get_benchmark_result_value(stock_id.symbol)
+            if compare_id.value_type == 'vs':
+                compare_id._get_benchmark_result_vs(stock_id.symbol)
+            else:
                 continue
-            compare_id._get_benchmark_result_value(stock_id.symbol)
 
     def cron_get_benchmark_result(self):
         stock_ids = self.env['finance.stock.basic'].search([])
@@ -96,6 +97,19 @@ class StockCompareAnalysis(models.Model):
         for stock_id in stock_ids:
             benchmark_data_ids = self.env['compare.benchmark.data'].search([('stock_id', '=', stock_id.id)])
             self.with_delay()._get_benchmark_result(stock_id, compare_ids, benchmark_data_ids)
+
+    def _get_benchmark_result_vs(self, security_code='000001'):
+        self.ensure_one()
+        all_result = []
+        all_benchmark_result = []
+        if not self.line_ids:
+            return False
+        for compare_line in self.line_ids:
+            sql_result, benchmark_result = compare_line.get_benchmark_result(security_code)
+            all_result.append(sql_result)
+            all_benchmark_result.append(benchmark_result)
+        if all_result and all_benchmark_result:
+            self.save_benchmark_data(security_code, all_result, all_benchmark_result)
 
     def _get_benchmark_result_value(self, security_code='000001'):
         self.ensure_one()
