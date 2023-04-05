@@ -9,6 +9,7 @@ from .wxa_common import verify_auth_token
 # from Crypto.Util.Padding import pad
 # from base64 import b64encode
 # import binascii
+import json
 
 _logger = logging.getLogger(__name__)
 
@@ -29,6 +30,13 @@ AES_ENCRYPT_KEY = 'Hcl97tpCW3mc2Wd3'
 
 
 class VIPContent(http.Controller, BaseController):
+
+    def parse_compare_value(self, compare_data):
+        try:
+            compare_data = json.loads(compare_data)
+            return compare_data.get('data', {}).get('data')
+        except Exception as e:
+            return None
 
     @http.route('/api/wechat/mini/vip/content', auth='public', methods=['POST'],
                 csrf=False, type='json')
@@ -71,7 +79,8 @@ class VIPContent(http.Controller, BaseController):
                     'value': benchmark_data_id.value,
                     'sign': benchmark_data_id.sign,
                     'benchmark_id': benchmark_data_id.id,
-                    'compare_type': benchmark_data_id.compare_id.value_type
+                    'compare_type': benchmark_data_id.compare_id.value_type,
+                    'compare_data': self.parse_compare_value(benchmark_data_id.value)
                 })
                 benchmark_count.update({
                     benchmark_data_id.sign: benchmark_count.get(benchmark_data_id.sign) + 1
