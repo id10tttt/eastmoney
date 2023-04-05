@@ -1,0 +1,16 @@
+/* pages/my/login/login.wxss */
+/* pages/my/my.wxss */
+page {
+  background: #FFFFFF;
+}
+.button-btnlogin{
+  position: fixed;
+  bottom: 30rpx;
+  margin: 0 32rpx;
+  width: 92% !important;
+  padding-bottom: 2rpx !important;
+}
+.login_btn{
+  width: 100% !important;
+  background-color: rgb(245, 106, 106) !important;
+}

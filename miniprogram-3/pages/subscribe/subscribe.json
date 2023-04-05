@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "订阅",
+  "usingComponents": {
+    "t-radio-group": "tdesign-miniprogram/radio-group/radio-group",
+    "t-radio": "tdesign-miniprogram/radio/radio",
+    "t-button": "tdesign-miniprogram/button/button"
+  }
+}

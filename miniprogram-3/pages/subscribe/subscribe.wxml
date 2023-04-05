@@ -1,0 +1,10 @@
+<!--pages/subscribe/subscribe.wxml-->
+<t-radio-group value="{{value}}" bind:change="onChangeRadio">
+  <view wx:for="{{subscrlbe_list}}" wx:key="index" class="card {{default_value == index ? 'card--active' : ''}}">
+    <t-icon wx:if="{{default_value == index}}" name="check" t-class="card__icon" />
+    <t-radio value="{{index}}" label="{{subscrlbe_list[index].name}}" content="￥: {{subscrlbe_list[index].price_total}} 元" icon="none"/>
+  </view>
+  <view class="button-subscribe">
+    <t-button theme="primary" size="large" block>订阅</t-button>
+  </view>
+</t-radio-group>

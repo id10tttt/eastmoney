@@ -1,0 +1,26 @@
+/**index.wxss**/
+.search_stock {
+  background-color: #fff;
+  padding: 16rpx 32rpx;
+}
+
+.space {
+  height: 32rpx;
+}
+
+.block {
+  margin: 5rpx 30rpx;
+}
+
+.block .margin-8 {
+  vertical-align: top;
+}
+
+.block .margin-8:not(:last-child) {
+  margin-right: 5rpx;
+}
+
+.search_btn{
+  width: 100% !important;
+  background-color: #fff !important;
+}

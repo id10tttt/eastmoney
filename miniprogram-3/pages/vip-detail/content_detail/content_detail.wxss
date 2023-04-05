@@ -1,0 +1,14 @@
+/* pages/vip-detail/content_detail/content_detail.wxss */
+/* 图表 */
+/* .mychart-dom-bar{
+  width: 100%;
+  margin-left: 0%;
+  height: 400px;
+} */
+ec-canvas {
+  position: absolute;
+  top: 80px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}

@@ -1,0 +1,29 @@
+<!--pages/side-bar/side-bar.wxml-->
+<t-toast id="t-toast" />
+<view wx:if="{{display_stock_data}}">
+  <view class="side-bar-wrapper">
+    <t-side-bar value="{{sideBarIndex}}" bind:change="onSideBarChange">
+      <t-side-bar-item wx:for="{{exchange_list}}" wx:key="index" value="{{item.value || index}}" label="{{item.exchange}}" disabled="{{item.disabled}}" badge-props="{{item.badgeProps}}" />
+    </t-side-bar>
+    <view class="content">
+      <scroll-view wx:for="{{stock_data}}" wx:key="index" class="section" scroll-y scroll-with-animation show-scrollbar="{{false}}">
+        <view class="title">{{item.exchange || item.title}}</view>
+        <t-cell-group>
+          <block wx:for="{{item.items}}" wx:key="index" wx:for-item="cargo">
+            <t-cell title="{{cargo.symbol}}" data-value="{{cargo.symbol}}" image="{{stock_image}}" 
+            description="{{cargo.name}}"
+            bind:click="onClickDisplayDetail">
+              <!-- <t-image shape="round" src="{{cargo.image}}" slot="image" lazy t-class="image" /> -->
+            </t-cell>
+          </block>
+        </t-cell-group>
+      </scroll-view>
+    </view>
+  </view>
+</view>
+<view wx:else="">
+  <view class="container">
+    <t-cell title="暂无数据">
+    </t-cell>
+  </view>
+</view>

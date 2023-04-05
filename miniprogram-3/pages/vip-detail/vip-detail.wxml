@@ -1,0 +1,21 @@
+<!--pages/vip-detail/vip-detail.wxml-->
+<t-message id="t-message" />
+<wxs module="filters" src="../../utils/filter.wxs"></wxs>
+<view>
+  <t-cell title="{{stock_name}} {{stock_code}}" description="阳: {{benchmark_count.sun}}, 阴: {{benchmark_count.rain}}, 雷: {{benchmark_count.danger}}"></t-cell>
+  <view wx:for="{{vip_content}}" wx:key="index" wx:for-item="categ_data">
+    <view wx:for="{{categ_data.data}}" wx:for-item="detail_data" wx:for-index="data_index" wx:key="name">
+      <view wx:if="{{detail_data.compare_type == 'value'}}">
+        <t-cell title="{{detail_data.name}}" data-value="{{detail_data.benchmark_id}}" value="{{idx}}" image="{{sun_image}}" hover wx:if="{{detail_data.sign == 'sun'}}" bind:click="onShowDetailContent" description="{{filters.toFix(detail_data.value)}}"/>
+        <t-cell title="{{detail_data.name}}" data-value="{{detail_data.benchmark_id}}" value="{{idx}}" image="{{danger_image}}" hover wx:if="{{detail_data.sign == 'danger'}}" bind:click="onShowDetailContent" />
+        <t-cell title="{{detail_data.name}}" data-value="{{detail_data.benchmark_id}}" value="{{idx}}" image="{{rain_image}}" hover wx:if="{{detail_data.sign == 'rain'}}" bind:click="onShowDetailContent" />
+      </view>
+      <view wx:else="">
+        <t-cell title="{{detail_data.name}}" arrow data-value="{{detail_data.benchmark_id}}" value="{{idx}}" image="{{sun_image}}" hover wx:if="{{detail_data.sign == 'sun'}}" bind:click="onShowDetailContent" />
+        <t-cell title="{{detail_data.name}}" arrow data-value="{{detail_data.benchmark_id}}" value="{{idx}}" image="{{danger_image}}" hover wx:if="{{detail_data.sign == 'danger'}}" bind:click="onShowDetailContent" />
+        <t-cell title="{{detail_data.name}}" arrow data-value="{{detail_data.benchmark_id}}" value="{{idx}}" image="{{rain_image}}" hover wx:if="{{detail_data.sign == 'rain'}}" bind:click="onShowDetailContent" />
+      </view>
+
+    </view>
+  </view>
+</view>

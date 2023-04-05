@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "扫雷",
+  "usingComponents": {
+    "t-search": "tdesign-miniprogram/search/search",
+    "t-toast": "tdesign-miniprogram/toast/toast"
+  }
+}

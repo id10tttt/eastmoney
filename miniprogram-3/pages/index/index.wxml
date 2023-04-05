@@ -1,0 +1,20 @@
+<!--index.wxml-->
+<t-toast id="t-toast" />
+<!-- <view class="container"> -->
+  <!-- <view class="avatar" slot="left-icon">
+    <open-data type="userAvatarUrl" />
+  </view> -->
+  <view class="space"></view>
+  <t-input prefix-icon="search" type="number" value="{{stock_code}}" clearable focus placeholder="请输入股票代码" bind:change="setSearchValue">
+    <t-button slot="suffix" theme="light" size="extra-small" class="search_btn" bindtap="onClickSearch">搜索</t-button>
+  </t-input>
+  <!-- <view class="search_stock">
+    <view class="space"></view>
+    <t-search model:value="{{value}}" type="number" placeholder="请输入股票代码" action="搜索" bind:action-click="onClickSearch" />
+  </view> -->
+  <view class="block">
+    <block wx:for="{{query_his}}" wx:key="index" wx:for-item="query_data">
+      <t-tag class="margin-8" bind:close="handleCloseTag" bind:click="onClickOpenPage" shape="square" data-value="{{query_his[index]}}" size="large" variant="light" closable="true">{{query_his[index]}}</t-tag>
+    </block>
+  </view>
+<!-- </view> -->

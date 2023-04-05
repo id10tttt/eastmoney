@@ -1,0 +1,23 @@
+<!--pages/login/login.wxml-->
+<t-toast id="t-toast" />
+
+<view wx:if="{{!isauthorize}}">
+  <view class="container">
+    <view class="avatar" slot="left-icon">
+      <open-data type="userAvatarUrl" />
+    </view>
+    <open-data type="userNickName" />
+  </view>
+</view>
+
+
+<view wx:if="{{isauthorize}}">
+  <view class="container">
+    <view class="avatar" slot="left-icon">
+      <open-data type="userAvatarUrl" />
+    </view>
+    <open-data type="userNickName" />
+  </view>
+
+
+</view>

@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "详细指标",
+  "pageOrientation": "auto",
+  "usingComponents": {
+      "ec-canvas": "/ec-canvas/ec-canvas"
+  }
+}

@@ -1,0 +1,28 @@
+<!--pages/my/my.wxml-->
+<view class="">
+  <t-toast id="t-toast" />
+  <view class="userinfo">
+    <block wx:if="{{!hasUserInfo}}">
+      <button wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile"> 获取头像昵称 </button>
+    </block>
+    <block wx:else>
+      <view class="container">
+        <view class="avatar" slot="left-icon">
+          <open-data type="userAvatarUrl" />
+        </view>
+        <open-data type="userNickName" />
+      </view>
+    </block>
+  </view>
+
+</view>
+<view>
+  <t-cell-group theme="card">
+    <t-cell title="我的订阅" leftIcon="service" hover arrow bind:click="onClickShowSubscribe" />
+  </t-cell-group>
+</view>
+<view class="container">
+  <view class="button-expirelogin" wx:if="{{hasUserInfo}}">
+    <t-button theme="primary" size="middle" bindtap="onTapExpireLogin" block class="expire_login_btn">退出登录</t-button>
+  </view>
+</view>
