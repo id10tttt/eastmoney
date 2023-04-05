@@ -34,8 +34,12 @@ class VIPContent(http.Controller, BaseController):
     def parse_compare_value(self, compare_data):
         try:
             compare_data = json.loads(compare_data)
-            return compare_data.get('data', {}).get('data')
+            compare_data_list = compare_data.get('data', [])
+            if compare_data_list:
+                return compare_data_list[0].get('data')
+            return None
         except Exception as e:
+            _logger.error('解析出错! {}'.format(e))
             return None
 
     @http.route('/api/wechat/mini/vip/content', auth='public', methods=['POST'],
@@ -76,11 +80,10 @@ class VIPContent(http.Controller, BaseController):
             for benchmark_data_id in benchmark_ids:
                 tmp_data.append({
                     'name': benchmark_data_id.compare_id.name,
-                    'value': benchmark_data_id.value,
+                    'value': self.parse_compare_value(benchmark_data_id.value),
                     'sign': benchmark_data_id.sign,
                     'benchmark_id': benchmark_data_id.id,
-                    'compare_type': benchmark_data_id.compare_id.value_type,
-                    'compare_data': self.parse_compare_value(benchmark_data_id.value)
+                    'compare_type': benchmark_data_id.compare_id.value_type
                 })
                 benchmark_count.update({
                     benchmark_data_id.sign: benchmark_count.get(benchmark_data_id.sign) + 1
