@@ -18,17 +18,25 @@ def itertools_pairwise(iterable):
 
 
 def verify_pairwise_increase(compare_list):
-    try:
-        return all(s <= t for s, t in itertools_pairwise(compare_list) if s is not None and t is not None)
-    except Exception as e:
-        raise ValidationError('error: {}, {}'.format(e, compare_list))
+    state = []
+    for s, t in itertools_pairwise(compare_list):
+        if len(s) > 1:
+            s = s[0]
+            t = t[0]
+        if s is not None and t is not None:
+            state.append(s <= t)
+    return all(state)
 
 
 def verify_pairwise_decrease(compare_list):
-    try:
-        return all(s > t for s, t in itertools_pairwise(compare_list) if s is not None and t is not None)
-    except Exception as e:
-        raise ValidationError('error: {}, {}'.format(e, compare_list))
+    state = []
+    for s, t in itertools_pairwise(compare_list):
+        if len(s) > 1:
+            s = s[0]
+            t = t[0]
+        if s is not None and t is not None:
+            state.append(s > t)
+    return all(state)
 
 
 class StockCompareAnalysis(models.Model):
