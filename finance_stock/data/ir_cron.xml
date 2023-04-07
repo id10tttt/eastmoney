@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<odoo noupdate="0">
+<odoo>
     <record id="ir_cron_sync_finance_stock_basic" model="ir.cron">
         <field name='name'>避雷针：同步股票列表</field>
         <field name='interval_number'>10</field>
