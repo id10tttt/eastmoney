@@ -7,6 +7,7 @@
         <field name="numbercall">-1</field>
         <field name="active" eval="True"/>
         <field name="doall" eval="False"/>
+        <field name="nextcall" eval="(DateTime.now().replace(hour=18)).strftime('%Y-%m-%d %H:00:00')" />
         <field name="code">model.get_update_stock_list()</field>
         <field name="state">code</field>
         <field name="model_id" ref="model_finance_stock_basic"/>
@@ -24,11 +25,12 @@
     </record>
     <record id="ir_cron_sync_finance_stock_zcfbz" model="ir.cron">
         <field name='name'>避雷针：同步资产负债表</field>
-        <field name='interval_number'>1</field>
-        <field name='interval_type'>months</field>
+        <field name='interval_number'>5</field>
+        <field name='interval_type'>days</field>
         <field name="numbercall">-1</field>
         <field name="active" eval="True"/>
         <field name="doall" eval="False"/>
+        <field name="nextcall" eval="(DateTime.now().replace(hour=18)).strftime('%Y-%m-%d %H:00:00')" />
         <field name="code">model.cron_fetch_zcfzb()</field>
         <field name="state">code</field>
         <field name="model_id" ref="model_finance_stock_basic"/>
@@ -40,47 +42,51 @@
         <field name="numbercall">-1</field>
         <field name="active" eval="True"/>
         <field name="doall" eval="False"/>
+        <field name="nextcall" eval="(DateTime.now().replace(hour=18)).strftime('%Y-%m-%d %H:00:00')" />
         <field name="code">model.cron_fetch_main_data()</field>
         <field name="state">code</field>
         <field name="model_id" ref="model_finance_stock_basic"/>
     </record>
     <record id="ir_cron_sync_finance_stock_rpt" model="ir.cron">
         <field name='name'>避雷针：同步业绩报表</field>
-        <field name='interval_number'>2</field>
-        <field name='interval_type'>months</field>
+        <field name='interval_number'>5</field>
+        <field name='interval_type'>days</field>
         <field name="numbercall">-1</field>
         <field name="active" eval="True"/>
         <field name="doall" eval="False"/>
+        <field name="nextcall" eval="(DateTime.now().replace(hour=18)).strftime('%Y-%m-%d %H:00:00')" />
         <field name="code">model.cron_fetch_rpt_lico_fn_cpd()</field>
         <field name="state">code</field>
         <field name="model_id" ref="model_finance_stock_basic"/>
     </record>
     <record id="ir_cron_sync_finance_stock_lrb" model="ir.cron">
         <field name='name'>避雷针：同步利润表</field>
-        <field name='interval_number'>2</field>
-        <field name='interval_type'>months</field>
+        <field name='interval_number'>5</field>
+        <field name='interval_type'>days</field>
         <field name="numbercall">-1</field>
         <field name="active" eval="True"/>
         <field name="doall" eval="False"/>
+        <field name="nextcall" eval="(DateTime.now().replace(hour=18)).strftime('%Y-%m-%d %H:00:00')" />
         <field name="code">model.cron_fetch_lrb()</field>
         <field name="state">code</field>
         <field name="model_id" ref="model_finance_stock_basic"/>
     </record>
     <record id="ir_cron_sync_finance_stock_xjllb" model="ir.cron">
         <field name='name'>避雷针：同步现金流量表</field>
-        <field name='interval_number'>2</field>
-        <field name='interval_type'>months</field>
+        <field name='interval_number'>5</field>
+        <field name='interval_type'>days</field>
         <field name="numbercall">-1</field>
         <field name="active" eval="True"/>
         <field name="doall" eval="False"/>
+        <field name="nextcall" eval="(DateTime.now().replace(hour=18)).strftime('%Y-%m-%d %H:00:00')" />
         <field name="code">model.cron_fetch_xjllb()</field>
         <field name="state">code</field>
         <field name="model_id" ref="model_finance_stock_basic"/>
     </record>
     <record id="ir_cron_sync_finance_stock_business" model="ir.cron">
         <field name='name'>避雷针：经营分析</field>
-        <field name='interval_number'>2</field>
-        <field name='interval_type'>months</field>
+        <field name='interval_number'>5</field>
+        <field name='interval_type'>days</field>
         <field name="numbercall">-1</field>
         <field name="active" eval="True"/>
         <field name="doall" eval="False"/>
@@ -101,22 +107,24 @@
     </record>
     <record id="ir_cron_sync_finance_stock_company_survey" model="ir.cron">
         <field name='name'>避雷针：公司信息补充</field>
-        <field name='interval_number'>1</field>
-        <field name='interval_type'>months</field>
+        <field name='interval_number'>5</field>
+        <field name='interval_type'>days</field>
         <field name="numbercall">-1</field>
         <field name="active" eval="True"/>
         <field name="doall" eval="False"/>
+        <field name="nextcall" eval="(DateTime.now().replace(hour=18)).strftime('%Y-%m-%d %H:00:00')" />
         <field name="code">model.cron_fetch_company_survey()</field>
         <field name="state">code</field>
         <field name="model_id" ref="model_finance_stock_company"/>
     </record>
     <record id="ir_cron_sync_finance_stock_peg" model="ir.cron">
         <field name='name'>避雷针：PEG</field>
-        <field name='interval_number'>5</field>
+        <field name='interval_number'>1</field>
         <field name='interval_type'>days</field>
         <field name="numbercall">-1</field>
         <field name="active" eval="True"/>
         <field name="doall" eval="False"/>
+        <field name="nextcall" eval="(DateTime.now().replace(hour=18)).strftime('%Y-%m-%d %H:00:00')" />
         <field name="code">model.cron_fetch_peg_value()</field>
         <field name="state">code</field>
         <field name="model_id" ref="model_finance_stock_basic"/>
@@ -134,33 +142,36 @@
     </record>
     <record id="ir_cron_sync_finance_stock_holder" model="ir.cron">
         <field name='name'>避雷针：基金机构</field>
-        <field name='interval_number'>3</field>
-        <field name='interval_type'>months</field>
+        <field name='interval_number'>10</field>
+        <field name='interval_type'>days</field>
         <field name="numbercall">-1</field>
         <field name="active" eval="True"/>
         <field name="doall" eval="False"/>
+        <field name="nextcall" eval="(DateTime.now().replace(hour=18)).strftime('%Y-%m-%d %H:00:00')" />
         <field name="code">model.cron_fetch_holder()</field>
         <field name="state">code</field>
         <field name="model_id" ref="model_finance_stock_basic"/>
     </record>
     <record id="ir_cron_sync_finance_stock_share_holder" model="ir.cron">
         <field name='name'>避雷针：十大流通股东</field>
-        <field name='interval_number'>3</field>
-        <field name='interval_type'>months</field>
+        <field name='interval_number'>5</field>
+        <field name='interval_type'>days</field>
         <field name="numbercall">-1</field>
         <field name="active" eval="True"/>
         <field name="doall" eval="False"/>
+        <field name="nextcall" eval="(DateTime.now().replace(hour=18)).strftime('%Y-%m-%d %H:00:00')" />
         <field name="code">model.cron_fetch_share_holder()</field>
         <field name="state">code</field>
         <field name="model_id" ref="model_finance_stock_basic"/>
     </record>
     <record id="ir_cron_sync_finance_company_event" model="ir.cron">
         <field name='name'>避雷针：公司事件</field>
-        <field name='interval_number'>10</field>
+        <field name='interval_number'>5</field>
         <field name='interval_type'>days</field>
         <field name="numbercall">-1</field>
         <field name="active" eval="True"/>
         <field name="doall" eval="False"/>
+        <field name="nextcall" eval="(DateTime.now().replace(hour=18)).strftime('%Y-%m-%d %H:00:00')" />
         <field name="code">model.cron_fetch_stock_event()</field>
         <field name="state">code</field>
         <field name="model_id" ref="model_finance_stock_basic"/>
@@ -170,7 +181,7 @@
         <field name='interval_number'>50</field>
         <field name='interval_type'>days</field>
         <field name="numbercall">-1</field>
-        <field name="active" eval="True"/>
+        <field name="active" eval="False"/>
         <field name="doall" eval="False"/>
         <field name="code">model.cron_fetch_analyse_report()</field>
         <field name="state">code</field>
@@ -178,11 +189,12 @@
     </record>
     <record id="ir_cron_sync_finance_fiscal_data" model="ir.cron">
         <field name='name'>避雷针：处理后财务信息</field>
-        <field name='interval_number'>2</field>
-        <field name='interval_type'>months</field>
+        <field name='interval_number'>5</field>
+        <field name='interval_type'>days</field>
         <field name="numbercall">-1</field>
         <field name="active" eval="True"/>
         <field name="doall" eval="False"/>
+        <field name="nextcall" eval="(DateTime.now().replace(hour=18)).strftime('%Y-%m-%d %H:00:00')" />
         <field name="code">model.cron_fetch_fiscal_data()</field>
         <field name="state">code</field>
         <field name="model_id" ref="model_finance_fiscal_data"/>
@@ -200,11 +212,12 @@
     </record>
     <record id="ir_cron_sync_update_finance_fiscal_data" model="ir.cron">
         <field name='name'>避雷针：更新-处理后财务信息</field>
-        <field name='interval_number'>1</field>
-        <field name='interval_type'>months</field>
+        <field name='interval_number'>5</field>
+        <field name='interval_type'>days</field>
         <field name="numbercall">-1</field>
         <field name="active" eval="True"/>
         <field name="doall" eval="False"/>
+        <field name="nextcall" eval="(DateTime.now().replace(hour=18)).strftime('%Y-%m-%d %H:00:00')" />
         <field name="code">model.cron_update_finance_fiscal_data()</field>
         <field name="state">code</field>
         <field name="model_id" ref="model_finance_fiscal_data"/>
@@ -247,7 +260,7 @@
         <field name='interval_number'>1</field>
         <field name='interval_type'>days</field>
         <field name="numbercall">-1</field>
-        <field name="nextcall" eval="(DateTime.now().replace(hour=17)).strftime('%Y-%m-%d %H:00:00')" />
+        <field name="nextcall" eval="(DateTime.now().replace(hour=18)).strftime('%Y-%m-%d %H:00:00')" />
         <field name="active" eval="True"/>
         <field name="doall" eval="False"/>
         <field name="code">model.cron_get_benchmark_result()</field>
