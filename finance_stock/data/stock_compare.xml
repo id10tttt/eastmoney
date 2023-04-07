@@ -18,7 +18,7 @@
                     report_date in ({report_date}) and security_code = '{security_code}'
                 order by report_date asc
             </field>
-            <field name="use_latest_period">12</field>
+            <field name="use_latest_period">11</field>
             <field name="source_args">{}</field>
             <field name="compare_id" eval="ref('finance_compare_1')"/>
         </record>
@@ -54,7 +54,7 @@
                     report_date in ({report_date}) and security_code = '{security_code}'
                 order by report_date asc
             </field>
-            <field name="use_latest_period">12</field>
+            <field name="use_latest_period">11</field>
             <field name="source_args">{}</field>
             <field name="compare_id" eval="ref('finance_compare_2')"/>
         </record>
@@ -90,7 +90,7 @@
                     report_date in ({report_date}) and security_code = '{security_code}'
                 order by report_date asc
             </field>
-            <field name="use_latest_period">12</field>
+            <field name="use_latest_period">11</field>
             <field name="source_args">{}</field>
             <field name="compare_id" eval="ref('finance_compare_3')"/>
         </record>
@@ -126,7 +126,7 @@
                     report_date in ({report_date}) and security_code = '{security_code}'
                 order by report_date asc
             </field>
-            <field name="use_latest_period">12</field>
+            <field name="use_latest_period">11</field>
             <field name="source_args">{}</field>
             <field name="compare_id" eval="ref('finance_compare_4')"/>
         </record>
@@ -162,7 +162,7 @@
                     report_date in ({report_date}) and security_code = '{security_code}'
                 order by report_date asc
             </field>
-            <field name="use_latest_period">12</field>
+            <field name="use_latest_period">11</field>
             <field name="source_args">{}</field>
             <field name="compare_id" eval="ref('finance_compare_50001')"/>
         </record>
@@ -198,7 +198,7 @@
                     report_date in ({report_date}) and security_code = '{security_code}'
                 order by report_date asc
             </field>
-            <field name="use_latest_period">12</field>
+            <field name="use_latest_period">11</field>
             <field name="source_args">{}</field>
             <field name="compare_id" eval="ref('finance_compare_5')"/>
         </record>
@@ -234,7 +234,7 @@
                     report_date in ({report_date}) and security_code = '{security_code}'
                 order by report_date asc
             </field>
-            <field name="use_latest_period">12</field>
+            <field name="use_latest_period">11</field>
             <field name="source_args">{}</field>
             <field name="compare_id" eval="ref('finance_compare_6')"/>
         </record>
@@ -284,7 +284,7 @@
                 from
                     res
             </field>
-            <field name="use_latest_period">12</field>
+            <field name="use_latest_period">11</field>
             <field name="source_args">{}</field>
             <field name="compare_id" eval="ref('finance_compare_8')"/>
         </record>
@@ -333,7 +333,7 @@
                     report_date in ({report_date}) and security_code = '{security_code}'
                 order by report_date asc
             </field>
-            <field name="use_latest_period">12</field>
+            <field name="use_latest_period">11</field>
             <field name="source_args">{}</field>
             <field name="compare_id" eval="ref('finance_compare_11')"/>
         </record>
@@ -393,7 +393,7 @@
                 where
                     period_month = '12'
             </field>
-            <field name="use_latest_period">12</field>
+            <field name="use_latest_period">11</field>
             <field name="source_args">{}</field>
             <field name="compare_id" eval="ref('finance_compare_12')"/>
         </record>
@@ -442,7 +442,7 @@
                     report_date in ({report_date}) and security_code = '{security_code}'
                 order by report_date asc
             </field>
-            <field name="use_latest_period">12</field>
+            <field name="use_latest_period">11</field>
             <field name="source_args">{}</field>
             <field name="compare_id" eval="ref('finance_compare_14')"/>
         </record>
@@ -478,7 +478,7 @@
                     report_date in ({report_date}) and security_code = '{security_code}'
                 order by report_date asc
             </field>
-            <field name="use_latest_period">12</field>
+            <field name="use_latest_period">11</field>
             <field name="source_args">{}</field>
             <field name="compare_id" eval="ref('finance_compare_1000_1')"/>
         </record>
@@ -575,7 +575,7 @@
 <!--                    report_date in ({report_date}) and security_code = '{security_code}'-->
 <!--                order by report_date asc-->
 <!--            </field>-->
-<!--            <field name="use_latest_period">12</field>-->
+<!--            <field name="use_latest_period">11</field>-->
 <!--            <field name="source_args">{}</field>-->
 <!--            <field name="compare_id" eval="ref('finance_compare_18')"/>-->
 <!--        </record>-->
