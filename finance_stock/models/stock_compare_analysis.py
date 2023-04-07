@@ -5,7 +5,7 @@ import logging
 import datetime
 from odoo.exceptions import ValidationError
 import uuid
-
+from itertools import tee
 _logger = logging.getLogger(__name__)
 
 
