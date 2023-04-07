@@ -3,9 +3,10 @@ from odoo import models, fields, api, _
 import json
 import logging
 import datetime
+from itertools import tee
 from odoo.exceptions import ValidationError
 import uuid
-from itertools import tee
+
 _logger = logging.getLogger(__name__)
 
 
@@ -17,11 +18,17 @@ def itertools_pairwise(iterable):
 
 
 def verify_pairwise_increase(compare_list):
-    return all(s <= t for s, t in itertools_pairwise(compare_list))
+    try:
+        return all(s <= t for s, t in itertools_pairwise(compare_list))
+    except Exception as e:
+        raise ValidationError('error: {}, {}'.format(e, compare_list))
 
 
 def verify_pairwise_decrease(compare_list):
-    return all(s > t for s, t in itertools_pairwise(compare_list))
+    try:
+        return all(s > t for s, t in itertools_pairwise(compare_list))
+    except Exception as e:
+        raise ValidationError('error: {}, {}'.format(e, compare_list))
 
 
 class StockCompareAnalysis(models.Model):
