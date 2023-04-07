@@ -6,18 +6,14 @@ import datetime
 from odoo.exceptions import ValidationError
 import uuid
 
-try:
-    from itertools import pairwise as itertools_pairwise
-except Exception as e:
-    from itertools import tee
-
-
-    def itertools_pairwise(iterable):
-        a, b = tee(iterable)
-        next(b, None)
-        return zip(a, b)
-
 _logger = logging.getLogger(__name__)
+
+
+def itertools_pairwise(iterable):
+    a, b = tee(iterable)
+    next(b, None)
+    if a and b:
+        return zip(a, b)
 
 
 def verify_pairwise_increase(compare_list):
