@@ -278,9 +278,10 @@ class StockCompareAnalysis(models.Model):
 
     def manual_update_all_stock_matrix(self):
         stock_ids = self.env['finance.stock.basic'].search([])
+        compare_id = self
         for stock_id in stock_ids:
             benchmark_data_ids = self.env['compare.benchmark.data'].search([('stock_id', '=', stock_id.id)])
-            self.with_delay()._get_compre_benchmark_result(stock_id, self, benchmark_data_ids)
+            self.with_delay()._get_benchmark_result(stock_id, compare_id, benchmark_data_ids)
 
 
 class StockCompareLine(models.Model):
