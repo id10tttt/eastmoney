@@ -276,6 +276,12 @@ class StockCompareAnalysis(models.Model):
         all_benchmark_data.with_delay().unlink()
         return super().unlink()
 
+    def manual_update_all_stock_matrix(self):
+        stock_ids = self.env['finance.stock.basic'].search([])
+        for stock_id in stock_ids:
+            benchmark_data_ids = self.env['compare.benchmark.data'].search([('stock_id', '=', stock_id.id)])
+            self.with_delay()._get_compre_benchmark_result(stock_id, self, benchmark_data_ids)
+
 
 class StockCompareLine(models.Model):
     _inherit = 'finance.stock.mixin'

@@ -8,6 +8,7 @@
                 <form>
                     <header>
                         <button name="get_benchmark_result" string="获取值" type="object"/>
+                        <button name="manual_update_all_stock_matrix" string="更新指标" type="object"/>
                     </header>
                     <sheet>
                         <group>

@@ -244,9 +244,10 @@
     </record>
     <record id="ir_cron_sync_finance_stock_benchmark_data_compute" model="ir.cron">
         <field name='name'>避雷针：批量计算Benchmark Data</field>
-        <field name='interval_number'>20</field>
+        <field name='interval_number'>1</field>
         <field name='interval_type'>days</field>
         <field name="numbercall">-1</field>
+        <field name="nextcall" eval="(DateTime.now().replace(hour=17)).strftime('%Y-%m-%d %H:00:00')" />
         <field name="active" eval="True"/>
         <field name="doall" eval="False"/>
         <field name="code">model.cron_get_benchmark_result()</field>
