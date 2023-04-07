@@ -19,14 +19,14 @@ def itertools_pairwise(iterable):
 
 def verify_pairwise_increase(compare_list):
     try:
-        return all(s <= t for s, t in itertools_pairwise(compare_list))
+        return all(s <= t for s, t in itertools_pairwise(compare_list) if s is not None and t is not None)
     except Exception as e:
         raise ValidationError('error: {}, {}'.format(e, compare_list))
 
 
 def verify_pairwise_decrease(compare_list):
     try:
-        return all(s > t for s, t in itertools_pairwise(compare_list))
+        return all(s > t for s, t in itertools_pairwise(compare_list) if s is not None and t is not None)
     except Exception as e:
         raise ValidationError('error: {}, {}'.format(e, compare_list))
 
