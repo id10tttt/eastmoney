@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <data>
+    <data noupdate="1">
         <record id="finance_compare_1" model="stock.compare.analysis">
             <field name="name">过去3年每股收益季度环比是否连续增长？</field>
             <field name="value_type">vs</field>
