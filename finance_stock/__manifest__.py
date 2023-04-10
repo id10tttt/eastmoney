@@ -34,5 +34,6 @@
         'views/compare_benchmark_data.xml',
         'views/finance_stock_bonus.xml',
         'views/finance_stock_share_holder_news.xml',
+        'views/webclient_templates.xml',
     ],
 }

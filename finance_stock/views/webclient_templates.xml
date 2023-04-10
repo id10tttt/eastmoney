@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <template id="finance_stock.frontend_layout" name="Login" inherit_id="web.frontend_layout">
+            <xpath expr="//div[@id='wrapwrap']/main" position="after">
+                <div id="footer" class="text-center">
+                    <a href="" target="_blank">沪ICP备2023007680号-1</a>
+                </div>
+            </xpath>
+        </template>
+    </data>
+</odoo>
