@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 import logging
 from .response_code import ResponseCode
+from odoo.tools import config
+import json
+from odoo import http
+from ..utils import get_redis_client
 _logger = logging.getLogger(__name__)
 
 ERROR_CODE = {
     -1: u'禁止访问',
 }
+ALLOW_QUERY_TIME = 3
 
 
 class UserException(Exception):
@@ -29,3 +34,30 @@ class BaseController(object):
         if data:
             result['data'] = data
         return result
+
+    def save_and_check_query_time(self, stock_id=None):
+        wx_uid = http.request.wxa_uid
+        query_redis_prefix = '{}:{}:query:stock:vip'.format(config.get('redis_cache_prefix'), wx_uid)
+        redis_client = get_redis_client(config.get('redis_cache_db'))
+        if stock_id:
+            store_key = '{}:{}'.format(query_redis_prefix, stock_id.symbol)
+            # 如果已经存在，则允许查询
+            if redis_client.get(store_key):
+                return True
+
+            # 如果没有查询过，则验证是否超过数量限制
+            res = redis_client.keys('{}:*'.format(query_redis_prefix))
+            if len(res) < ALLOW_QUERY_TIME:
+                # 保存查询记录
+                redis_client.set(store_key, json.dumps({
+                    'code': stock_id.symbol,
+                    'name': stock_id.name
+                }))
+                return True
+
+            return False
+        else:
+            res = redis_client.keys('{}:*'.format(query_redis_prefix))
+            if len(res) <= ALLOW_QUERY_TIME:
+                return True
+            return False

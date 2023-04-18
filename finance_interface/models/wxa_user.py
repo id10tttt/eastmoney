@@ -41,6 +41,7 @@ class WxaAppUser(models.Model):
     active = fields.Boolean('是否有效', default=True)
     forbidden_user = fields.Boolean('禁用用户', default=False)
     real_name = fields.Char(u'真实姓名')
+    collect_ids = fields.One2many('wxa.stock.collect', 'wxa_id', string=u'我的收藏')
 
     _sql_constraints = [
         ('unique_open_id_phone', 'unique(open_id, phone)', '手机和openid 必须唯一'),
@@ -65,17 +66,14 @@ class WxaAppUser(models.Model):
             else:
                 each_record.avatar = False
 
-    def bind_mobile(self, mobile):
-        self.partner_id.write({'mobile': mobile})
 
-    def check_account_ok(self):
-        return True
+class WxaStockCollect(models.Model):
+    _name = 'wxa.stock.collect'
+    _description = u'我的收藏'
+    _sql_constraints = [
+        ('unique_name_wxa', 'unique(name,wxa_id)', u'必须唯一')
+    ]
 
-    def get_balance(self):
-        return hasattr(self, 'balance') and self.balance or 0
-
-    def get_score(self):
-        return hasattr(self, 'score') and self.score or 0
-
-    def get_credit_limit(self):
-        return 0
+    name = fields.Char('编码')
+    stock_id = fields.Many2one('finance.stock.basic', string='股票')
+    wxa_id = fields.Many2one('wxa.user')

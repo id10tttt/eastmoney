@@ -4,16 +4,14 @@ from odoo import http, exceptions, fields
 from odoo.http import request
 from .base import BaseController
 import logging
+
 from .wxa_common import verify_auth_token
-# from Crypto.Cipher import AES
-# from Crypto.Util.Padding import pad
-# from base64 import b64encode
-# import binascii
 import json
 
 _logger = logging.getLogger(__name__)
 
 AES_ENCRYPT_KEY = 'Hcl97tpCW3mc2Wd3'
+ALLOW_QUERY_TIME = 3
 
 
 # def aes_encrypt_msg(msg):
@@ -56,9 +54,11 @@ class VIPContent(http.Controller, BaseController):
 
         if not stock_id:
             return self.response_json_error(-1, '股票不存在!')
+        check_access_right = self.save_and_check_query_time(stock_id)
         user_vip = request.env['wxa.subscribe.order'].sudo().wx_user_is_vip(request.wxa_uid)
-        if not user_vip:
-            return self.response_json_error(-1, '没有权限查看')
+        if not user_vip and not check_access_right:
+            err_msg = '未订阅用户，仅允许查询{}次!'.format(ALLOW_QUERY_TIME)
+            return self.response_json_error(-1, err_msg)
 
         benchmark_data_ids = request.env['compare.benchmark.data'].sudo().search([('stock_id', '=', stock_id.id)])
         type_ids = sorted(list(set(benchmark_data_ids.compare_id.mapped('type_id'))))
@@ -135,9 +135,11 @@ class VIPContent(http.Controller, BaseController):
 
         if not stock_id:
             return self.response_json_error(-1, '股票不存在!')
+        check_access_right = self.save_and_check_query_time(stock_id)
         user_vip = request.env['wxa.subscribe.order'].sudo().wx_user_is_vip(request.wxa_uid)
-        if not user_vip:
-            return self.response_json_error(-1, '没有权限查看')
+        if not user_vip and not check_access_right:
+            err_msg = '未订阅用户，仅允许查询{}次!'.format(ALLOW_QUERY_TIME)
+            return self.response_json_error(-1, err_msg)
 
         try:
             benchmark_id = int(benchmark_id)

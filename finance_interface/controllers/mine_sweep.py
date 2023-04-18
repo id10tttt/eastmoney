@@ -42,13 +42,21 @@ class FinanceMineSweep(http.Controller, BaseController):
         try:
             res = request.env['finance.stock.basic'].sudo().search([
                 '|',
+                '|',
+                '|',
                 ('symbol', '=', stock_code),
-                ('ts_code', '=', stock_code)
+                ('ts_code', '=', stock_code),
+                ('cnspell', '=', stock_code),
+                ('name', '=', stock_code),
             ])
             if not res:
                 return self.response_json_error(-1, '请求的股票代码 [{}] 无效!'.format(stock_code))
             return self.response_json_success({
-                'code': stock_code
+                'code': stock_code,
+                'data': [{
+                    'name': x.name,
+                    'code': x.symbol
+                } for x in res]
             })
         except Exception as e:
             _logger.exception(e)
@@ -139,8 +147,14 @@ class FinanceMineSweep(http.Controller, BaseController):
         stock_code = body.get('stock_code', None)
 
         stock_id = request.env['finance.stock.basic'].sudo().search([
-            ('symbol', '=', stock_code)
-        ], limit=1)
+                '|',
+                '|',
+                '|',
+                ('symbol', '=', stock_code),
+                ('ts_code', '=', stock_code),
+                ('cnspell', '=', stock_code),
+                ('name', '=', stock_code),
+            ], limit=1)
         if not stock_id:
             result = {
                 'peg': '',
@@ -161,6 +175,8 @@ class FinanceMineSweep(http.Controller, BaseController):
         restricted_sign, restricted_value = self.get_rls_tshr_rat_sign(stock_id.rls_tshr_rat, stock_id.shr_type)
         options_sign, options_result = self.get_options_rslt_sign(stock_id.options_rslt)
         result = {
+            'stock_code': stock_id.symbol,
+            'stock_name': stock_id.name,
             'peg': peg_result or '暂无',
             'peg_sign': peg_sign,
             'plge': plge_result or '暂无',

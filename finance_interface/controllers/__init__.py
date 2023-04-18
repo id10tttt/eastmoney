@@ -6,4 +6,5 @@ from . import finance_stock
 from . import subscribe
 from . import vip
 from . import query_his
+from . import collect
 

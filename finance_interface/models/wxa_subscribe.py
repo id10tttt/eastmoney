@@ -43,8 +43,6 @@ class WxaSubscribeOrder(models.Model):
         """
         是否是VIP用户
         """
-        # TODO: 暂时都是允许
-        return True
         all_ids = self.env['wxa.subscribe.order'].sudo().search([
             ('wechat_user_id', '=', user_id),
             ('payment_id.status', '=', 'success')

@@ -16,6 +16,7 @@ _logger = logging.getLogger(__name__)
 
 APP_MINI_ID = config.get('wxa_app_id')
 APP_MINI_SECRET = config.get('wxa_app_secret')
+ALLOW_QUERY_TIME = 3
 
 
 class WeChatUser(http.Controller, BaseController):
@@ -158,10 +159,25 @@ class WeChatUser(http.Controller, BaseController):
     @verify_auth_token()
     def check_user_is_vip(self):
         payload_data = json.loads(request.httprequest.data)
-
+        body = payload_data.get('body')
+        stock_code = body.get('stock_code')
+        if stock_code:
+            stock_id = request.env['finance.stock.basic'].sudo().search([
+                '|',
+                '|',
+                '|',
+                ('symbol', '=', stock_code),
+                ('ts_code', '=', stock_code),
+                ('cnspell', '=', stock_code),
+                ('name', '=', stock_code),
+            ], limit=1)
+            check_access_right = self.save_and_check_query_time(stock_id=stock_id)
+        else:
+            check_access_right = self.save_and_check_query_time(stock_id=None)
         user_vip = request.env['wxa.subscribe.order'].sudo().wx_user_is_vip(request.wxa_uid)
-        if not user_vip:
-            return self.response_json_error(-1, '没有权限查看')
+        if not user_vip and not check_access_right:
+            err_msg = '未订阅用户，仅允许查询{}次!'.format(ALLOW_QUERY_TIME)
+            return self.response_json_error(-1, err_msg)
         return self.response_json_success({
             'msg': 'success'
         })

@@ -3,3 +3,4 @@ finance_interface.access_wxa_user,access_wxa_user,finance_interface.model_wxa_us
 finance_interface.access_wxa_payment,access_wxa_payment,finance_interface.model_wxa_payment,base.group_user,1,1,1,1
 finance_interface.access_wxa_subscribe,access_wxa_subscribe,finance_interface.model_wxa_subscribe,base.group_user,1,1,1,1
 finance_interface.access_wxa_subscribe_order,access_wxa_subscribe_order,finance_interface.model_wxa_subscribe_order,base.group_user,1,1,1,1
+finance_interface.access_wxa_stock_collect,access_wxa_stock_collect,finance_interface.model_wxa_stock_collect,base.group_user,1,1,1,1
