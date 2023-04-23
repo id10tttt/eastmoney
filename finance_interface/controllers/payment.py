@@ -2,7 +2,9 @@
 import requests
 import time
 import json
+from wechatpy import WeChatClient
 import xmltodict
+from odoo.tools import config
 from odoo import http, exceptions, fields
 from odoo.http import request
 from .wxa_common import verify_auth_token
@@ -16,9 +18,16 @@ import random
 
 _logger = logging.getLogger(__name__)
 
-WXA_APP_ID = ''
-WXA_PAY_ID = ''
-WXA_PAY_SECRET = ''
+# WXA_SUB_APP_ID = 'wx37cb18884ba26d78'
+# WXA_PAY_SECRET = 'Id10ttttId10ttttId10ttttId10tttt'
+# MCH_ID = '1642567832'
+
+APP_MINI_ID = config.get('wxa_app_id')
+WXA_SUB_APP_ID = config.get('wxa_sub_id')
+APP_MINI_SECRET = config.get('wxa_app_secret')
+
+MCH_ID = config.get('wxa_mch_id')
+WXA_PAY_SECRET = config.get('wxa_pay_secret')
 
 
 def get_random_char():
@@ -68,6 +77,7 @@ class WxPayment(http.Controller, BaseController):
         body = payload_data.get('body')
         try:
 
+            user_code = headers.get('code')
             args_key_set = {'subscribe_uuid', 'price'}
             missing_args_key = args_key_set - set(body.keys())
             if missing_args_key:
@@ -93,12 +103,18 @@ class WxPayment(http.Controller, BaseController):
                 'wechat_user_id': request.wxa_uid,
                 'price': float(pay_money)
             })
-            mall_name = '扫雷: {}'.format(out_trade_no)
-            base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
+            wechat_client = WeChatClient(APP_MINI_ID, APP_MINI_SECRET)
+            session_data = wechat_client.wxa.code_to_session(user_code)
 
-            wxa_pay_client = WeChatPay(WXA_APP_ID, api_key='', sub_appid=WXA_PAY_ID, mch_id=WXA_PAY_ID)
-            wxa_order_data = wxa_pay_client.order.create(trade_type='JSAPI', body=mall_name, total_fee=0.0,
-                                                         notify_url=base_url)
+            mall_name = '扫雷: {}'.format(out_trade_no)
+
+            base_url = 'https://www.pickbest.cn/api/wechat/mini/pay/notify'
+
+            wxa_pay_client = WeChatPay(WXA_SUB_APP_ID, api_key=WXA_PAY_SECRET, sub_appid=WXA_SUB_APP_ID, mch_id=MCH_ID)
+            wxa_order_data = wxa_pay_client.order.create(
+                trade_type='JSAPI', body=mall_name, total_fee=1,
+                notify_url=base_url, user_id=session_data.get('openid'),
+            )
             jsapi_params = wxa_pay_client.jsapi.get_jsapi_params(prepay_id=wxa_order_data.get('prepay_id'))
 
             return self.response_json_success(jsapi_params)
@@ -125,6 +141,7 @@ class WxPayment(http.Controller, BaseController):
         """
         try:
             xml_data = request.httprequest.stream.read()
+            _logger.info('支付回调： {}'.format(xml_data))
             data = xmltodict.parse(xml_data)['xml']
             if data['return_code'] == 'SUCCESS':
                 data.update({'status': utils.PaymentStatus.success})
