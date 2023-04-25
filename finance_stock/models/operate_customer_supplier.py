@@ -13,7 +13,7 @@ class OperateCustomerSupplier(models.Model):
     ]
 
     stock_id = fields.Many2one('finance.stock.basic', string='Stock', required=1)
-    symbol = fields.Char('Stock', realted='stock_id.symbol')
+    symbol = fields.Char('Stock', related='stock_id.symbol')
     type = fields.Char('类型')
     name = fields.Char('排名')
     value = fields.Float('销售额')
