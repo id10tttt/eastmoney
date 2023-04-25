@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_operate_customer_supplier_tree" model="ir.ui.view">
+            <field name="name">operate.customer.supplier tree</field>
+            <field name="model">operate.customer.supplier</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="stock_id"/>
+                    <field name="symbol"/>
+                    <field name="report_date"/>
+                    <field name="type"/>
+                    <field name="name"/>
+                    <field name="value"/>
+                    <field name="rate"/>
+                </tree>
+            </field>
+        </record>
+        <record id="view_operate_customer_supplier_search" model="ir.ui.view">
+            <field name="name">operate.customer.supplier search</field>
+            <field name="model">operate.customer.supplier</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="stock_id"/>
+                    <field name="symbol"/>
+                    <field name="report_date"/>
+                    <field name="type"/>
+                    <field name="name"/>
+                    <group>
+                        <filter name="group_by_report_date" string="期间" context="{'group_by': 'report_date'}"/>
+                        <filter name="group_by_type" string="类别" context="{'group_by': 'type'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record id="action_operate_customer_supplier" model="ir.actions.act_window">
+            <field name="name">主要客户及供应商</field>
+            <field name="res_model">operate.customer.supplier</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem id="menu_operate_customer_supplier"
+                  name="主要客户及供应商"
+                  action="action_operate_customer_supplier"
+                  parent="menu_finance_stock_menu"
+                  sequence="12"/>
+    </data>
+</odoo>

@@ -131,6 +131,7 @@ class FinanceStockBasic(models.Model):
     holder_ids = fields.One2many('finance.stock.holder', 'stock_id', string='基金机构')
     share_holder_ids = fields.One2many('finance.stock.share.holder', 'stock_id', string='流通股东')
     event_ids = fields.One2many('finance.company.event', 'stock_id', string='Event')
+    operate_cs_ids = fields.One2many('operate.customer.supplier', 'stock_id', string='Supplier/Customer')
 
     plge_rat = fields.Char('质押比例')
     blt_hld_rat = fields.Char('合计持股比')
