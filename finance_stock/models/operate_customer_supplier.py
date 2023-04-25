@@ -87,6 +87,6 @@ class OperateCustomerSupplier(models.Model):
             })
 
     def cron_fetch_operate_cs_value(self):
-        stock_ids = self.env['finance.stock.basic'].search([], limit=20)
+        stock_ids = self.env['finance.stock.basic'].search([])
         for stock_id in stock_ids:
             self.with_delay().fetch_operate_cs_value(stock_id)
