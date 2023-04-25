@@ -3,6 +3,8 @@ from odoo import models, fields, api
 import requests
 from bs4 import BeautifulSoup
 import json
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class OperateCustomerSupplier(models.Model):
@@ -36,6 +38,7 @@ class OperateCustomerSupplier(models.Model):
 
     def fetch_operate_cs_value(self, stock_id):
         operate_cs_ids = stock_id.operate_cs_ids
+        _logger.info('主要客户及供应商, 开始获取: {}'.format(stock_id.symbol))
         url = 'http://basic.10jqka.com.cn/{}/operate.html'.format(stock_id.symbol)
         headers = {
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36'
@@ -44,8 +47,11 @@ class OperateCustomerSupplier(models.Model):
 
         soup = BeautifulSoup(res.content, 'html.parser')
         provider_flash = soup.find('div', id='providerflash')
-        provider_flash_value = json.loads(provider_flash.text)
-
+        try:
+            provider_flash_value = json.loads(provider_flash.text)
+        except Exception as e:
+            _logger.error('出现了错误咯。。。{}'.format(e))
+            return False
         data = []
         for provider_key in provider_flash_value.keys():
             provider_line = provider_flash_value.get(provider_key)
@@ -82,6 +88,7 @@ class OperateCustomerSupplier(models.Model):
                     continue
                 data.append((0, 0, line_data))
         if data:
+            _logger.info('主要客户及供应商, 开始保存: {}'.format(len(data)))
             stock_id.write({
                 'operate_cs_ids': data
             })
