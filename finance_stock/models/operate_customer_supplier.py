@@ -27,7 +27,8 @@ class OperateCustomerSupplier(models.Model):
     def _compute_operate_rate(self):
         for operate_id in self:
             total_operate = self.env['operate.customer.supplier'].sudo().search([
-                ('stock_id', '=', operate_id.stock_id.id)
+                ('stock_id', '=', operate_id.stock_id.id),
+                ('type', '=', operate_id.type)
             ])
             total_operate = total_operate.filtered(lambda o: o.report_date == operate_id.report_date)
 
