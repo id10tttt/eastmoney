@@ -61,24 +61,26 @@ class OperateCustomerSupplier(models.Model):
             customer = provider_line.get('customer')
             supplier = provider_line.get('supplier')
             tmp = []
-            for line_id in customer:
-                tmp.append({
-                    'stock_id': stock_id.id,
-                    'name': line_id.get('name'),
-                    'value': line_id.get('y'),
-                    'type': 'customer',
-                    'report_date_char': report_date,
-                    'report_date': report_date,
-                })
-            for line_id in supplier:
-                tmp.append({
-                    'stock_id': stock_id.id,
-                    'name': line_id.get('name'),
-                    'value': line_id.get('y'),
-                    'type': 'supplier',
-                    'report_date_char': report_date,
-                    'report_date': report_date
-                })
+            if customer:
+                for line_id in customer:
+                    tmp.append({
+                        'stock_id': stock_id.id,
+                        'name': line_id.get('name'),
+                        'value': line_id.get('y'),
+                        'type': 'customer',
+                        'report_date_char': report_date,
+                        'report_date': report_date,
+                    })
+            if supplier:
+                for line_id in supplier:
+                    tmp.append({
+                        'stock_id': stock_id.id,
+                        'name': line_id.get('name'),
+                        'value': line_id.get('y'),
+                        'type': 'supplier',
+                        'report_date_char': report_date,
+                        'report_date': report_date
+                    })
             for line_data in tmp:
                 # 筛选重复项
                 if operate_cs_ids.filtered(
