@@ -48,8 +48,10 @@ class OperateCustomerSupplier(models.Model):
 
         data = []
         for provider_key in provider_flash_value.keys():
-            provider_line = provider_flash_value.get('provider_key')
+            provider_line = provider_flash_value.get(provider_key)
             report_date = provider_key
+            if not provider_line:
+                continue
             customer = provider_line.get('customer')
             supplier = provider_line.get('supplier')
             tmp = []
@@ -59,8 +61,8 @@ class OperateCustomerSupplier(models.Model):
                     'name': line_id.get('name'),
                     'value': line_id.get('y'),
                     'type': 'customer',
-                    'report_date_char': provider_key,
-                    'report_date': provider_key,
+                    'report_date_char': report_date,
+                    'report_date': report_date,
                 })
             for line_id in supplier:
                 tmp.append({
@@ -68,8 +70,8 @@ class OperateCustomerSupplier(models.Model):
                     'name': line_id.get('name'),
                     'value': line_id.get('y'),
                     'type': 'supplier',
-                    'report_date_char': provider_key,
-                    'report_date': provider_key
+                    'report_date_char': report_date,
+                    'report_date': report_date
                 })
             for line_data in tmp:
                 # 筛选重复项
@@ -85,6 +87,6 @@ class OperateCustomerSupplier(models.Model):
             })
 
     def cron_fetch_operate_cs_value(self):
-        stock_ids = self.env['finance.stock.basic'].search([])
+        stock_ids = self.env['finance.stock.basic'].search([], limit=20)
         for stock_id in stock_ids:
             self.with_delay().fetch_operate_cs_value(stock_id)
