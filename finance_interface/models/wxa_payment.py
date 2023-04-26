@@ -22,7 +22,7 @@ class WxaPayment(models.Model):
         ('fail', '失败'),
     ], string='状态', default='unpaid')
 
-    payment_state = fields.Boolean(comppute='_compute_payment_state', store=True)
+    payment_state = fields.Boolean(compute='_compute_payment_state', store=True)
     # notify返回参数
     openid = fields.Char('openid')
     result_code = fields.Char('业务结果')
