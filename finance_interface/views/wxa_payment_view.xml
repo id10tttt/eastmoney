@@ -32,7 +32,7 @@
             <field name="arch" type="xml">
                 <form string="支付记录">
                     <header>
-                        <field name="status" widget="statusbar"/>
+                        <field name="status" widget="badge"/>
                     </header>
                     <sheet>
                         <group>
@@ -46,6 +46,7 @@
                                 <field name="cash_fee_type"/>
                                 <field name="coupon_count"/>
                                 <field name="coupon_fee"/>
+                                <field name="payment_state"/>
                             </group>
                             <group>
                                 <field name="err_code"/>
