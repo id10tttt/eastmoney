@@ -9,6 +9,7 @@ class WxaPayment(models.Model):
     _name = 'wxa.payment'
     _description = u'支付记录'
     _order = 'id desc'
+    _rec_name = 'payment_number'
 
     wechat_user_id = fields.Many2one('wxa.user', string='客户')
     subscribe_id = fields.Many2one('wxa.subscribe', string='订阅')
@@ -31,6 +32,8 @@ class WxaPayment(models.Model):
     cash_fee_type = fields.Char('货币类型')
     coupon_fee = fields.Integer('代金券金额(分)')
     coupon_count = fields.Integer('代金券使用数量')
+    notify_json = fields.Char('回调记录JSON')
+    notify_xml = fields.Char('回调记录XML')
 
     _sql_constraints = [(
         'wxapp_payment_payment_number_unique',

@@ -112,6 +112,7 @@ class WxPayment(http.Controller, BaseController):
 
             wxa_pay_client = WeChatPay(WXA_SUB_APP_ID, api_key=WXA_PAY_SECRET, sub_appid=WXA_SUB_APP_ID, mch_id=MCH_ID)
             wxa_order_data = wxa_pay_client.order.create(
+                out_trade_no=out_trade_no,
                 trade_type='JSAPI', body=mall_name, total_fee=1,
                 notify_url=base_url, user_id=session_data.get('openid'),
             )
@@ -145,9 +146,22 @@ class WxPayment(http.Controller, BaseController):
             data = xmltodict.parse(xml_data)['xml']
             if data['return_code'] == 'SUCCESS':
                 data.update({'status': utils.PaymentStatus.success})
-                payment_id = request.env['wxa.payment'].sudo().search([('payment_number', '=', data['out_trade_no'])])
+                payment_id = request.env['wxa.payment'].sudo().search([('payment_number', '=', data['out_trade_no'])],
+                                                                      limit=1)
 
                 current_date = fields.Date.today()
+                duration_time = payment_id.subscribe_id.duration_time or 30
+                payment_id.write({
+                    'openid': data['openid'],
+                    'bank_type': data['bank_type'],
+                    'fee_type': data['fee_type'],
+                    'result_code': data['result_code'],
+                    'return_code': data['return_code'],
+                    'total_fee': data['total_fee'],
+                    'transaction_id': data['transaction_id'],
+                    'notify_json': json.dumps(data),
+                    'notify_xml': '{}'.format(xml_data),
+                })
                 order_id = request.env['wxa.subscribe.order'].sudo().create({
                     'name': payment_id.payment_number,
                     'wechat_user_id': payment_id.wechat_user_id.id,
@@ -155,7 +169,7 @@ class WxPayment(http.Controller, BaseController):
                     'price_total': payment_id.price,
                     'payment_id': payment_id.id,
                     'start_date': current_date,
-                    'end_date': current_date + timedelta(days=30)
+                    'end_date': current_date + timedelta(days=duration_time)
                 })
                 _logger.info('生成订单: {}'.format(order_id))
             else:

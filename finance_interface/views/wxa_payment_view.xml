@@ -62,6 +62,9 @@
                                 <field name="create_date"/>
                             </group>
                         </group>
+                        <group>
+                            <field name="notify_json" widget="text"/>
+                        </group>
                     </sheet>
                 </form>
             </field>
