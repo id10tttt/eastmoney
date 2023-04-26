@@ -155,7 +155,7 @@ class WxPayment(http.Controller, BaseController):
                     'price_total': payment_id.price,
                     'payment_id': payment_id.id,
                     'start_date': current_date,
-                    'end_date': current_date + timedelta(days=self.expiration_time)
+                    'end_date': current_date + timedelta(days=30)
                 })
                 _logger.info('生成订单: {}'.format(order_id))
             else:
