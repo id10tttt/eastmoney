@@ -21,6 +21,7 @@ class WxaPayment(models.Model):
     # notify返回参数
     openid = fields.Char('openid')
     result_code = fields.Char('业务结果')
+    return_code = fields.Char('返回CODE')
     err_code = fields.Char('错误代码')
     err_code_des = fields.Char('错误代码描述')
     transaction_id = fields.Char('订单号')

@@ -55,6 +55,7 @@
                                 <field name="openid"/>
                                 <field name="payment_number"/>
                                 <field name="result_code"/>
+                                <field name="return_code"/>
                                 <field name="settlement_total_fee"/>
 <!--                                <field name="status"/>-->
                                 <field name="total_fee"/>
