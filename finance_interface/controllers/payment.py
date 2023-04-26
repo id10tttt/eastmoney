@@ -109,10 +109,11 @@ class WxPayment(http.Controller, BaseController):
             mall_name = '扫雷: {}'.format(out_trade_no)
 
             base_url = 'https://www.pickbest.cn/api/wechat/mini/pay/notify'
-
+            
+            total_fee = int(pay_money * 100) or 1
             wxa_pay_client = WeChatPay(WXA_SUB_APP_ID, api_key=WXA_PAY_SECRET, sub_appid=WXA_SUB_APP_ID, mch_id=MCH_ID)
             wxa_order_data = wxa_pay_client.order.create(
-                trade_type='JSAPI', body=mall_name, total_fee=1,
+                trade_type='JSAPI', body=mall_name, total_fee=total_fee,
                 notify_url=base_url, user_id=session_data.get('openid'),
                 out_trade_no=out_trade_no,
             )
