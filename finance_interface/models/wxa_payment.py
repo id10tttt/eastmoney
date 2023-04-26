@@ -13,7 +13,7 @@ class WxaPayment(models.Model):
 
     wechat_user_id = fields.Many2one('wxa.user', string='客户')
     subscribe_id = fields.Many2one('wxa.subscribe', string='订阅')
-    subscribe_order_id = fields.Many2one('wxa.subscribe.order', string='订阅订单', required=False)
+    subscribe_order_id = fields.Many2one('wxa.subscribe.order', string='支付订单', required=False)
     payment_number = fields.Char('支付单号', index=True)
     price = fields.Float('支付金额(元)')
     status = fields.Selection([

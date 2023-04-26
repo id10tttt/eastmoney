@@ -49,7 +49,9 @@ class WxaSubscribeOrder(models.Model):
         ])
         if not all_ids:
             return False
-        if all_ids.filtered(lambda x: x.start_date < fields.Date.today() < x.end_date):
+        # 有效期内，且支付成功
+        if all_ids.filtered(
+                lambda x: x.start_date < fields.Date.today() < x.end_date and x.payment_id.status == 'success'):
             return True
         return False
 
