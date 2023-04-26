@@ -112,9 +112,9 @@ class WxPayment(http.Controller, BaseController):
 
             wxa_pay_client = WeChatPay(WXA_SUB_APP_ID, api_key=WXA_PAY_SECRET, sub_appid=WXA_SUB_APP_ID, mch_id=MCH_ID)
             wxa_order_data = wxa_pay_client.order.create(
-                out_trade_no=out_trade_no,
                 trade_type='JSAPI', body=mall_name, total_fee=1,
                 notify_url=base_url, user_id=session_data.get('openid'),
+                out_trade_no=out_trade_no,
             )
             jsapi_params = wxa_pay_client.jsapi.get_jsapi_params(prepay_id=wxa_order_data.get('prepay_id'))
 
