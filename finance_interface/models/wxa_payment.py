@@ -55,3 +55,6 @@ class WxaPayment(models.Model):
                 line_id.status = 'success'
             else:
                 line_id.payment_state = False
+
+    def manual_compute_payment_state(self):
+        self._compute_payment_state()

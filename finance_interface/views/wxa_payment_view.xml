@@ -32,6 +32,8 @@
             <field name="arch" type="xml">
                 <form string="支付记录">
                     <header>
+                        <button name="manual_compute_payment_state" string="检查支付状态" type="object"
+                                class="oe_highlight"/>
                         <field name="status" widget="statusbar"/>
                     </header>
                     <sheet>
@@ -57,7 +59,7 @@
                                 <field name="result_code"/>
                                 <field name="return_code"/>
                                 <field name="settlement_total_fee"/>
-<!--                                <field name="status"/>-->
+                                <!--                                <field name="status"/>-->
                                 <field name="total_fee"/>
                                 <field name="transaction_id"/>
                                 <field name="create_date"/>
