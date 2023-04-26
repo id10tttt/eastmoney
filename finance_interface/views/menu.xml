@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
     <data>
-        <menuitem id="finance_api_menu_root" name="API接口" sequence="6"
+        <menuitem id="finance_api_menu_root" name="微信小程序" sequence="6"
                   web_icon="finance_interface,static/description/icon.png"/>
     </data>
 </odoo>
