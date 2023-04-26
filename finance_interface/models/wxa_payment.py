@@ -16,8 +16,13 @@ class WxaPayment(models.Model):
     subscribe_order_id = fields.Many2one('wxa.subscribe.order', string='订阅订单', required=False)
     payment_number = fields.Char('支付单号', index=True)
     price = fields.Float('支付金额(元)')
-    status = fields.Selection(utils.PaymentStatus.attrs.items(), string='状态', default=utils.PaymentStatus.unpaid)
+    status = fields.Selection([
+        ('unpaid', '未支付'),
+        ('success', '成功'),
+        ('fail', '失败'),
+    ], string='状态', default='unpaid')
 
+    payment_state = fields.Boolean(comppute='_compute_payment_state', store=True)
     # notify返回参数
     openid = fields.Char('openid')
     result_code = fields.Char('业务结果')
@@ -42,8 +47,9 @@ class WxaPayment(models.Model):
         'wechat payment payment_number is existed！'
     )]
 
-    def action_pay(self):
+    @api.depends('transaction_id', 'bank_type')
+    def _compute_payment_state(self):
         for line_id in self:
-            if line_id.status == 'success':
-                continue
-            line_id.status = 'success'
+            if line_id.transaction_id and line_id.result_code == 'SUCCESS':
+                line_id.payment_state = True
+                line_id.status = 'success'
