@@ -171,6 +171,7 @@ class WeChatUser(http.Controller, BaseController):
                 ('cnspell', '=', stock_code),
                 ('name', '=', stock_code),
             ], limit=1)
+
             check_access_right = self.save_and_check_query_time(stock_id=stock_id)
         else:
             check_access_right = self.save_and_check_query_time(stock_id=None)

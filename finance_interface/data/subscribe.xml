@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <data>
+    <data noupdate="1">
         <record id="subscribe_type_1" model="wxa.subscribe">
             <field name="name">1个月订阅</field>
             <field name="price_total">30</field>

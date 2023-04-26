@@ -50,7 +50,7 @@ class FinanceMineSweep(http.Controller, BaseController):
                 ('name', '=', stock_code),
             ])
             if not res:
-                return self.response_json_error(-1, '请求的股票代码 [{}] 无效!'.format(stock_code))
+                return self.response_json_error(404, '请求的股票代码 [{}] 无效!'.format(stock_code))
             return self.response_json_success({
                 'code': stock_code,
                 'data': [{

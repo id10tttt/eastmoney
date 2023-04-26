@@ -53,7 +53,7 @@ class VIPContent(http.Controller, BaseController):
         stock_id = request.env['finance.stock.basic'].sudo().search([('symbol', '=', stock_code)])
 
         if not stock_id:
-            return self.response_json_error(-1, '股票不存在!')
+            return self.response_json_error(404, '股票不存在!')
         check_access_right = self.save_and_check_query_time(stock_id)
         user_vip = request.env['wxa.subscribe.order'].sudo().wx_user_is_vip(request.wxa_uid)
         if not user_vip and not check_access_right:
@@ -134,7 +134,7 @@ class VIPContent(http.Controller, BaseController):
         stock_id = request.env['finance.stock.basic'].sudo().search([('symbol', '=', stock_code)])
 
         if not stock_id:
-            return self.response_json_error(-1, '股票不存在!')
+            return self.response_json_error(404, '股票不存在!')
         check_access_right = self.save_and_check_query_time(stock_id)
         user_vip = request.env['wxa.subscribe.order'].sudo().wx_user_is_vip(request.wxa_uid)
         if not user_vip and not check_access_right:

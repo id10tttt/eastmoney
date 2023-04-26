@@ -2,6 +2,21 @@
 <odoo>
     <data>
 
+        <record id="wxapp_payment_view_search" model="ir.ui.view">
+            <field name="name">wxa.payment.view_search</field>
+            <field name="model">wxa.payment</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="payment_number"/>
+                    <separator/>
+                    <filter string="未支付" domain="[('status', '!=', 'success')]" name="unpaid_order"/>
+                    <separator/>
+                    <filter string="已支付" domain="[('status', '=', 'success')]" name="paid_order"/>
+                    <separator/>
+                </search>
+            </field>
+        </record>
+
         <record id="wxapp_payment_view_tree" model="ir.ui.view">
             <field name="name">wxa.payment.view_tree</field>
             <field name="model">wxa.payment</field>
@@ -76,6 +91,11 @@
             <field name="name">支付记录</field>
             <field name="res_model">wxa.payment</field>
             <field name="view_mode">tree,form</field>
+            <field name="context">
+                {
+                    'search_default_paid_order': 1
+                }
+            </field>
         </record>
         <menuitem action="wxapp_payment_action" id="wxapp_payment_menuitem" name="支付记录"
                   parent="finance_api_menu_root" sequence="12"/>

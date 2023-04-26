@@ -49,7 +49,7 @@ class MyCollect(http.Controller, BaseController):
         stock_id = request.env['finance.stock.basic'].sudo().search([('symbol', '=', stock_code)], limit=1)
 
         if not stock_id:
-            return self.response_json_error(204, '股票不存在!')
+            return self.response_json_error(404, '股票不存在!')
         collect_id = request.env['wxa.stock.collect'].sudo().search([
             ('wxa_id', '=', request.wxa_uid),
             ('stock_id', '=', stock_id.id)
@@ -83,7 +83,7 @@ class MyCollect(http.Controller, BaseController):
         stock_id = request.env['finance.stock.basic'].sudo().search([('symbol', '=', stock_code)])
 
         if not stock_id:
-            return self.response_json_error(-1, '股票不存在!')
+            return self.response_json_error(404, '股票不存在!')
         collect_id = request.env['wxa.stock.collect'].sudo().search([
             ('wxa_id', '=', request.wxa_uid),
             ('stock_id', '=', stock_id.id)
@@ -114,7 +114,7 @@ class MyCollect(http.Controller, BaseController):
         stock_id = request.env['finance.stock.basic'].sudo().search([('symbol', '=', stock_code)])
 
         if not stock_id:
-            return self.response_json_error(204, '股票不存在!')
+            return self.response_json_error(404, '股票不存在!')
         collect_id = request.env['wxa.stock.collect'].sudo().search([
             ('wxa_id', '=', request.wxa_uid),
             ('stock_id', '=', stock_id.id)
