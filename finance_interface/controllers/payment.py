@@ -41,7 +41,7 @@ def get_datetime_format():
 
 
 def get_finance_mine_number():
-    order_name = 'SUB/MINE/{}{}'.format(get_random_char(), str(get_datetime_format()))
+    order_name = '{}{}'.format(str(get_datetime_format()), get_random_char())
     return order_name
 
 
