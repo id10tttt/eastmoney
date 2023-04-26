@@ -39,7 +39,7 @@
             <field name="model">wxa.subscribe.order</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <tree string="订阅" create="1" edit="1" delete="0" import="0">
+                <tree string="订单" create="1" edit="1" delete="0" import="0">
                     <field name="wechat_user_id"/>
                     <field name="subscribe_id"/>
                     <field name="price_total"/>
@@ -89,7 +89,7 @@
             </field>
         </record>
         <record id="wxa_subscribe_order_action" model="ir.actions.act_window">
-            <field name="name">订阅</field>
+            <field name="name">订单</field>
             <field name="res_model">wxa.subscribe.order</field>
             <field name="view_mode">tree,form</field>
         </record>
@@ -98,7 +98,7 @@
             <field name="res_model">wxa.subscribe</field>
             <field name="view_mode">tree,form</field>
         </record>
-        <menuitem action="wxa_subscribe_order_action" id="wx_subscribe_order_root" name="订阅"
+        <menuitem action="wxa_subscribe_order_action" id="wx_subscribe_order_root" name="订单"
                   parent="finance_api_menu_root" sequence="18"/>
         <menuitem action="wxa_subscribe_action" id="wx_subscribe_root" name="订阅设置"
                   parent="finance_api_menu_root" sequence="20"/>
