@@ -21,7 +21,7 @@
                     <field name="settlement_total_fee"/>
                     <field name="total_fee"/>
                     <field name="transaction_id"/>
-                    <field name="status" widget="statusbar"/>
+                    <field name="status" widget="badge"/>
                 </tree>
             </field>
         </record>
@@ -32,7 +32,7 @@
             <field name="arch" type="xml">
                 <form string="支付记录">
                     <header>
-                        <field name="status" widget="badge"/>
+                        <field name="status" widget="statusbar"/>
                     </header>
                     <sheet>
                         <group>

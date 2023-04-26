@@ -53,3 +53,5 @@ class WxaPayment(models.Model):
             if line_id.transaction_id and line_id.result_code == 'SUCCESS':
                 line_id.payment_state = True
                 line_id.status = 'success'
+            else:
+                line_id.payment_state = False
