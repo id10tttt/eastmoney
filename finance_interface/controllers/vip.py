@@ -106,6 +106,57 @@ class VIPContent(http.Controller, BaseController):
         # data.update(**encrypt_data)
         return self.response_json_success(data)
 
+    @http.route('/v1/api/wechat/mini/vip/content', auth='public', methods=['POST'],
+                csrf=False, type='json')
+    @verify_auth_token()
+    def query_vip_content_data(self, **kwargs):
+        payload_data = json.loads(request.httprequest.data)
+        headers = payload_data.get('header')
+        body = payload_data.get('body')
+
+        stock_code = body.get('stock_code')
+
+        stock_id = request.env['finance.stock.basic'].sudo().search([('symbol', '=', stock_code)])
+
+        if not stock_id:
+            return self.response_json_error(404, '股票不存在!')
+        check_access_right = self.save_and_check_query_time(stock_id)
+        user_vip = request.env['wxa.subscribe.order'].sudo().wx_user_is_vip(request.wxa_uid)
+        if not user_vip and not check_access_right:
+            err_msg = '未订阅用户，仅允许查询{}次!'.format(ALLOW_QUERY_TIME)
+            return self.response_json_error(-1, err_msg)
+
+        benchmark_data_ids = request.env['compare.benchmark.data'].sudo().search([('stock_id', '=', stock_id.id)])
+        vip_content = []
+        benchmark_count = {
+            'danger': 0,
+            'rain': 0,
+            'sun': 0,
+        }
+
+        for benchmark_data_id in benchmark_data_ids:
+            tmp_data = {
+                'name': benchmark_data_id.compare_id.name,
+                'value': self.parse_compare_value(benchmark_data_id.value),
+                'sign': benchmark_data_id.sign,
+                'benchmark_id': benchmark_data_id.id,
+                'compare_type': benchmark_data_id.compare_id.value_type
+            }
+            benchmark_count.update({
+                benchmark_data_id.sign: benchmark_count.get(benchmark_data_id.sign) + 1
+            })
+            vip_content.append(tmp_data)
+        # vip_content_json = json.dumps(vip_content)
+        # encrypt_data = aes_encrypt_msg(vip_content_json)
+        data = {
+            'stock_code': stock_id[0].symbol,
+            'stock_name': stock_id[0].name,
+            'data': vip_content,
+            'benchmark_count': benchmark_count
+        }
+        # data.update(**encrypt_data)
+        return self.response_json_success(data)
+
     def parse_vip_content_detail(self, data):
         result = json.loads(data)
         return_data = []
