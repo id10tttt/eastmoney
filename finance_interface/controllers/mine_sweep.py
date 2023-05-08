@@ -23,7 +23,7 @@ class FinanceMineSweep(http.Controller, BaseController):
         wx_uid = http.request.wxa_uid
         store_key = '{}:{}:query:stock'.format(config.get('redis_cache_prefix'), wx_uid)
         redis_client = get_redis_client(config.get('redis_cache_db'))
-        all_values = redis_client.lrange(store_key, 0, -1 )
+        all_values = redis_client.lrange(store_key, 0, -1)
         all_values = [x.decode() for x in all_values]
         if stock_code not in all_values:
             redis_client.lpush(store_key, stock_code)
@@ -147,14 +147,14 @@ class FinanceMineSweep(http.Controller, BaseController):
         stock_code = body.get('stock_code', None)
 
         stock_id = request.env['finance.stock.basic'].sudo().search([
-                '|',
-                '|',
-                '|',
-                ('symbol', '=', stock_code),
-                ('ts_code', '=', stock_code),
-                ('cnspell', '=', stock_code),
-                ('name', '=', stock_code),
-            ], limit=1)
+            '|',
+            '|',
+            '|',
+            ('symbol', '=', stock_code),
+            ('ts_code', '=', stock_code),
+            ('cnspell', '=', stock_code),
+            ('name', '=', stock_code),
+        ], limit=1)
         if not stock_id:
             result = {
                 'peg': '',
@@ -194,6 +194,114 @@ class FinanceMineSweep(http.Controller, BaseController):
         }
         self.save_query_to_redis(stock_code)
         return self.response_json_success(result)
+
+    @http.route(['/v1/api/wechat/mini/sweep/value/free'], auth='public', methods=['GET', 'POST'], csrf=False,
+                type='json')
+    @verify_auth_token()
+    def get_free_finance_stock_value(self):
+        payload_data = json.loads(request.httprequest.data)
+
+        headers = payload_data.get('header')
+        body = payload_data.get('body')
+        token = headers.get('token', None)
+        stock_code = body.get('stock_code', None)
+
+        stock_id = request.env['finance.stock.basic'].sudo().search([
+            '|',
+            '|',
+            '|',
+            ('symbol', '=', stock_code),
+            ('ts_code', '=', stock_code),
+            ('cnspell', '=', stock_code),
+            ('name', '=', stock_code),
+        ], limit=1)
+        if not stock_id:
+            result = {
+                'peg': '',
+                'pleg': '',
+                'pleg_freeze': '',
+                'restricted': '',
+                'shr_red': '',
+                'gw_netast': '',
+                'options': '',
+                'law_case': ''
+            }
+            return self.response_json_success(result)
+        peg_sign, peg_result = self.get_peg_sign(stock_id.peg_car)
+        plge_sign, plge_result = self.get_plge_rat_sign(stock_id.plge_rat)
+
+        shr_red_sign, shr_redu_result = self.get_shr_redu_sign(stock_id.shr_redu)
+        law_case_sign, law_case_result = self.get_law_case_sign(stock_id.law_case)
+        restricted_sign, restricted_value = self.get_rls_tshr_rat_sign(stock_id.rls_tshr_rat, stock_id.shr_type)
+        options_sign, options_result = self.get_options_rslt_sign(stock_id.options_rslt)
+
+        free_content = [{
+            'name': 'PEG是否合理',
+            'value': peg_result or '暂无',
+            'sign': peg_sign,
+            'data': []
+        }, {
+            'name': '股权质押',
+            'value': plge_result or '暂无',
+            'sign': plge_sign,
+            'data': []
+        }, {
+            'name': '股权冻结',
+            'value': stock_id.plge_shr or '暂无',
+            'sign': None,
+            'data': []
+        }, {
+            'name': '限售解禁',
+            'value': restricted_value or '暂无',
+            'sign': restricted_sign,
+            'data': []
+        }, {
+            'name': '股东减持',
+            'value': shr_redu_result or '暂无',
+            'sign': shr_red_sign,
+            'data': []
+        }, {
+            'name': '会计师审计',
+            'value': options_result or '暂无',
+            'sign': options_sign,
+            'data': []
+        }, {
+            'name': '商誉净资产占比',
+            'value': stock_id.gw_netast_rat,
+            'sign': None,
+            'data': []
+        }, {
+            'name': '诉讼仲裁数量',
+            'value': stock_id.law_case,
+            'sign': law_case_sign,
+            'data': []
+        }]
+        data = {
+            'stock_code': stock_id[0].symbol,
+            'stock_name': stock_id[0].name,
+            'data': free_content
+        }
+
+        # result = {
+        #     'stock_code': stock_id.symbol,
+        #     'stock_name': stock_id.name,
+        #     'peg': peg_result or '暂无',
+        #     'peg_sign': peg_sign,
+        #     'plge': plge_result or '暂无',
+        #     'plge_sign': plge_sign,
+        #     'plge_freeze': stock_id.plge_shr or '暂无',
+        #     'restricted': restricted_value or '暂无',
+        #     'restricted_sign': restricted_sign,
+        #     'shr_red': shr_redu_result or '暂无',
+        #     'shr_red_sign': shr_red_sign,
+        #     'gw_netast': stock_id.gw_netast_rat or '暂无',
+        #     'options': options_result,
+        #     'options_sign': options_sign,
+        #     'law_case': stock_id.law_case or 0,
+        #     'law_case_sign': law_case_sign
+        # }
+        self.save_query_to_redis(stock_code)
+        return self.response_json_success(data)
 
     @http.route(['/api/wechat/mini/sweep/value/vip'], auth='public', methods=['POST'], csrf=False, type='json')
     def mine_sweep_value(self):
