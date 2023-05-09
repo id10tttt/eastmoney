@@ -70,7 +70,7 @@ RUN curl -o odoo.deb -sSL http://nightly.odoo.com/${ODOO_VERSION}/nightly/deb/od
 
 # Install Python depends
 RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-RUN pip3 install pycryptodome xmltodict==0.11.0 itsdangerous==0.24 tushare wechatpy redis
+RUN pip3 install pycryptodome xmltodict==0.11.0 itsdangerous==0.24 tushare wechatpy redis aiohttp aiopg
 
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh /
