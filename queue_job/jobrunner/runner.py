@@ -261,7 +261,7 @@ def _async_http_get(scheme, host, port, user, password, db_name, job_uuid):
                 # we are not interested in the result, so we set a short timeout
                 # but not too short so we trap and log hard configuration errors
                 # response = requests.get(url, timeout=1, auth=auth)
-                response = await session.get(url, timeout=1, auth=auth)
+                response = await session.get(url, timeout=5, auth=auth)
 
                 # raise_for_status will result in either nothing, a Client Error
                 # for HTTP Response codes between 400 and 500 or a Server Error
