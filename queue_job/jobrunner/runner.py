@@ -140,7 +140,9 @@ import select
 import threading
 import time
 from contextlib import closing, contextmanager
-
+import asyncio
+import aiohttp
+import aiopg
 import psycopg2
 import requests
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
@@ -167,9 +169,9 @@ _logger = logging.getLogger(__name__)
 
 def _channels():
     return (
-        os.environ.get("ODOO_QUEUE_JOB_CHANNELS")
-        or queue_job_config.get("channels")
-        or "root:1"
+            os.environ.get("ODOO_QUEUE_JOB_CHANNELS")
+            or queue_job_config.get("channels")
+            or "root:1"
     )
 
 
@@ -221,30 +223,81 @@ def _async_http_get(scheme, host, port, user, password, db_name, job_uuid):
                     PENDING,
                 )
 
+    # Method to set failed job (due to timeout, etc) as pending,
+    # to avoid keeping it as enqueued.
+    async def set_job_pending_async():
+        db_or_uri, connection_info = odoo.sql_db.connection_info_for(db_name)
+        db_user = connection_info.get('user')
+        db_password = connection_info.get('password')
+        db_port = connection_info.get('port')
+        dsn = f'dbname={db_or_uri} user={db_user} password={db_password} host={db_port}'
+        pool = await aiopg.create_pool(dsn)
+        async with pool.acquire() as conn:
+            async with conn.cursor() as cur:
+                await cur.execute(
+                    "UPDATE queue_job SET state=%s, "
+                    "date_enqueued=NULL, date_started=NULL "
+                    "WHERE uuid=%s and state=%s "
+                    "RETURNING uuid",
+                    (PENDING, job_uuid, ENQUEUED), )
+                if await cur.fetchone():
+                    _logger.warning(
+                        "async: state of job %s was reset from %s to %s",
+                        job_uuid,
+                        ENQUEUED,
+                        PENDING,
+                    )
+
+    async def urlopen_async():
+        async with aiohttp.ClientSession() as session:
+            url = "{}://{}:{}/queue_job/runjob?db={}&job_uuid={}".format(
+                scheme, host, port, db_name, job_uuid
+            )
+            _logger.info('async request: {}'.format(url))
+            try:
+                auth = None
+                if user:
+                    auth = (user, password)
+                # we are not interested in the result, so we set a short timeout
+                # but not too short so we trap and log hard configuration errors
+                # response = requests.get(url, timeout=1, auth=auth)
+                response = await session.get(url, timeout=1, auth=auth)
+
+                # raise_for_status will result in either nothing, a Client Error
+                # for HTTP Response codes between 400 and 500 or a Server Error
+                # for codes between 500 and 600
+                response.raise_for_status()
+            except requests.Timeout:
+                await set_job_pending_async()
+            except Exception:
+                _logger.exception("exception in GET %s", url)
+                await set_job_pending_async()
+
     # TODO: better way to HTTP GET asynchronously (grequest, ...)?
     #       if this was python3 I would be doing this with
     #       asyncio, aiohttp and aiopg
     def urlopen():
-        url = "{}://{}:{}/queue_job/runjob?db={}&job_uuid={}".format(
-            scheme, host, port, db_name, job_uuid
-        )
-        try:
-            auth = None
-            if user:
-                auth = (user, password)
-            # we are not interested in the result, so we set a short timeout
-            # but not too short so we trap and log hard configuration errors
-            response = requests.get(url, timeout=1, auth=auth)
-
-            # raise_for_status will result in either nothing, a Client Error
-            # for HTTP Response codes between 400 and 500 or a Server Error
-            # for codes between 500 and 600
-            response.raise_for_status()
-        except requests.Timeout:
-            set_job_pending()
-        except Exception:
-            _logger.exception("exception in GET %s", url)
-            set_job_pending()
+        asyncio.run(urlopen_async())
+        # url = "{}://{}:{}/queue_job/runjob?db={}&job_uuid={}".format(
+        #     scheme, host, port, db_name, job_uuid
+        # )
+        # try:
+        #     auth = None
+        #     if user:
+        #         auth = (user, password)
+        #     # we are not interested in the result, so we set a short timeout
+        #     # but not too short so we trap and log hard configuration errors
+        #     response = requests.get(url, timeout=1, auth=auth)
+        #
+        #     # raise_for_status will result in either nothing, a Client Error
+        #     # for HTTP Response codes between 400 and 500 or a Server Error
+        #     # for codes between 500 and 600
+        #     response.raise_for_status()
+        # except requests.Timeout:
+        #     set_job_pending()
+        # except Exception:
+        #     _logger.exception("exception in GET %s", url)
+        #     set_job_pending()
 
     thread = threading.Thread(target=urlopen)
     thread.daemon = True
@@ -312,9 +365,9 @@ class Database(object):
         # adding the where conditions, values are added later properly with
         # parameters
         query = (
-            "SELECT channel, uuid, id as seq, date_created, "
-            "priority, EXTRACT(EPOCH FROM eta), state "
-            "FROM queue_job WHERE %s" % (where,)
+                "SELECT channel, uuid, id as seq, date_created, "
+                "priority, EXTRACT(EPOCH FROM eta), state "
+                "FROM queue_job WHERE %s" % (where,)
         )
         with closing(self.conn.cursor("select_jobs", withhold=True)) as cr:
             cr.execute(query, args)
@@ -338,13 +391,13 @@ class Database(object):
 
 class QueueJobRunner(object):
     def __init__(
-        self,
-        scheme="http",
-        host="localhost",
-        port=8069,
-        user=None,
-        password=None,
-        channel_config_string=None,
+            self,
+            scheme="http",
+            host="localhost",
+            port=8069,
+            user=None,
+            password=None,
+            channel_config_string=None,
     ):
         self.scheme = scheme
         self.host = host
@@ -365,14 +418,14 @@ class QueueJobRunner(object):
             "scheme"
         )
         host = (
-            os.environ.get("ODOO_QUEUE_JOB_HOST")
-            or queue_job_config.get("host")
-            or config["http_interface"]
+                os.environ.get("ODOO_QUEUE_JOB_HOST")
+                or queue_job_config.get("host")
+                or config["http_interface"]
         )
         port = (
-            os.environ.get("ODOO_QUEUE_JOB_PORT")
-            or queue_job_config.get("port")
-            or config["http_port"]
+                os.environ.get("ODOO_QUEUE_JOB_PORT")
+                or queue_job_config.get("port")
+                or config["http_port"]
         )
         user = os.environ.get("ODOO_QUEUE_JOB_HTTP_AUTH_USER") or queue_job_config.get(
             "http_auth_user"
