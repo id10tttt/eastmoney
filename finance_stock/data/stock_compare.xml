@@ -109,41 +109,41 @@
             <field name="compare_line_id" eval="ref('finance_compare_line_3')"/>
         </record>
 
-        <record id="finance_compare_4" model="stock.compare.analysis">
-            <field name="name">过去3年营业收入环比增速是否也在增长</field>
-            <field name="value_type">vs</field>
-            <field name="usage">vip</field>
-            <field name="type_id" eval="ref('finance_mine_type_1')"/>
-        </record>
-        <record id="finance_compare_line_4" model="stock.compare.analysis.line">
-            <field name="source_data">
-                select
-                    operate_revenue_speed,
-                    to_char(report_date, 'YYYY-MM-DD') as report_date
-                from
-                    finance_fiscal_data ffd
-                where
-                    report_date in ({report_date}) and security_code = '{security_code}'
-                order by report_date asc
-            </field>
-            <field name="use_latest_period">11</field>
-            <field name="source_args">{}</field>
-            <field name="compare_id" eval="ref('finance_compare_4')"/>
-        </record>
-        <record id="finance_compare_benchmark_4" model="stock.compare.benchmark.line">
-            <field name="inequality_operator">></field>
-            <field name="benchmark_left">0</field>
-            <field name="benchmark_right">0</field>
-            <field name="sign">sun</field>
-            <field name="compare_line_id" eval="ref('finance_compare_line_4')"/>
-        </record>
-        <record id="finance_compare_benchmark_4_1" model="stock.compare.benchmark.line">
-            <field name="inequality_operator">&lt;</field>
-            <field name="benchmark_left">0</field>
-            <field name="benchmark_right">0</field>
-            <field name="sign">danger</field>
-            <field name="compare_line_id" eval="ref('finance_compare_line_4')"/>
-        </record>
+<!--        <record id="finance_compare_4" model="stock.compare.analysis">-->
+<!--            <field name="name">过去3年营业收入环比增速是否也在增长</field>-->
+<!--            <field name="value_type">vs</field>-->
+<!--            <field name="usage">vip</field>-->
+<!--            <field name="type_id" eval="ref('finance_mine_type_1')"/>-->
+<!--        </record>-->
+<!--        <record id="finance_compare_line_4" model="stock.compare.analysis.line">-->
+<!--            <field name="source_data">-->
+<!--                select-->
+<!--                    operate_revenue_speed,-->
+<!--                    to_char(report_date, 'YYYY-MM-DD') as report_date-->
+<!--                from-->
+<!--                    finance_fiscal_data ffd-->
+<!--                where-->
+<!--                    report_date in ({report_date}) and security_code = '{security_code}'-->
+<!--                order by report_date asc-->
+<!--            </field>-->
+<!--            <field name="use_latest_period">11</field>-->
+<!--            <field name="source_args">{}</field>-->
+<!--            <field name="compare_id" eval="ref('finance_compare_4')"/>-->
+<!--        </record>-->
+<!--        <record id="finance_compare_benchmark_4" model="stock.compare.benchmark.line">-->
+<!--            <field name="inequality_operator">></field>-->
+<!--            <field name="benchmark_left">0</field>-->
+<!--            <field name="benchmark_right">0</field>-->
+<!--            <field name="sign">sun</field>-->
+<!--            <field name="compare_line_id" eval="ref('finance_compare_line_4')"/>-->
+<!--        </record>-->
+<!--        <record id="finance_compare_benchmark_4_1" model="stock.compare.benchmark.line">-->
+<!--            <field name="inequality_operator">&lt;</field>-->
+<!--            <field name="benchmark_left">0</field>-->
+<!--            <field name="benchmark_right">0</field>-->
+<!--            <field name="sign">danger</field>-->
+<!--            <field name="compare_line_id" eval="ref('finance_compare_line_4')"/>-->
+<!--        </record>-->
 
         <record id="finance_compare_50001" model="stock.compare.analysis">
             <field name="name">是有稳定投资回报的公司吗</field>
@@ -217,41 +217,41 @@
             <field name="compare_line_id" eval="ref('finance_compare_line_5')"/>
         </record>
 
-        <record id="finance_compare_6" model="stock.compare.analysis">
-            <field name="name">年度ROE环比增速是否也在增长？</field>
-            <field name="value_type">vs</field>
-            <field name="usage">vip</field>
-            <field name="type_id" eval="ref('finance_mine_type_1')"/>
-        </record>
-        <record id="finance_compare_line_6" model="stock.compare.analysis.line">
-            <field name="source_data">
-                select
-                    roe_speed,
-                    to_char(report_date, 'YYYY-MM-DD') as report_date
-                from
-                    finance_fiscal_data ffd
-                where
-                    report_date in ({report_date}) and security_code = '{security_code}'
-                order by report_date asc
-            </field>
-            <field name="use_latest_period">11</field>
-            <field name="source_args">{}</field>
-            <field name="compare_id" eval="ref('finance_compare_6')"/>
-        </record>
-        <record id="finance_compare_benchmark_6" model="stock.compare.benchmark.line">
-            <field name="inequality_operator">></field>
-            <field name="benchmark_left">0</field>
-            <field name="benchmark_right">0</field>
-            <field name="sign">sun</field>
-            <field name="compare_line_id" eval="ref('finance_compare_line_6')"/>
-        </record>
-        <record id="finance_compare_benchmark_6_1" model="stock.compare.benchmark.line">
-            <field name="inequality_operator">&lt;</field>
-            <field name="benchmark_left">0</field>
-            <field name="benchmark_right">0</field>
-            <field name="sign">danger</field>
-            <field name="compare_line_id" eval="ref('finance_compare_line_6')"/>
-        </record>
+<!--        <record id="finance_compare_6" model="stock.compare.analysis">-->
+<!--            <field name="name">年度ROE环比增速是否也在增长？</field>-->
+<!--            <field name="value_type">vs</field>-->
+<!--            <field name="usage">vip</field>-->
+<!--            <field name="type_id" eval="ref('finance_mine_type_1')"/>-->
+<!--        </record>-->
+<!--        <record id="finance_compare_line_6" model="stock.compare.analysis.line">-->
+<!--            <field name="source_data">-->
+<!--                select-->
+<!--                    roe_speed,-->
+<!--                    to_char(report_date, 'YYYY-MM-DD') as report_date-->
+<!--                from-->
+<!--                    finance_fiscal_data ffd-->
+<!--                where-->
+<!--                    report_date in ({report_date}) and security_code = '{security_code}'-->
+<!--                order by report_date asc-->
+<!--            </field>-->
+<!--            <field name="use_latest_period">11</field>-->
+<!--            <field name="source_args">{}</field>-->
+<!--            <field name="compare_id" eval="ref('finance_compare_6')"/>-->
+<!--        </record>-->
+<!--        <record id="finance_compare_benchmark_6" model="stock.compare.benchmark.line">-->
+<!--            <field name="inequality_operator">></field>-->
+<!--            <field name="benchmark_left">0</field>-->
+<!--            <field name="benchmark_right">0</field>-->
+<!--            <field name="sign">sun</field>-->
+<!--            <field name="compare_line_id" eval="ref('finance_compare_line_6')"/>-->
+<!--        </record>-->
+<!--        <record id="finance_compare_benchmark_6_1" model="stock.compare.benchmark.line">-->
+<!--            <field name="inequality_operator">&lt;</field>-->
+<!--            <field name="benchmark_left">0</field>-->
+<!--            <field name="benchmark_right">0</field>-->
+<!--            <field name="sign">danger</field>-->
+<!--            <field name="compare_line_id" eval="ref('finance_compare_line_6')"/>-->
+<!--        </record>-->
 
         <record id="finance_compare_8" model="stock.compare.analysis">
             <field name="name">有在持续分红吗？</field>
