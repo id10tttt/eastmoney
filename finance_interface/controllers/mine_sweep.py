@@ -200,6 +200,13 @@ class FinanceMineSweep(http.Controller, BaseController):
         self.save_query_to_redis(stock_code)
         return self.response_json_success(result)
 
+    def get_plge_shr_value(self, plge_shr_value):
+        try:
+            res = decimal_float_number(float(plge_shr_value) / 10000)
+            return '{} 万股'.format(res)
+        except Exception as e:
+            return '暂无'
+
     @http.route(['/v1/api/wechat/mini/sweep/value/free'], auth='public', methods=['GET', 'POST'], csrf=False,
                 type='json')
     @verify_auth_token()
@@ -222,14 +229,6 @@ class FinanceMineSweep(http.Controller, BaseController):
         ], limit=1)
         if not stock_id:
             result = {
-                'peg': '',
-                'pleg': '',
-                'pleg_freeze': '',
-                'restricted': '',
-                'shr_red': '',
-                'gw_netast': '',
-                'options': '',
-                'law_case': ''
             }
             return self.response_json_success(result)
         peg_sign, peg_result = self.get_peg_sign(stock_id.peg_car)
@@ -254,7 +253,7 @@ class FinanceMineSweep(http.Controller, BaseController):
             'chart': [],
         }, {
             'name': '股权冻结',
-            'value': stock_id.plge_shr or '暂无',
+            'value': self.get_plge_shr_value(stock_id.plge_shr),
             'sign': None,
             'data': [],
             'chart': [],
@@ -278,7 +277,7 @@ class FinanceMineSweep(http.Controller, BaseController):
             'chart': [],
         }, {
             'name': '商誉净资产占比',
-            'value': stock_id.gw_netast_rat or '暂无',
+            'value': stock_id.gw_netast_rat or '暂无 0',
             'sign': 'rain',
             'data': [],
             'chart': [],
