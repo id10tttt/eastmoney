@@ -215,7 +215,7 @@ class FinanceStockBasic(models.Model):
         :param result:
         :return:
         """
-        if all([result.get('plge'), result.get('gw'), result.get('pred')]):
+        if all([result.get('plge'), result.get('pred')]):
             return True
         return False
 
@@ -293,7 +293,7 @@ class FinanceStockBasic(models.Model):
                 'options_rslt': opin.get('opinRslt'),
                 'gw': gw.get('gw'),
                 'gw_netast_rat': gw.get('gwNetastRat'),
-                'law_case': law_case.get('totalCase'),
+                'law_case': str(law_case.get('totalCase', 0)),
                 'mine_json': json.dumps(result)
             })
 
