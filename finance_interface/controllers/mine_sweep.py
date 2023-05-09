@@ -1,17 +1,22 @@
 # -*- coding: utf-8 -*-
-import sys
 import json
+import decimal
 from .wxa_common import verify_auth_token
 from odoo.tools import config
 from odoo import http
 from odoo.http import request
-import redis
 from ..utils import get_redis_client
 from .base import BaseController
 
 import logging
 
 _logger = logging.getLogger(__name__)
+
+
+def decimal_float_number(number, rounding='0.00'):
+    decimal.getcontext().rounding = "ROUND_HALF_UP"
+    res = decimal.Decimal(str(number)).quantize(decimal.Decimal(rounding))
+    return str(res)
 
 
 class FinanceMineSweep(http.Controller, BaseController):
@@ -84,24 +89,24 @@ class FinanceMineSweep(http.Controller, BaseController):
     def get_peg_sign(self, peg_value):
         try:
             if 0 < float(peg_value) < 1:
-                return 'sun', float(peg_value)
-            return 'danger', float(peg_value)
+                return 'sun', decimal_float_number(peg_value)
+            return 'danger', decimal_float_number(peg_value)
         except Exception as e:
             return 'danger', 0
 
     def get_plge_rat_sign(self, plge_rat_value):
         try:
             if float(plge_rat_value) > 0.1:
-                return 'danger', float(plge_rat_value)
-            return 'sun', float(plge_rat_value)
+                return 'danger', decimal_float_number(plge_rat_value)
+            return 'sun', decimal_float_number(plge_rat_value)
         except Exception as e:
             return 'sun', 0
 
     def get_shr_redu_sign(self, shr_redu_value):
         try:
             if float(shr_redu_value) > 0:
-                return 'danger', float(shr_redu_value)
-            return 'sun', float(shr_redu_value)
+                return 'danger', decimal_float_number(shr_redu_value)
+            return 'sun', decimal_float_number(shr_redu_value)
         except Exception as e:
             return 'sun', 0
 
@@ -128,10 +133,10 @@ class FinanceMineSweep(http.Controller, BaseController):
             if not law_case_value:
                 return 'sun', 0
             if float(law_case_value) == 0:
-                return 'danger', float(law_case_value)
+                return 'danger', decimal_float_number(law_case_value)
             if 0 < float(law_case_value) <= 5:
-                return 'rain', float(law_case_value)
-            return 'danger', float(law_case_value)
+                return 'rain', decimal_float_number(law_case_value)
+            return 'danger', decimal_float_number(law_case_value)
         except Exception as e:
             return 'sun', 0
 
@@ -239,42 +244,50 @@ class FinanceMineSweep(http.Controller, BaseController):
             'name': 'PEG是否合理',
             'value': peg_result or '暂无',
             'sign': peg_sign,
-            'data': []
+            'data': [],
+            'chart': [],
         }, {
             'name': '股权质押',
             'value': plge_result or '暂无',
             'sign': plge_sign,
-            'data': []
+            'data': [],
+            'chart': [],
         }, {
             'name': '股权冻结',
             'value': stock_id.plge_shr or '暂无',
             'sign': None,
-            'data': []
+            'data': [],
+            'chart': [],
         }, {
             'name': '限售解禁',
             'value': restricted_value or '暂无',
             'sign': restricted_sign,
-            'data': []
+            'data': [],
+            'chart': [],
         }, {
             'name': '股东减持',
             'value': shr_redu_result or '暂无',
             'sign': shr_red_sign,
-            'data': []
+            'data': [],
+            'chart': [],
         }, {
             'name': '会计师审计',
             'value': options_result or '暂无',
             'sign': options_sign,
-            'data': []
+            'data': [],
+            'chart': [],
         }, {
             'name': '商誉净资产占比',
-            'value': stock_id.gw_netast_rat,
-            'sign': None,
-            'data': []
+            'value': stock_id.gw_netast_rat or '暂无',
+            'sign': 'rain',
+            'data': [],
+            'chart': [],
         }, {
             'name': '诉讼仲裁数量',
-            'value': stock_id.law_case,
+            'value': stock_id.law_case or 0,
             'sign': law_case_sign,
-            'data': []
+            'data': [],
+            'chart': [],
         }]
         data = {
             'stock_code': stock_id[0].symbol,

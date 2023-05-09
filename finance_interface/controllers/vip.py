@@ -138,6 +138,8 @@ class VIPContent(http.Controller, BaseController):
             tmp_data = {
                 'name': benchmark_data_id.compare_id.name,
                 'value': self.parse_compare_value(benchmark_data_id.value),
+                'data': [],
+                'chart': self.parse_compare_value(benchmark_data_id.value),
                 'sign': benchmark_data_id.sign,
                 'benchmark_id': benchmark_data_id.id,
                 'compare_type': benchmark_data_id.compare_id.value_type
