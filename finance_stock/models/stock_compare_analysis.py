@@ -388,14 +388,17 @@ class StockCompareLine(models.Model):
         return source_data
 
     def _get_metric_source_args(self, security_code, source_data):
-        source_args = self.source_args
-        source_args = json.loads(source_args)
-        if 'security_code' not in source_args.keys():
-            if '{security_code}' in source_data:
-                source_args.update({
-                    'security_code': security_code
-                })
-        return source_args
+        try:
+            source_args = self.source_args
+            source_args = json.loads(source_args)
+            if 'security_code' not in source_args.keys():
+                if '{security_code}' in source_data:
+                    source_args.update({
+                        'security_code': security_code
+                    })
+            return source_args
+        except Exception as e:
+            raise ValidationError('出现错误: {}'.format(e))
 
     def verify_benchmark_result_sign(self, compare_result):
         sql_result = compare_result.get('data')
