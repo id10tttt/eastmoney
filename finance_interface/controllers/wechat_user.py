@@ -109,6 +109,22 @@ class WeChatUser(http.Controller, BaseController):
         })
         return self.response_json_success(session_data)
 
+    @http.route('/api/wechat/mini/program/profile', auth='public', methods=['POST'], csrf=False, cors="*", type='json')
+    @verify_auth_token()
+    def wechat_mini_program_profile(self):
+        payload_data = json.loads(request.httprequest.data)
+
+        wxa_user = request.env['wxa.user'].browse(http.request.wxa_uid)
+        if not wxa_user:
+            return self.response_json_error(404, '用户信息不存在')
+
+        data = {
+            'name': wxa_user.name,
+            'phone': wxa_user.phone,
+            'openid': wxa_user.open_id
+        }
+        return self.response_json_success(data)
+
     @http.route('/api/wechat/mini/token/check', auth='public', methods=['POST'], csrf=True, cors="*", type='json')
     @verify_auth_token()
     def check_user_token(self):
