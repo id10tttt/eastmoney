@@ -167,10 +167,16 @@ class StockCompareAnalysis(models.Model):
     def get_benchmark_result_other(self):
         pass
 
+    # def get_benchmark_result(self):
+    #     self.ensure_one()
+    #     return getattr(self, 'get_benchmark_result_{}'.format(self.value_type))(
+    #         security_code=self.stock_code or '000001')
     def get_benchmark_result(self):
-        self.ensure_one()
-        return getattr(self, 'get_benchmark_result_{}'.format(self.value_type))(
-            security_code=self.stock_code or '000001')
+        stock_ids = self.env['finance.stock.basic'].search([])
+        compare_ids = self.env['stock.compare.analysis'].browse(self.ids)
+        for stock_id in stock_ids:
+            benchmark_data_ids = self.env['compare.benchmark.data'].search([('stock_id', '=', stock_id.id)])
+            self.with_delay()._get_benchmark_result(stock_id, compare_ids, benchmark_data_ids)
 
     def get_default_uuid(self):
         return str(uuid.uuid4())
