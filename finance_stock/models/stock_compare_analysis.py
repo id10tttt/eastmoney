@@ -78,18 +78,22 @@ class StockCompareAnalysis(models.Model):
             'data': all_result,
             'benchmark_data': all_benchmark_result
         }
+        try:
+            result_data = json.dumps(data)
+        except Exception as e:
+            raise ValidationError('发生异常: {}'.format(e))
         if not benchmark_id:
             benchmark_data = {
                 'compare_id': self.id,
                 'stock_code': security_code,
                 'stock_id': self.get_stock_id(security_code),
-                'value': json.dumps(data),
+                'value': result_data,
             }
             res = benchmark_obj.create(benchmark_data)
             _logger.info('创建记录: {}'.format(res))
         else:
             benchmark_id.write({
-                'value': json.dumps(data)
+                'value': result_data
             })
             _logger.info('更新记录: {}'.format(benchmark_id))
 
