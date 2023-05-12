@@ -20,9 +20,13 @@ def itertools_pairwise(iterable):
 def verify_pairwise_increase(compare_list):
     state = []
     for s, t in itertools_pairwise(compare_list):
-        if len(s) > 1:
-            s = s[0]
-            t = t[0]
+        try:
+            if len(s) > 1:
+                s = s[0]
+                t = t[0]
+        except Exception as e:
+            s = s
+            t = t
         if s is not None and t is not None:
             state.append(s <= t)
     return all(state)
@@ -31,9 +35,13 @@ def verify_pairwise_increase(compare_list):
 def verify_pairwise_decrease(compare_list):
     state = []
     for s, t in itertools_pairwise(compare_list):
-        if len(s) > 1:
-            s = s[0]
-            t = t[0]
+        try:
+            if len(s) > 1:
+                s = s[0]
+                t = t[0]
+        except Exception as e:
+            s = s
+            t = t
         if s is not None and t is not None:
             state.append(s > t)
     return all(state)
@@ -474,9 +482,11 @@ class StockCompareLine(models.Model):
                     line_id.benchmark_left < x.get('value') < line_id.benchmark_right for x in sql_result if
                     x.get('value') is not None]
             elif line_id.inequality_operator == 'increase':
-                benchmark_data = verify_pairwise_increase([x.get('value') for x in sql_result])
+                benchmark_data = verify_pairwise_increase(
+                    [x.get('value') for x in sql_result if x.get('value') is not None])
             elif line_id.inequality_operator == 'decrease':
-                benchmark_data = verify_pairwise_decrease([x.get('value') for x in sql_result])
+                benchmark_data = verify_pairwise_decrease(
+                    [x.get('value') for x in sql_result if x.get('value') is not None])
             else:
                 benchmark_data = None
             benchmark_result.append({
