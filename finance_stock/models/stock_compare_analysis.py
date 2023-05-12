@@ -186,8 +186,8 @@ class StockCompareAnalysis(models.Model):
         compare_ids = self.env['stock.compare.analysis'].browse(self.ids)
         for stock_id in stock_ids:
             benchmark_data_ids = self.env['compare.benchmark.data'].search([('stock_id', '=', stock_id.id)])
-            # self._get_benchmark_result(stock_id, compare_ids, benchmark_data_ids)
-            self.with_delay()._get_benchmark_result(stock_id, compare_ids, benchmark_data_ids)
+            self._get_benchmark_result(stock_id, compare_ids, benchmark_data_ids)
+            # self.with_delay()._get_benchmark_result(stock_id, compare_ids, benchmark_data_ids)
 
     def get_default_uuid(self):
         return str(uuid.uuid4())
@@ -320,6 +320,7 @@ class StockCompareLine(models.Model):
     compare_id = fields.Many2one('stock.compare.analysis', string='Compare')
     source_data = fields.Text('Data Source', required=True)
     source_args = fields.Text('Args Source')
+    display_data = fields.Text('显示值')
     use_latest_period = fields.Integer('最近多少期间？', default=12)
     period_detail = fields.Char('期间明细', compute='_compute_period_detail')
     benchmark_line_ids = fields.One2many('stock.compare.benchmark.line', 'compare_line_id', string='Benchmark 明细')
@@ -392,11 +393,21 @@ class StockCompareLine(models.Model):
         }
         return result
 
-    def get_metric_parsed_sql(self, security_code):
-        return self._get_metric_parsed_sql(security_code)
+    def fetch_display_metric_select_sql_result_value(self, security_code):
+        if self.display_data:
+            select_sql = self.get_metric_parsed_sql(security_code, usage='display')
+            try:
+                self.env.cr.execute(select_sql)
+            except Exception as e:
+                raise ValidationError('错误: {}'.format(e))
+            res = self.env.cr.dictfetchall()
+            return res
 
-    def _get_metric_parsed_sql(self, security_code):
-        source_data = self._get_metric_source_data()
+    def get_metric_parsed_sql(self, security_code, usage='vs'):
+        return self._get_metric_parsed_sql(security_code, usage=usage)
+
+    def _get_metric_parsed_sql(self, security_code, usage='vs'):
+        source_data = self._get_metric_source_data(usage=usage)
         source_args = self._get_metric_source_args(security_code, source_data)
         if self.use_latest_period > 0:
             if '{report_date}' in source_data:
@@ -411,8 +422,11 @@ class StockCompareLine(models.Model):
             raise ValidationError('Params error!')
         return select_sql
 
-    def _get_metric_source_data(self):
-        source_data = self.source_data
+    def _get_metric_source_data(self, usage='vs'):
+        if usage == 'vs':
+            source_data = self.source_data
+        else:
+            source_data = self.display_data
         return source_data
 
     def _get_metric_source_args(self, security_code, source_data):
@@ -499,6 +513,12 @@ class StockCompareLine(models.Model):
     def get_benchmark_result(self, security_code='000001', value_type='vs'):
         sql_result = getattr(self, 'fetch_metric_select_sql_result_{}'.format(value_type))(
             security_code=security_code)
+        if value_type == 'value':
+            display_data = self.fetch_display_metric_select_sql_result_value(security_code)
+            if display_data:
+                sql_result.update({
+                    'display_data': display_data
+                })
         benchmark_result = getattr(self, 'verify_benchmark_result_sign_{}'.format(value_type))(sql_result)
         return sql_result, benchmark_result
 

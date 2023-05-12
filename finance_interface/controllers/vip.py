@@ -40,6 +40,17 @@ class VIPContent(http.Controller, BaseController):
             _logger.error('解析出错! {}'.format(e))
             return None
 
+    def parse_compare_display_data(self, compare_data):
+        try:
+            compare_data = json.loads(compare_data)
+            compare_data_list = compare_data.get('data', [])
+            if compare_data_list:
+                return compare_data_list[0].get('display_data', [])
+            return None
+        except Exception as e:
+            _logger.error('解析出错! {}'.format(e))
+            return None
+
     @http.route('/api/wechat/mini/vip/content', auth='public', methods=['POST'],
                 csrf=False, type='json')
     @verify_auth_token()
@@ -135,11 +146,17 @@ class VIPContent(http.Controller, BaseController):
         }
 
         for benchmark_data_id in benchmark_data_ids:
+            value_type = benchmark_data_id.compare_id.value_type
+            if value_type == 'value':
+                display_data = self.parse_compare_display_data(benchmark_data_id.value)
+            else:
+                display_data = self.parse_compare_value(benchmark_data_id.value)
+
             tmp_data = {
                 'name': benchmark_data_id.compare_id.name,
-                'value': self.parse_compare_value(benchmark_data_id.value),
-                'data': [],
-                'chart': self.parse_compare_value(benchmark_data_id.value),
+                'value': display_data,
+                'data': display_data,
+                'chart': display_data,
                 'sign': benchmark_data_id.sign,
                 'benchmark_id': benchmark_data_id.id,
                 'compare_type': benchmark_data_id.compare_id.value_type
