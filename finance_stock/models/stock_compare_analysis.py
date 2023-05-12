@@ -471,8 +471,9 @@ class StockCompareLine(models.Model):
                 benchmark_data = [x.get('value') <= line_id.benchmark_left for x in sql_result if
                                   x.get('value') is not None]
             elif line_id.inequality_operator == 'between':
-                benchmark_data = [line_id.benchmark_left < x[0] < line_id.benchmark_right for x in sql_result if
-                                  x[0] is not None]
+                benchmark_data = [
+                    line_id.benchmark_left < x.get('value') < line_id.benchmark_right for x in sql_result if
+                    x.get('value') is not None]
             elif line_id.inequality_operator == 'increase':
                 benchmark_data = verify_pairwise_increase([x.get('value') for x in sql_result])
             elif line_id.inequality_operator == 'decrease':
