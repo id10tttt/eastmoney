@@ -247,7 +247,7 @@ class FinanceMineSweep(http.Controller, BaseController):
             'chart': [],
         }, {
             'name': '股权质押',
-            'value': plge_result or '暂无',
+            'value': '质押比例{}%'.format(plge_result) or '暂无',
             'sign': plge_sign,
             'data': [],
             'chart': [],
@@ -277,7 +277,7 @@ class FinanceMineSweep(http.Controller, BaseController):
             'chart': [],
         }, {
             'name': '商誉净资产占比',
-            'value': stock_id.gw_netast_rat or '暂无 0',
+            'value': stock_id.gw_netast_rat or '暂无',
             'sign': 'rain',
             'data': [],
             'chart': [],
@@ -294,24 +294,6 @@ class FinanceMineSweep(http.Controller, BaseController):
             'data': free_content
         }
 
-        # result = {
-        #     'stock_code': stock_id.symbol,
-        #     'stock_name': stock_id.name,
-        #     'peg': peg_result or '暂无',
-        #     'peg_sign': peg_sign,
-        #     'plge': plge_result or '暂无',
-        #     'plge_sign': plge_sign,
-        #     'plge_freeze': stock_id.plge_shr or '暂无',
-        #     'restricted': restricted_value or '暂无',
-        #     'restricted_sign': restricted_sign,
-        #     'shr_red': shr_redu_result or '暂无',
-        #     'shr_red_sign': shr_red_sign,
-        #     'gw_netast': stock_id.gw_netast_rat or '暂无',
-        #     'options': options_result,
-        #     'options_sign': options_sign,
-        #     'law_case': stock_id.law_case or 0,
-        #     'law_case_sign': law_case_sign
-        # }
         self.save_query_to_redis(stock_code)
         return self.response_json_success(data)
 
