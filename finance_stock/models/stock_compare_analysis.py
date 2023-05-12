@@ -173,7 +173,8 @@ class StockCompareAnalysis(models.Model):
 
     def get_benchmark_result(self):
         stock_ids = self.env['finance.stock.basic'].search([])
-        stock_ids = stock_ids.filtered(lambda s: s.symbol == self.stock_code)
+        if self.stock_code:
+            stock_ids = stock_ids.filtered(lambda s: s.symbol == self.stock_code)
         compare_ids = self.env['stock.compare.analysis'].browse(self.ids)
         for stock_id in stock_ids:
             benchmark_data_ids = self.env['compare.benchmark.data'].search([('stock_id', '=', stock_id.id)])
