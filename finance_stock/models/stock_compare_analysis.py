@@ -178,8 +178,8 @@ class StockCompareAnalysis(models.Model):
         compare_ids = self.env['stock.compare.analysis'].browse(self.ids)
         for stock_id in stock_ids:
             benchmark_data_ids = self.env['compare.benchmark.data'].search([('stock_id', '=', stock_id.id)])
-            self._get_benchmark_result(stock_id, compare_ids, benchmark_data_ids)
-            # self.with_delay()._get_benchmark_result(stock_id, compare_ids, benchmark_data_ids)
+            # self._get_benchmark_result(stock_id, compare_ids, benchmark_data_ids)
+            self.with_delay()._get_benchmark_result(stock_id, compare_ids, benchmark_data_ids)
 
     def get_default_uuid(self):
         return str(uuid.uuid4())
@@ -374,7 +374,6 @@ class StockCompareLine(models.Model):
         except Exception as e:
             raise ValidationError('错误: {}'.format(e))
         res = self.env.cr.dictfetchall()
-        print('res: ', res)
         result = {
             'compare_id': self.id,
             'data': res,
