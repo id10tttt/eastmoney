@@ -78,22 +78,22 @@ class StockCompareAnalysis(models.Model):
             'data': all_result,
             'benchmark_data': all_benchmark_result
         }
-        # try:
-        #     result_data = json.dumps(data)
-        # except Exception as e:
-        #     raise ValidationError('发生异常: {}'.format(e))
+        try:
+            result_data = json.dumps(data)
+        except Exception as e:
+            raise ValidationError('发生异常: {}'.format(e))
         if not benchmark_id:
             benchmark_data = {
                 'compare_id': self.id,
                 'stock_code': security_code,
                 'stock_id': self.get_stock_id(security_code),
-                'value': '{}'.format(data),
+                'value': result_data,
             }
             res = benchmark_obj.create(benchmark_data)
             _logger.info('创建记录: {}'.format(res))
         else:
             benchmark_id.write({
-                'value': '{}'.format(data)
+                'value': result_data
             })
             _logger.info('更新记录: {}'.format(benchmark_id))
 
@@ -133,7 +133,7 @@ class StockCompareAnalysis(models.Model):
         if not self.line_ids:
             return False
         for compare_line in self.line_ids:
-            sql_result, benchmark_result = compare_line.get_benchmark_result(security_code)
+            sql_result, benchmark_result = compare_line.get_benchmark_result(security_code, value_type='value')
             all_result.append(sql_result)
             all_benchmark_result.append(benchmark_result)
         if all_result and all_benchmark_result:
@@ -171,16 +171,14 @@ class StockCompareAnalysis(models.Model):
     def get_benchmark_result_other(self):
         pass
 
-    # def get_benchmark_result(self):
-    #     self.ensure_one()
-    #     return getattr(self, 'get_benchmark_result_{}'.format(self.value_type))(
-    #         security_code=self.stock_code or '000001')
     def get_benchmark_result(self):
         stock_ids = self.env['finance.stock.basic'].search([])
+        stock_ids = stock_ids.filtered(lambda s: s.symbol == self.stock_code)
         compare_ids = self.env['stock.compare.analysis'].browse(self.ids)
         for stock_id in stock_ids:
             benchmark_data_ids = self.env['compare.benchmark.data'].search([('stock_id', '=', stock_id.id)])
-            self.with_delay()._get_benchmark_result(stock_id, compare_ids, benchmark_data_ids)
+            self._get_benchmark_result(stock_id, compare_ids, benchmark_data_ids)
+            # self.with_delay()._get_benchmark_result(stock_id, compare_ids, benchmark_data_ids)
 
     def get_default_uuid(self):
         return str(uuid.uuid4())
@@ -351,13 +349,31 @@ class StockCompareLine(models.Model):
             period_detail = '\',\''.join("{}".format(x) for x in default_period[:line_id.use_latest_period])
             line_id.period_detail = '\'{}\''.format(period_detail)
 
-    def fetch_metric_select_sql_result(self, security_code):
+    def fetch_metric_select_sql_result_vs(self, security_code):
         select_sql = self.get_metric_parsed_sql(security_code)
         try:
             self.env.cr.execute(select_sql)
         except Exception as e:
             raise ValidationError('错误: {}'.format(e))
         res = self.env.cr.fetchall()
+        result = {
+            'compare_id': self.id,
+            'data': res,
+            'sql': select_sql,
+            'source_data': self.source_data,
+            'source_args': self.source_args,
+            'period_detail': self.period_detail,
+        }
+        return result
+
+    def fetch_metric_select_sql_result_value(self, security_code):
+        select_sql = self.get_metric_parsed_sql(security_code)
+        try:
+            self.env.cr.execute(select_sql)
+        except Exception as e:
+            raise ValidationError('错误: {}'.format(e))
+        res = self.env.cr.dictfetchall()
+        print('res: ', res)
         result = {
             'compare_id': self.id,
             'data': res,
@@ -404,7 +420,7 @@ class StockCompareLine(models.Model):
         except Exception as e:
             raise ValidationError('出现错误: {}'.format(e))
 
-    def verify_benchmark_result_sign(self, compare_result):
+    def verify_benchmark_result_sign_vs(self, compare_result):
         sql_result = compare_result.get('data')
         benchmark_result = []
         for line_id in self.benchmark_line_ids:
@@ -422,9 +438,9 @@ class StockCompareLine(models.Model):
                 benchmark_data = [line_id.benchmark_left < x[0] < line_id.benchmark_right for x in sql_result if
                                   x[0] is not None]
             elif line_id.inequality_operator == 'increase':
-                benchmark_data = verify_pairwise_increase(sql_result)
+                benchmark_data = verify_pairwise_increase([x[0] for x in sql_result if x[0] is not None])
             elif line_id.inequality_operator == 'decrease':
-                benchmark_data = verify_pairwise_decrease(sql_result)
+                benchmark_data = verify_pairwise_decrease([x[0] for x in sql_result if x[0] is not None])
             else:
                 benchmark_data = None
             benchmark_result.append({
@@ -434,9 +450,45 @@ class StockCompareLine(models.Model):
             })
         return benchmark_result
 
-    def get_benchmark_result(self, security_code='000001'):
-        sql_result = self.fetch_metric_select_sql_result(security_code)
-        benchmark_result = self.verify_benchmark_result_sign(sql_result)
+    def verify_benchmark_result_sign_value(self, compare_result):
+        sql_result = compare_result.get('data')
+        benchmark_result = []
+        for line_id in self.benchmark_line_ids:
+            if line_id.inequality_operator == '>':
+                benchmark_data = [x.get('value') > line_id.benchmark_left for x in sql_result if
+                                  x.get('value') is not None]
+            elif line_id.inequality_operator == '<':
+                benchmark_data = [x.get('value') < line_id.benchmark_left for x in sql_result if
+                                  x.get('value') is not None]
+            elif line_id.inequality_operator == '=':
+                benchmark_data = [x.get('value') == line_id.benchmark_left for x in sql_result if
+                                  x.get('value') is not None]
+            elif line_id.inequality_operator == '>=':
+                benchmark_data = [x.get('value') >= line_id.benchmark_left for x in sql_result if
+                                  x.get('value') is not None]
+            elif line_id.inequality_operator == '<=':
+                benchmark_data = [x.get('value') <= line_id.benchmark_left for x in sql_result if
+                                  x.get('value') is not None]
+            elif line_id.inequality_operator == 'between':
+                benchmark_data = [line_id.benchmark_left < x[0] < line_id.benchmark_right for x in sql_result if
+                                  x[0] is not None]
+            elif line_id.inequality_operator == 'increase':
+                benchmark_data = verify_pairwise_increase([x.get('value') for x in sql_result])
+            elif line_id.inequality_operator == 'decrease':
+                benchmark_data = verify_pairwise_decrease([x.get('value') for x in sql_result])
+            else:
+                benchmark_data = None
+            benchmark_result.append({
+                'sign': line_id.sign,
+                'benchmark_line': line_id.id,
+                'data': benchmark_data
+            })
+        return benchmark_result
+
+    def get_benchmark_result(self, security_code='000001', value_type='vs'):
+        sql_result = getattr(self, 'fetch_metric_select_sql_result_{}'.format(value_type))(
+            security_code=security_code)
+        benchmark_result = getattr(self, 'verify_benchmark_result_sign_{}'.format(value_type))(sql_result)
         return sql_result, benchmark_result
 
 
