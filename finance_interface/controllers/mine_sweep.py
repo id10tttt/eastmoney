@@ -277,7 +277,7 @@ class FinanceMineSweep(http.Controller, BaseController):
             'chart': [],
         }, {
             'name': '商誉净资产占比',
-            'value': stock_id.gw_netast_rat or '暂无',
+            'value': '{}%'.format(stock_id.gw_netast_rat) if stock_id.gw_netast_rat else '暂无',
             'sign': 'rain',
             'data': [],
             'chart': [],
