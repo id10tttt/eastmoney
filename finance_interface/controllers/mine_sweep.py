@@ -284,7 +284,7 @@ class FinanceMineSweep(http.Controller, BaseController):
         }, {
             'name': '诉讼仲裁数量',
             'value': stock_id.law_case or 0,
-            'sign': law_case_sign,
+            'sign': '',
             'data': [],
             'chart': [],
         }]
