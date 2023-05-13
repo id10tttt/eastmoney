@@ -40,12 +40,17 @@ class VIPContent(http.Controller, BaseController):
             _logger.error('解析出错! {}'.format(e))
             return None
 
-    def parse_compare_display_data(self, compare_data):
+    def parse_compare_display_data(self, compare_id):
         try:
-            compare_data = json.loads(compare_data)
-            compare_data_list = compare_data.get('data', [])
-            if compare_data_list:
-                return compare_data_list[0].get('display_data', [])
+            if compare_id.display_data:
+                compare_data = compare_id.display_data
+                return [{'value': x.get('display_data')} for x in compare_data]
+            else:
+                compare_data = compare_id.value
+                compare_data = json.loads(compare_data)
+                compare_data_list = compare_data.get('data', [])
+                if compare_data_list:
+                    return compare_data_list[0].get('display_data', [])
             return None
         except Exception as e:
             _logger.error('解析出错! {}'.format(e))
@@ -147,7 +152,7 @@ class VIPContent(http.Controller, BaseController):
         for benchmark_data_id in benchmark_data_ids:
             value_type = benchmark_data_id.compare_id.value_type
             if value_type == 'value':
-                display_data = self.parse_compare_display_data(benchmark_data_id.value)
+                display_data = self.parse_compare_display_data(benchmark_data_id)
             else:
                 display_data = self.parse_compare_value(benchmark_data_id.value)
 
