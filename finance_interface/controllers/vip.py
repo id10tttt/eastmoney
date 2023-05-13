@@ -44,7 +44,7 @@ class VIPContent(http.Controller, BaseController):
         try:
             if compare_id.display_data:
                 compare_data = compare_id.display_data
-                return [{'value': x.get('display_data')} for x in compare_data]
+                return [{'value': x.get('display_data')} for x in compare_data[0]]
             else:
                 compare_data = compare_id.value
                 compare_data = json.loads(compare_data)
