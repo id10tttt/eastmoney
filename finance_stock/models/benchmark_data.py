@@ -14,6 +14,8 @@ class BenchmarkData(models.Model):
     stock_code = fields.Char('Stock', index=True)
     stock_id = fields.Many2one('finance.stock.basic', string='股票')
     value = fields.Text('Value')
+    data = fields.Text('结果值')
+    display_data = fields.Text('显示值')
     sign = fields.Selection([
         ('sun', '阳'),
         ('rain', '阴'),

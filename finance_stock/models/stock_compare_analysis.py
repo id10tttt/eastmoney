@@ -76,7 +76,7 @@ class StockCompareAnalysis(models.Model):
         ])
         return stock_id.id if stock_id else False
 
-    def save_benchmark_data(self, security_code, all_result, all_benchmark_result):
+    def save_benchmark_data(self, security_code, all_result, all_benchmark_result, display_data, origin_data):
         benchmark_obj = self.env['compare.benchmark.data']
         benchmark_id = benchmark_obj.search([
             ('compare_id', '=', self.id),
@@ -89,19 +89,24 @@ class StockCompareAnalysis(models.Model):
         try:
             result_data = json.dumps(data)
         except Exception as e:
-            raise ValidationError('发生异常: {}'.format(e))
+            import traceback
+            raise ValidationError('发生异常: {}, {}'.format(e, traceback.format_exc()))
         if not benchmark_id:
             benchmark_data = {
                 'compare_id': self.id,
                 'stock_code': security_code,
                 'stock_id': self.get_stock_id(security_code),
                 'value': result_data,
+                'data': origin_data,
+                'display_data': display_data
             }
             res = benchmark_obj.create(benchmark_data)
             _logger.info('创建记录: {}'.format(res))
         else:
             benchmark_id.write({
-                'value': result_data
+                'value': result_data,
+                'data': origin_data,
+                'display_data': display_data
             })
             _logger.info('更新记录: {}'.format(benchmark_id))
 
@@ -125,27 +130,35 @@ class StockCompareAnalysis(models.Model):
         self.ensure_one()
         all_result = []
         all_benchmark_result = []
+        display_data = []
+        origin_data = []
         if not self.line_ids:
             return False
         for compare_line in self.line_ids:
             sql_result, benchmark_result = compare_line.get_benchmark_result(security_code)
             all_result.append(sql_result)
+            display_data += sql_result.get('display_data')
+            origin_data += sql_result.get('data')
             all_benchmark_result.append(benchmark_result)
         if all_result and all_benchmark_result:
-            self.save_benchmark_data(security_code, all_result, all_benchmark_result)
+            self.save_benchmark_data(security_code, all_result, all_benchmark_result, display_data, origin_data)
 
     def _get_benchmark_result_value(self, security_code='000001'):
         self.ensure_one()
         all_result = []
         all_benchmark_result = []
+        display_data = []
+        origin_data = []
         if not self.line_ids:
             return False
         for compare_line in self.line_ids:
             sql_result, benchmark_result = compare_line.get_benchmark_result(security_code, value_type='value')
             all_result.append(sql_result)
+            display_data += sql_result.get('display_data')
+            origin_data += sql_result.get('data')
             all_benchmark_result.append(benchmark_result)
         if all_result and all_benchmark_result:
-            self.save_benchmark_data(security_code, all_result, all_benchmark_result)
+            self.save_benchmark_data(security_code, all_result, all_benchmark_result, display_data, origin_data)
 
     def get_benchmark_result_value(self, security_code='000001'):
         self.ensure_one()
@@ -186,8 +199,8 @@ class StockCompareAnalysis(models.Model):
         compare_ids = self.env['stock.compare.analysis'].browse(self.ids)
         for stock_id in stock_ids:
             benchmark_data_ids = self.env['compare.benchmark.data'].search([('stock_id', '=', stock_id.id)])
-            # self._get_benchmark_result(stock_id, compare_ids, benchmark_data_ids)
-            self.with_delay()._get_benchmark_result(stock_id, compare_ids, benchmark_data_ids)
+            self._get_benchmark_result(stock_id, compare_ids, benchmark_data_ids)
+            # self.with_delay()._get_benchmark_result(stock_id, compare_ids, benchmark_data_ids)
 
     def get_default_uuid(self):
         return str(uuid.uuid4())
@@ -321,6 +334,7 @@ class StockCompareLine(models.Model):
     source_data = fields.Text('Data Source', required=True)
     source_args = fields.Text('Args Source')
     display_data = fields.Text('显示值')
+    render_template = fields.Text('显示模板')
     use_latest_period = fields.Integer('最近多少期间？', default=12)
     period_detail = fields.Char('期间明细', compute='_compute_period_detail')
     benchmark_line_ids = fields.One2many('stock.compare.benchmark.line', 'compare_line_id', string='Benchmark 明细')
@@ -401,7 +415,17 @@ class StockCompareLine(models.Model):
             except Exception as e:
                 raise ValidationError('错误: {}'.format(e))
             res = self.env.cr.dictfetchall()
+            res = self.render_display_data(res)
             return res
+        return []
+
+    def render_display_data(self, result):
+        return_res = []
+        for line_data in result:
+            display_data = self.render_template.format(**line_data)
+            line_data['display_data'] = display_data
+            return_res.append(line_data)
+        return return_res
 
     def get_metric_parsed_sql(self, security_code, usage='vs'):
         return self._get_metric_parsed_sql(security_code, usage=usage)
@@ -513,12 +537,10 @@ class StockCompareLine(models.Model):
     def get_benchmark_result(self, security_code='000001', value_type='vs'):
         sql_result = getattr(self, 'fetch_metric_select_sql_result_{}'.format(value_type))(
             security_code=security_code)
-        if value_type == 'value':
-            display_data = self.fetch_display_metric_select_sql_result_value(security_code)
-            if display_data:
-                sql_result.update({
-                    'display_data': display_data
-                })
+        display_data = self.fetch_display_metric_select_sql_result_value(security_code)
+        sql_result.update({
+            'display_data': display_data
+        })
         benchmark_result = getattr(self, 'verify_benchmark_result_sign_{}'.format(value_type))(sql_result)
         return sql_result, benchmark_result
 

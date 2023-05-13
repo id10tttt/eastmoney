@@ -11,12 +11,18 @@
                             <group>
                                 <field name="stock_id"/>
                                 <field name="stock_code"/>
-                                <field name="value"/>
                             </group>
                             <group>
                                 <field name="compare_id"/>
                                 <field name="sign"/>
                             </group>
+                        </group>
+                        <group>
+                            <field name="data"/>
+                            <field name="display_data"/>
+                        </group>
+                        <group>
+                            <field name="value"/>
                         </group>
                     </sheet>
                 </form>

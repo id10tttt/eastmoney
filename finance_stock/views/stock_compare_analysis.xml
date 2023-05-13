@@ -34,6 +34,7 @@
                                         <sheet>
                                             <group>
                                                 <field name="display_data" widget="ace"/>
+                                                <field name="render_template" widget="ace"/>
                                                 <field name="source_data" widget="ace"/>
                                             </group>
                                             <group>

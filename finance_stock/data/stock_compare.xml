@@ -572,6 +572,33 @@
                     period_month = '12'
                 limit 1
             </field>
+            <field name="display_data">
+                with res as (
+                select
+                    to_char(report_date::DATE, 'MM') as period_month,
+                    to_char(report_date::DATE, 'YYYY') as period_year,
+                    sum(operate_revenue_per) as operate_revenue_per
+                from
+                    finance_fiscal_data ffd
+                where
+                    report_date in ({report_date})
+                    and security_code = '{security_code}'
+                group by
+                    report_date::DATE
+                order by report_date::DATE desc
+                )
+                select
+                    round(cast(operate_revenue_per as numeric), 2) as value,
+                    period_year as report_date
+                from
+                    res
+                where
+                    period_month = '12'
+                limit 1
+            </field>
+            <field name="render_template">
+                {period_year}年,每员工年度贡献收入金额{operate_revenue_per}
+            </field>
             <field name="use_latest_period">6</field>
             <field name="source_args">{}</field>
             <field name="compare_id" eval="ref('finance_compare_17')"/>
