@@ -422,7 +422,13 @@ class StockCompareLine(models.Model):
     def render_display_data(self, result):
         return_res = []
         for line_data in result:
-            display_data = self.render_template.format(**line_data)
+            if self.render_template:
+                try:
+                    display_data = self.render_template.format(**line_data)
+                except Exception as e:
+                    display_data = ''
+            else:
+                display_data = ''
             line_data['display_data'] = display_data
             return_res.append(line_data)
         return return_res
