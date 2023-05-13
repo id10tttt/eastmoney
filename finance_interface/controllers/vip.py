@@ -117,8 +117,7 @@ class VIPContent(http.Controller, BaseController):
         # data.update(**encrypt_data)
         return self.response_json_success(data)
 
-    @http.route('/v1/api/wechat/mini/vip/content', auth='public', methods=['POST'],
-                csrf=False, type='json')
+    @http.route('/v1/api/wechat/mini/vip/content', auth='public', methods=['POST'], csrf=False, type='json')
     @verify_auth_token()
     def query_vip_content_data(self, **kwargs):
         payload_data = json.loads(request.httprequest.data)
