@@ -44,8 +44,8 @@ class VIPContent(http.Controller, BaseController):
         try:
             if compare_id.display_data:
                 compare_data = compare_id.display_data
-                compare_data = json.loads(compare_data)
-                return [{'value': x.get('display_data')} for x in compare_data[0]]
+                compare_data = eval(compare_data)
+                return [{'value': x.get('display_data')} for x in compare_data]
             else:
                 compare_data = compare_id.value
                 compare_data = json.loads(compare_data)
@@ -54,7 +54,8 @@ class VIPContent(http.Controller, BaseController):
                     return compare_data_list[0].get('display_data', [])
             return None
         except Exception as e:
-            _logger.error('解析出错! {}'.format(e))
+            import traceback
+            _logger.error('解析出错! {}, {}'.format(e, traceback.format_exc()))
             return None
 
     @http.route('/api/wechat/mini/vip/content', auth='public', methods=['POST'],
