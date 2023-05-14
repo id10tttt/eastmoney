@@ -351,9 +351,12 @@ class FinanceStockBasic(models.Model):
                     all_data.append((0, 0, data))
 
         if all_data:
-            self.write({
-                'event_ids': all_data
-            })
+            try:
+                self.write({
+                    'event_ids': all_data
+                })
+            except Exception as e:
+                raise UserError('错误: {}, {}'.format(e, all_data))
 
     def get_finance_stock_bonus_data(self):
         """
