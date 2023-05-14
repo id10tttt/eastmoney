@@ -343,18 +343,14 @@ class FinanceStockBasic(models.Model):
                     except Exception as e:
                         _logger.error('发生错误: {}'.format(e))
                         continue
-                    if not event_data.get('LEVEL2_CONTENT'):
-                        event_data.update({
-                            'LEVEL2_CONTENT': ''
-                        })
                     data = {
                         'stock_id': self.id,
-                        'name': event_data.get('LEVEL1_CONTENT'),
+                        'name': event_data.get('LEVEL1_CONTENT').replace('\x00', ''),
                         'event_content_other': event_data.get('LEVEL2_CONTENT'),
                         'event_date': event_data.get('NOTICE_DATE'),
                         'event_type': event_data.get('EVENT_TYPE'),
                         'specific_event_type': event_data.get('SPECIFIC_EVENTTYPE'),
-                        'origin_json': json.dumps(event_data)
+                        'origin_json': json.dumps(event_data).replace('\x00', '')
                     }
                     all_data.append((0, 0, data))
 
