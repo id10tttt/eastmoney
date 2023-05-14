@@ -36,5 +36,6 @@
         'views/finance_stock_share_holder_news.xml',
         'views/webclient_templates.xml',
         'views/operate_customer_supplier.xml',
+        'views/finance_stock_company_manger.xml',
     ],
 }

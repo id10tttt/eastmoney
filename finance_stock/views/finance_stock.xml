@@ -8,6 +8,7 @@
                 <form>
                     <header>
                         <button name="get_company_survey" string="基本信息" type="object"/>
+                        <button name="manual_fetch_manger" string="获取管理层信息" type="object"/>
                     </header>
                     <sheet>
                         <group>

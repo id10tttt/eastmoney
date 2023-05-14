@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_finance_stock_company_manager_tree" model="ir.ui.view">
+            <field name="name">stock.company.manager tree</field>
+            <field name="model">stock.company.manager</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="security_code"/>
+                    <field name="tc"/>
+                    <field name="tc_name"/>
+                    <field name="tc_title"/>
+                    <field name="td1"/>
+                    <field name="td2"/>
+                </tree>
+            </field>
+        </record>
+        <record id="view_finance_stock_company_manager_search" model="ir.ui.view">
+            <field name="name">stock.company.manager search</field>
+            <field name="model">stock.company.manager</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="security_code"/>
+                </search>
+            </field>
+        </record>
+        <record id="action_finance_stock_company_manager" model="ir.actions.act_window">
+            <field name="name">公司管理层</field>
+            <field name="res_model">stock.company.manager</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem id="menu_finance_stock_company_manager"
+                  name="公司管理层"
+                  action="action_finance_stock_company_manager"
+                  parent="menu_finance_stock_menu"
+                  sequence="15"/>
+    </data>
+</odoo>

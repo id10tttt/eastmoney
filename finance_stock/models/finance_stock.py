@@ -4,6 +4,7 @@ import requests
 import math
 from random import choice
 from odoo.tools import ormcache
+from ..tools.iqka_data import get_10jqka_company_manager_info
 from itertools import groupby
 import json
 import time
@@ -1369,3 +1370,33 @@ class FinanceStockCompany(models.Model):
                 'survey_json': json.dumps(jbzl[0]),
                 'industry_csrc': jbzl[0].get('INDUSTRYCSRC1')
             })
+
+    def fetch_company_manager_info(self, stock_code):
+        try:
+            manager_info = get_10jqka_company_manager_info(stock_code)
+        except Exception as e:
+            return
+        manger_ids = self.env['stock.company.manager'].search([
+            ('security_code', '=', stock_code)
+        ])
+        manger_ids.unlink()
+        manger_ids.create([{
+            'security_code': stock_code,
+            'tc': x.get('tc'),
+            'tc_url': x.get('tc_url'),
+            'tc_name': x.get('tc_name'),
+            'tc_title': x.get('title'),
+            'td1': x.get('direct_shr'),
+            'td2': x.get('shr'),
+            'tr_json': json.dumps(x),
+        } for x in manager_info])
+
+    def cron_get_company_manager(self):
+        # 数据来源: 同花顺
+        res = self.env['finance.stock.company'].search([])
+        for x in res:
+            x.with_delay().fetch_company_manager_info(x.security_code)
+
+    def manual_fetch_manger(self):
+        for company_id in self:
+            self.fetch_company_manager_info(company_id.security_code)
