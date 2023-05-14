@@ -1373,8 +1373,10 @@ class FinanceStockCompany(models.Model):
 
     def fetch_company_manager_info(self, stock_code):
         try:
+            _logger.info('Let\'s dance ! {}'.format(stock_code))
             manager_info = get_10jqka_company_manager_info(stock_code)
         except Exception as e:
+            _logger.error('error: {}'.format(e))
             return
         manger_ids = self.env['stock.company.manager'].search([
             ('security_code', '=', stock_code)
