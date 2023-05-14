@@ -53,6 +53,10 @@ STOCK_DICT = {
 }
 
 
+def parse_json_dumps(payload_data):
+    pass
+
+
 class FinanceStockBasic(models.Model):
     _name = 'finance.stock.basic'
     _description = '股票代码列表'
@@ -339,6 +343,10 @@ class FinanceStockBasic(models.Model):
                     except Exception as e:
                         _logger.error('发生错误: {}'.format(e))
                         continue
+                    if not event_data.get('LEVEL2_CONTENT'):
+                        event_data.update({
+                            'LEVEL2_CONTENT': ''
+                        })
                     data = {
                         'stock_id': self.id,
                         'name': event_data.get('LEVEL1_CONTENT'),
@@ -346,7 +354,7 @@ class FinanceStockBasic(models.Model):
                         'event_date': event_data.get('NOTICE_DATE'),
                         'event_type': event_data.get('EVENT_TYPE'),
                         'specific_event_type': event_data.get('SPECIFIC_EVENTTYPE'),
-                        'origin_json': json.dumps(event_data).replace('null', '\"\"')
+                        'origin_json': json.dumps(event_data)
                     }
                     all_data.append((0, 0, data))
 
