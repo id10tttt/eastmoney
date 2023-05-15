@@ -39,10 +39,10 @@
             <field name="model">wxa.subscribe.order</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <tree string="订单" create="0" edit="0" delete="0" import="0">
+                <tree string="订单" create="0" edit="0" delete="0" import="0" default_order="id desc">
                     <field name="wechat_user_id"/>
                     <field name="subscribe_id"/>
-                    <field name="price_total"/>
+                    <field name="price_total" sum="total"/>
                     <field name="payment_id"/>
                     <field name="start_date"/>
                     <field name="end_date"/>
