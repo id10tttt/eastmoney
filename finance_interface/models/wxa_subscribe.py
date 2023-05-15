@@ -37,7 +37,7 @@ class WxaSubscribeOrder(models.Model):
     price_total = fields.Float('支付金额')
     payment_id = fields.Many2one('wxa.payment', string='支付')
     start_date = fields.Date('生效日期')
-    end_date = fields.Date('时效日期')
+    end_date = fields.Date('失效日期')
 
     def wx_user_is_vip(self, user_id):
         """

@@ -196,5 +196,6 @@ class WeChatUser(http.Controller, BaseController):
             err_msg = '未订阅用户，仅允许查询{}次!'.format(ALLOW_QUERY_TIME)
             return self.response_json_error(-1, err_msg)
         return self.response_json_success({
-            'msg': 'success'
+            'msg': 'success',
+            'vip': user_vip
         })
