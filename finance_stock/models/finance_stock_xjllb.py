@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields
+from odoo import models, fields, api
+import json
 
 
 class FinanceStockXJLLB(models.Model):
@@ -20,3 +21,15 @@ class FinanceStockXJLLB(models.Model):
     report_type = fields.Char('REPORT TYPE')
     operate_in_flow = fields.Char('IN FLOW')
     operate_out_flow = fields.Char('OUT FLOW')
+    netcash_operate = fields.Char('经营活动产生的现金流量净额', help='NETCASH_OPERATE',
+                                  compute='_compute_netcash_operate', store=True)
+
+    @api.depends('xjllb_json')
+    def _compute_netcash_operate(self):
+        for line_id in self:
+            try:
+                if line_id.xjllb_json:
+                    xjllb_json = json.loads(line_id.xjllb_json)
+                    line_id.netcash_operate = xjllb_json.get('NETCASH_OPERATE')
+            except Exception as e:
+                continue
