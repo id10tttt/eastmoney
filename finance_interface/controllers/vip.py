@@ -155,12 +155,15 @@ class VIPContent(http.Controller, BaseController):
             value_type = benchmark_data_id.compare_id.value_type
             if value_type == 'value':
                 display_data = self.parse_compare_display_data(benchmark_data_id)
+                origin_data = display_data
             else:
                 display_data = self.parse_compare_value(benchmark_data_id.value)
+                origin_data = self.parse_compare_display_data(benchmark_data_id)
 
             tmp_data = {
                 'name': benchmark_data_id.compare_id.name,
                 'value': display_data,
+                'origin_data': origin_data,
                 'data': display_data,
                 'chart': display_data,
                 'sign': benchmark_data_id.sign,

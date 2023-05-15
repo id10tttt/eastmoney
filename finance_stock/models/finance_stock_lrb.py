@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields
+from odoo import models, fields, api
+import json
 
 
 class FinanceStockLRB(models.Model):
@@ -22,3 +23,14 @@ class FinanceStockLRB(models.Model):
     report_type = fields.Char('REPORT_TYPE')
     continued_netprofit = fields.Char('CONTINUED_NETPROFIT')
     interest_expense = fields.Char('INTEREST_EXPENSE')
+    operate_income = fields.Char('OPERATE_INCOME', compute='_compute_operate_income', store=True)
+
+    @api.depends('lrb_json')
+    def _compute_operate_income(self):
+        for line_id in self:
+            try:
+                if line_id.lrb_json:
+                    lrb_json = json.loads(line_id.lrb_json)
+                    line_id.operate_income = lrb_json.get('OPERATE_INCOME')
+            except Exception as e:
+                continue
