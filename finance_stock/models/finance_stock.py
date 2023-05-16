@@ -274,6 +274,7 @@ class FinanceStockBasic(models.Model):
             law_case = result.get('lawCase', {})
             if not law_case:
                 law_case = {}
+            nearest_un_shr_red = shr_red.get('nearestUnShrRed', {})
             stock_id.write({
                 'plge_rat': plge.get('plgeRat'),
                 'blt_hld_rat': plge.get('plgeHldRat'),
@@ -284,10 +285,10 @@ class FinanceStockBasic(models.Model):
                 'rls_tshr_rat': restricted.get('rlsTshrRat') or 0,
                 'shr_type': restricted.get('nearestUnrestricted', {}).get('shrTyp') or '暂无',
                 'shr_red_json': json.dumps(shr_red),
-                'shr_redu': shr_red.get('shrRedu'),
-                'stat_dt': shr_red.get('statDt'),
+                'shr_redu': nearest_un_shr_red.get('shrRedu'),
+                'stat_dt': nearest_un_shr_red.get('statDt'),
                 # 'stat_datetime': self.convert_timestamp_to_datetime(shr_red.get('statDt')),
-                'redu_tshr_rat': shr_red.get('reduTshrRat'),
+                'redu_tshr_rat': nearest_un_shr_red.get('reduTshrRat'),
                 'pred_typ_name': pred.get('predTypName'),
                 'pred_big_typ': pred.get('predBigTyp'),
                 'end_dt': pred.get('endDT'),
