@@ -109,6 +109,15 @@ class WeChatUser(http.Controller, BaseController):
         })
         return self.response_json_success(session_data)
 
+    def get_use_avatar_url(self, wxa_user):
+        if wxa_user.avatar:
+            return wxa_user.avatar
+        attachment_id = request.env['ir.attachment'].sudo().search([
+            ('name', '=', '{}.png'.format(wxa_user.open_id))
+        ], limit=1)
+        if attachment_id:
+            return 'https://www.pickbest.cn/web/content/{}/{}'.format(attachment_id.id, attachment_id.name)
+
     @http.route('/api/wechat/mini/program/profile', auth='public', methods=['POST'], csrf=False, cors="*", type='json')
     @verify_auth_token()
     def wechat_mini_program_profile(self):
@@ -121,7 +130,7 @@ class WeChatUser(http.Controller, BaseController):
         data = {
             'name': wxa_user.name,
             'nickname': wxa_user.nickname,
-            'avatar_url': wxa_user.avatar,
+            'avatar_url': self.get_use_avatar_url(wxa_user),
             'phone': wxa_user.phone,
             'openid': wxa_user.open_id
         }
@@ -137,10 +146,23 @@ class WeChatUser(http.Controller, BaseController):
 
         nick_name = body.get('nick_name')
         avatar_url = body.get('avatar_url')
+        avatar_binary = body.get('avatar_binary')
 
         wxa_user = request.env['wxa.user'].browse(http.request.wxa_uid)
         if not wxa_user:
             return self.response_json_error(404, '用户信息不存在')
+
+        if 'web/content' not in avatar_url:
+            file_attachment = request.env['ir.attachment'].sudo().create({
+                'datas': avatar_binary,
+                'name': '{}.png'.format(wxa_user.open_id),
+                'public': True
+            })
+            avatar_url = 'https://www.pickbest.cn/web/content/{}/{}'.format(file_attachment.id, file_attachment.name)
+            wxa_user.sudo().write({
+                'avatar': avatar_url
+            })
+
         update_data = {}
         if nick_name:
             update_data.update({
