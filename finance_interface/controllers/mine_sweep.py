@@ -102,10 +102,13 @@ class FinanceMineSweep(http.Controller, BaseController):
         except Exception as e:
             return 'sun', 0
 
-    def get_shr_redu_sign(self, shr_redu_value):
+    def get_shr_redu_sign(self, stock_id):
         try:
-            if float(shr_redu_value) > 0:
-                return 'danger', decimal_float_number(shr_redu_value)
+            shr_redu_value = stock_id.shr_redu
+            redu_tshr_rat = stock_id.redu_tshr_rat
+            if redu_tshr_rat:
+                msg = '{} 减持{}%'.format(stock_id.stat_datetime, redu_tshr_rat)
+                return 'danger', msg
             return 'sun', decimal_float_number(shr_redu_value)
         except Exception as e:
             return 'sun', 0
@@ -175,7 +178,7 @@ class FinanceMineSweep(http.Controller, BaseController):
         peg_sign, peg_result = self.get_peg_sign(stock_id.peg_car)
         plge_sign, plge_result = self.get_plge_rat_sign(stock_id.plge_rat)
 
-        shr_red_sign, shr_redu_result = self.get_shr_redu_sign(stock_id.shr_redu)
+        shr_red_sign, shr_redu_result = self.get_shr_redu_sign(stock_id)
         law_case_sign, law_case_result = self.get_law_case_sign(stock_id.law_case)
         restricted_sign, restricted_value = self.get_rls_tshr_rat_sign(stock_id.rls_tshr_rat, stock_id.shr_type)
         options_sign, options_result = self.get_options_rslt_sign(stock_id.options_rslt)
