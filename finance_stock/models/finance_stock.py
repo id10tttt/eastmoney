@@ -208,7 +208,7 @@ class FinanceStockBasic(models.Model):
 
     def convert_timestamp_to_datetime(self, timestamp):
         try:
-            dt = datetime.datetime.fromtimestamp(timestamp)
+            dt = datetime.datetime.fromtimestamp(timestamp / 1000)
             return str(dt.date())
         except Exception as e:
             _logger.error('error: {}'.format(e))
