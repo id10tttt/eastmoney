@@ -144,7 +144,8 @@ class WeChatUser(http.Controller, BaseController):
         update_data = {}
         if nick_name:
             update_data.update({
-                'nickname': nick_name
+                'nickname': nick_name,
+                'name': nick_name
             })
         if avatar_url:
             update_data.update({
