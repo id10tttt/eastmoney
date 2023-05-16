@@ -239,7 +239,7 @@ class FinanceMineSweep(http.Controller, BaseController):
         peg_sign, peg_result = self.get_peg_sign(stock_id.peg_car)
         plge_sign, plge_result = self.get_plge_rat_sign(stock_id.plge_rat)
 
-        shr_red_sign, shr_redu_result = self.get_shr_redu_sign(stock_id.shr_redu)
+        shr_red_sign, shr_redu_result = self.get_shr_redu_sign(stock_id)
         law_case_sign, law_case_result = self.get_law_case_sign(stock_id.law_case)
         restricted_sign, restricted_value = self.get_rls_tshr_rat_sign(stock_id.rls_tshr_rat, stock_id.shr_type)
         options_sign, options_result = self.get_options_rslt_sign(stock_id.options_rslt)
