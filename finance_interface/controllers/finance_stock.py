@@ -61,3 +61,30 @@ class FinanceStock(http.Controller, BaseController):
         result = self.get_finance_basic_value(exchange)
 
         return self.response_json_success(result)
+
+    @http.route('/api/wechat/mini/finance/stock/query', auth='public', methods=['POST'], csrf=False, cors="*",
+                type='json')
+    def finance_stock_query(self):
+        payload_data = json.loads(request.httprequest.data)
+
+        headers = payload_data.get('header')
+        body = payload_data.get('body')
+
+        query_name = body.get('query')
+
+        res = request.env['finance.stock.basic'].sudo().search([
+            '|',
+            '|',
+            '|',
+            ('symbol', 'like', query_name),
+            ('ts_code', 'like', query_name),
+            ('cnspell', 'like', query_name),
+            ('name', 'like', query_name),
+        ], limit=10)
+        if not res:
+            return self.response_json_error(404, '股票信息不存在')
+        data = [{
+            'name': x.name,
+            'code': x.symbol
+        } for x in res]
+        return self.response_json_success(data)
