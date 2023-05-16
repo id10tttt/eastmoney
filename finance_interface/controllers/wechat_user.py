@@ -141,14 +141,17 @@ class WeChatUser(http.Controller, BaseController):
         wxa_user = request.env['wxa.user'].browse(http.request.wxa_uid)
         if not wxa_user:
             return self.response_json_error(404, '用户信息不存在')
+        update_data = {}
         if nick_name:
-            wxa_user.write({
+            update_data.update({
                 'nickname': nick_name
             })
         if avatar_url:
-            wxa_user.write({
+            update_data.update({
                 'avatar': avatar_url
             })
+        if update_data:
+            wxa_user.sudo().write(update_data)
         return self.response_json_success({
             'msg': 'success'
         })
