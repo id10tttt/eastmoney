@@ -12,6 +12,8 @@ ERROR_CODE = {
 }
 ALLOW_QUERY_TIME = 3
 
+EXPIRY_TIME = 30 * 3 * 24 * 60 * 60
+
 
 class UserException(Exception):
     pass
@@ -41,9 +43,11 @@ class BaseController(object):
         redis_client = get_redis_client(config.get('redis_cache_db'))
         if stock_id:
             store_key = '{}:{}'.format(query_redis_prefix, stock_id.symbol)
+
+            # TODO: 不定
             # 如果已经存在，则允许查询
-            if redis_client.get(store_key):
-                return True
+            # if redis_client.get(store_key):
+            #     return True
 
             # 如果没有查询过，则验证是否超过数量限制
             res = redis_client.keys('{}:*'.format(query_redis_prefix))
@@ -52,7 +56,7 @@ class BaseController(object):
                 redis_client.set(store_key, json.dumps({
                     'code': stock_id.symbol,
                     'name': stock_id.name
-                }))
+                }), ex=EXPIRY_TIME)
                 return True
 
             return False
