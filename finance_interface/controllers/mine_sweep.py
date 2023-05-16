@@ -100,6 +100,7 @@ class FinanceMineSweep(http.Controller, BaseController):
                 return 'danger', decimal_float_number(plge_rat_value)
             return 'sun', decimal_float_number(plge_rat_value)
         except Exception as e:
+            _logger.error('发生异常: {}'.format(e))
             return 'sun', 0
 
     def get_shr_redu_sign(self, stock_id):
@@ -111,6 +112,7 @@ class FinanceMineSweep(http.Controller, BaseController):
                 return 'danger', msg
             return 'sun', decimal_float_number(shr_redu_value)
         except Exception as e:
+            _logger.error('发生异常: {}'.format(e))
             return 'sun', 0
 
     def get_rls_tshr_rat_sign(self, rls_tshr_rat, shr_type):
