@@ -39,6 +39,21 @@ class WxaSubscribeOrder(models.Model):
     start_date = fields.Date('生效日期')
     end_date = fields.Date('失效日期')
 
+    def get_wxa_user_vip_info(self, user_id):
+        all_ids = self.env['wxa.subscribe.order'].sudo().search([
+            ('wechat_user_id', '=', user_id),
+            ('payment_id.status', '=', 'success')
+        ])
+        valid_user = all_ids.filtered(
+            lambda x: x.start_date <= fields.Date.today() <= x.end_date and x.payment_id.status == 'success')
+        if valid_user:
+            return {
+                'start_date': str(min(valid_user.mapped('start_date'))),
+                'end_date': str(max(valid_user.mapped('end_date')))
+            }
+        else:
+            return {}
+
     def wx_user_is_vip(self, user_id):
         """
         是否是VIP用户

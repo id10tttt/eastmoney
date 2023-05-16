@@ -117,13 +117,39 @@ class WeChatUser(http.Controller, BaseController):
         wxa_user = request.env['wxa.user'].browse(http.request.wxa_uid)
         if not wxa_user:
             return self.response_json_error(404, '用户信息不存在')
-
+        extra_info = request.env['wxa.user'].sudo().get_wxa_user_vip_info(http.request.wxa_uid)
         data = {
             'name': wxa_user.name,
             'phone': wxa_user.phone,
             'openid': wxa_user.open_id
         }
+        data.update(**extra_info)
         return self.response_json_success(data)
+
+    @http.route('/api/wechat/mini/program/profile/update', auth='public', methods=['POST'], csrf=False, cors="*", type='json')
+    @verify_auth_token()
+    def wechat_mini_program_profile_update(self):
+        payload_data = json.loads(request.httprequest.data)
+
+        body = payload_data.get('body')
+
+        nick_name = body.get('nick_name')
+        avatar_url = body.get('avatar_url')
+
+        wxa_user = request.env['wxa.user'].browse(http.request.wxa_uid)
+        if not wxa_user:
+            return self.response_json_error(404, '用户信息不存在')
+        if nick_name:
+            wxa_user.write({
+                'nickname': nick_name
+            })
+        if avatar_url:
+            wxa_user.write({
+                'avatar': avatar_url
+            })
+        return self.response_json_success({
+            'msg': 'success'
+        })
 
     @http.route('/api/wechat/mini/token/check', auth='public', methods=['POST'], csrf=True, cors="*", type='json')
     @verify_auth_token()
