@@ -20,7 +20,10 @@ class StockCompanyManger(models.Model):
     @api.depends('td1', 'td2')
     def _compute_td(self):
         for line_id in self:
-            if any([x.isdigit() for x in line_id.td1]) or any([x.isdigit() for x in line_id.td2]):
-                line_id.shr_hold = True
-            else:
+            try:
+                if any([x.isdigit() for x in line_id.td1]) or any([x.isdigit() for x in line_id.td2]):
+                    line_id.shr_hold = True
+                else:
+                    line_id.shr_hold = False
+            except Exception as e:
                 line_id.shr_hold = False
