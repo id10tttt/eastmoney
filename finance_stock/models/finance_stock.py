@@ -209,7 +209,7 @@ class FinanceStockBasic(models.Model):
     def convert_timestamp_to_datetime(self, timestamp):
         try:
             dt = datetime.datetime.fromtimestamp(timestamp)
-            return str(dt)
+            return str(dt.date())
         except Exception as e:
             _logger.error('error: {}'.format(e))
             return timestamp
@@ -286,8 +286,8 @@ class FinanceStockBasic(models.Model):
                 'shr_type': restricted.get('nearestUnrestricted', {}).get('shrTyp') or '暂无',
                 'shr_red_json': json.dumps(shr_red),
                 'shr_redu': nearest_un_shr_red.get('shrRedu'),
-                'stat_dt': nearest_un_shr_red.get('statDt'),
-                # 'stat_datetime': self.convert_timestamp_to_datetime(shr_red.get('statDt')),
+                'stat_dt': nearest_un_shr_red.get('chgDt'),
+                'stat_datetime': self.convert_timestamp_to_datetime(nearest_un_shr_red.get('chgDt')),
                 'redu_tshr_rat': nearest_un_shr_red.get('reduTshrRat'),
                 'pred_typ_name': pred.get('predTypName'),
                 'pred_big_typ': pred.get('predBigTyp'),
