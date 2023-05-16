@@ -117,7 +117,7 @@ class WeChatUser(http.Controller, BaseController):
         wxa_user = request.env['wxa.user'].browse(http.request.wxa_uid)
         if not wxa_user:
             return self.response_json_error(404, '用户信息不存在')
-        extra_info = request.env['wxa.user'].sudo().get_wxa_user_vip_info(http.request.wxa_uid)
+        extra_info = request.env['wxa.subscribe.order'].sudo().get_wxa_user_vip_info(request.wxa_uid)
         data = {
             'name': wxa_user.name,
             'nickname': wxa_user.nickname,
