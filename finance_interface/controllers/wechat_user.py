@@ -120,6 +120,8 @@ class WeChatUser(http.Controller, BaseController):
         extra_info = request.env['wxa.user'].sudo().get_wxa_user_vip_info(http.request.wxa_uid)
         data = {
             'name': wxa_user.name,
+            'nickname': wxa_user.nickname,
+            'avatar_url': wxa_user.avatar,
             'phone': wxa_user.phone,
             'openid': wxa_user.open_id
         }
