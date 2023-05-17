@@ -208,32 +208,30 @@ class FinanceStockBasic(models.Model):
 
     def convert_timestamp_to_datetime(self, timestamp):
         try:
-            dt = datetime.datetime.fromtimestamp(timestamp / 1000)
-            return str(dt.date())
+            if timestamp:
+                dt = datetime.datetime.fromtimestamp(timestamp / 1000)
+                return str(dt.date())
+            else:
+                return timestamp
         except Exception as e:
             _logger.error('error: {}'.format(e))
             return timestamp
 
-    def is_negative_result(self, result):
-        """
-        # TODO: 不清楚这儿的逻辑是啥，怎么判断ecode 是 0 还是 1 呢？
-        :param result:
-        :return:
-        """
-        if all([result.get('plge'), result.get('pred')]):
-            return True
-        return False
-
-    def http_get_mine_brief_from_cmschina(self, mine_sweep_url, stock_id, headers, ecode=0, retries=5):
+    def http_get_mine_brief_from_cmschina(self, mine_sweep_url, stock_id, headers):
+        if 'SZ' in stock_id.ts_code:
+            ecode = 0
+        elif 'SH' in stock_id.ts_code:
+            ecode = 1
+        else:
+            ecode = 2
+        if ecode not in [0, 1]:
+            return {}
         payload_data = {
             'scode': stock_id.symbol,
             'ecode': '{}'.format(ecode)
         }
         res = requests.post(mine_sweep_url, data=json.dumps(payload_data), headers=headers)
         result = res.json().get('body')
-        if not self.is_negative_result(result) and retries > 0:
-            return self.http_get_mine_brief_from_cmschina(mine_sweep_url, stock_id, headers, ecode=ecode + 1,
-                                                          retries=retries - 1)
         return result
 
     def get_mine_brief(self):
@@ -242,7 +240,7 @@ class FinanceStockBasic(models.Model):
         """
         mine_sweep_url = 'https://zszx.cmschina.com/zszx/gg/minesweep/brief'
         headers = {
-            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57 TdxIOS/1.00 iPhone11 cmschina/8.51 scheme/zhaoshangzq hxtheme/0',
+            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57 TdxIOS/1.00 iPhone11 cmschina/8.62 scheme/zhaoshangzq hxtheme/0',
             'Referer': 'https://zszx.cmschina.com/app/minesweep/',
             'Content-Type': 'application/json;charset=utf-8'
         }
