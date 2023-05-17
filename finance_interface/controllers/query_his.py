@@ -36,7 +36,7 @@ class QueryHis(http.Controller, BaseController):
         redis_client = get_redis_client(config.get('redis_cache_db'))
         store_key = '{}:{}:query:stock'.format(config.get('redis_cache_prefix'), wx_uid)
 
-        res = redis_client.lrange(store_key, 0, 10)
+        res = redis_client.lrange(store_key, 0, 9)
         data = {
             'data': [self.parse_redis_value(x.decode()) for x in res]
         }
