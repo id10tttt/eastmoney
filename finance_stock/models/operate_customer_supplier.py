@@ -28,7 +28,8 @@ class OperateCustomerSupplier(models.Model):
         for operate_id in self:
             total_operate = self.env['operate.customer.supplier'].sudo().search([
                 ('stock_id', '=', operate_id.stock_id.id),
-                ('type', '=', operate_id.type)
+                ('type', '=', operate_id.type),
+                ('name', '!=', '其他')
             ])
             total_operate = total_operate.filtered(lambda o: o.report_date == operate_id.report_date)
 
