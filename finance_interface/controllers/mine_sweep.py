@@ -27,11 +27,9 @@ class FinanceMineSweep(http.Controller, BaseController):
     def parse_redis_value(self, parse_data):
         try:
             result = json.loads(parse_data)
-            return result
+            return result.get('code')
         except Exception as e:
-            return {
-                'code': parse_data
-            }
+            return parse_data
 
     def save_query_to_redis(self, stock_id):
         stock_code = stock_id.symbol
@@ -40,7 +38,7 @@ class FinanceMineSweep(http.Controller, BaseController):
         store_key = '{}:{}:query:stock'.format(config.get('redis_cache_prefix'), wx_uid)
         redis_client = get_redis_client(config.get('redis_cache_db'))
         all_values = redis_client.lrange(store_key, 0, -1)
-        all_values = [self.parse_redis_value(x.decode()).get('code') for x in all_values]
+        all_values = [self.parse_redis_value(x.decode()) for x in all_values]
         if stock_code not in all_values:
             redis_client.lpush(store_key, json.dumps({
                 'code': stock_code,
