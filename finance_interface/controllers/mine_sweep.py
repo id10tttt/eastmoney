@@ -24,14 +24,28 @@ class FinanceMineSweep(http.Controller, BaseController):
     def pre_check(self, entry, wechat_user, post_data):
         return None
 
-    def save_query_to_redis(self, stock_code):
+    def parse_redis_value(self, parse_data):
+        try:
+            result = json.loads(parse_data)
+            return result
+        except Exception as e:
+            return {
+                'code': parse_data
+            }
+
+    def save_query_to_redis(self, stock_id):
+        stock_code = stock_id.symbol
+        stock_name = stock_id.name
         wx_uid = http.request.wxa_uid
         store_key = '{}:{}:query:stock'.format(config.get('redis_cache_prefix'), wx_uid)
         redis_client = get_redis_client(config.get('redis_cache_db'))
         all_values = redis_client.lrange(store_key, 0, -1)
-        all_values = [x.decode() for x in all_values]
+        all_values = [self.parse_redis_value(x.decode()).get('code') for x in all_values]
         if stock_code not in all_values:
-            redis_client.lpush(store_key, stock_code)
+            redis_client.lpush(store_key, json.dumps({
+                'code': stock_code,
+                'name': stock_name
+            }))
             redis_client.close()
 
     @http.route(['/api/wechat/mini/stock/validate'], auth='public', methods=['POST'], csrf=False,
@@ -145,66 +159,6 @@ class FinanceMineSweep(http.Controller, BaseController):
         except Exception as e:
             return 'sun', 0
 
-    @http.route(['/api/wechat/mini/sweep/value/free'], auth='public', methods=['GET', 'POST'], csrf=False,
-                type='json')
-    @verify_auth_token()
-    def get_free_stock_value(self):
-        payload_data = json.loads(request.httprequest.data)
-
-        headers = payload_data.get('header')
-        body = payload_data.get('body')
-        token = headers.get('token', None)
-        stock_code = body.get('stock_code', None)
-
-        stock_id = request.env['finance.stock.basic'].sudo().search([
-            '|',
-            '|',
-            '|',
-            ('symbol', '=', stock_code),
-            ('ts_code', '=', stock_code),
-            ('cnspell', '=', stock_code),
-            ('name', '=', stock_code),
-        ], limit=1)
-        if not stock_id:
-            result = {
-                'peg': '',
-                'pleg': '',
-                'pleg_freeze': '',
-                'restricted': '',
-                'shr_red': '',
-                'gw_netast': '',
-                'options': '',
-                'law_case': ''
-            }
-            return self.response_json_success(result)
-        peg_sign, peg_result = self.get_peg_sign(stock_id.peg_car)
-        plge_sign, plge_result = self.get_plge_rat_sign(stock_id.plge_rat)
-
-        shr_red_sign, shr_redu_result = self.get_shr_redu_sign(stock_id)
-        law_case_sign, law_case_result = self.get_law_case_sign(stock_id.law_case)
-        restricted_sign, restricted_value = self.get_rls_tshr_rat_sign(stock_id.rls_tshr_rat, stock_id.shr_type)
-        options_sign, options_result = self.get_options_rslt_sign(stock_id.options_rslt)
-        result = {
-            'stock_code': stock_id.symbol,
-            'stock_name': stock_id.name,
-            'peg': peg_result or '暂无',
-            'peg_sign': peg_sign,
-            'plge': plge_result or '暂无',
-            'plge_sign': plge_sign,
-            'plge_freeze': stock_id.plge_shr or '暂无',
-            'restricted': restricted_value or '暂无',
-            'restricted_sign': restricted_sign,
-            'shr_red': shr_redu_result or '暂无',
-            'shr_red_sign': shr_red_sign,
-            'gw_netast': stock_id.gw_netast_rat or '暂无',
-            'options': options_result,
-            'options_sign': options_sign,
-            'law_case': stock_id.law_case or 0,
-            'law_case_sign': law_case_sign
-        }
-        self.save_query_to_redis(stock_code)
-        return self.response_json_success(result)
-
     def get_plge_shr_value(self, plge_shr_value):
         try:
             res = decimal_float_number(float(plge_shr_value) / 10000)
@@ -299,7 +253,7 @@ class FinanceMineSweep(http.Controller, BaseController):
             'data': free_content
         }
 
-        self.save_query_to_redis(stock_code)
+        self.save_query_to_redis(stock_id)
         return self.response_json_success(data)
 
     @http.route(['/api/wechat/mini/sweep/value/vip'], auth='public', methods=['POST'], csrf=False, type='json')

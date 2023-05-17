@@ -13,6 +13,15 @@ _logger = logging.getLogger(__name__)
 
 class QueryHis(http.Controller, BaseController):
 
+    def parse_redis_value(self, parse_data):
+        try:
+            result = json.loads(parse_data)
+            return result
+        except Exception as e:
+            return {
+                'code': parse_data
+            }
+
     @http.route('/api/wechat/mini/query/his/list', auth='public', methods=['POST'],
                 csrf=False, type='json')
     @verify_auth_token()
@@ -24,7 +33,7 @@ class QueryHis(http.Controller, BaseController):
 
         res = redis_client.lrange(store_key, 0, 10)
         data = {
-            'data': [x.decode() for x in res]
+            'data': [self.parse_redis_value(x.decode()) for x in res]
         }
         return self.response_json_success(data)
 
