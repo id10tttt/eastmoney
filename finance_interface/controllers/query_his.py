@@ -16,7 +16,12 @@ class QueryHis(http.Controller, BaseController):
     def parse_redis_value(self, parse_data):
         try:
             result = json.loads(parse_data)
-            return result
+            if isinstance(result, dict):
+                return result
+            else:
+                return {
+                    'code': parse_data
+                }
         except Exception as e:
             return {
                 'code': parse_data
