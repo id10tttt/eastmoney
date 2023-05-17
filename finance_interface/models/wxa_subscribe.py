@@ -45,7 +45,7 @@ class WxaSubscribeOrder(models.Model):
             ('payment_id.status', '=', 'success')
         ])
         valid_user = all_ids.filtered(
-            lambda x: x.start_date <= fields.Date.today() <= x.end_date and x.payment_id.status == 'success')
+            lambda x: fields.Date.today() <= x.end_date and x.payment_id.status == 'success')
         if valid_user:
             return {
                 'start_date': str(min(valid_user.mapped('start_date'))),
@@ -66,7 +66,7 @@ class WxaSubscribeOrder(models.Model):
             return False
         # 有效期内，且支付成功
         if all_ids.filtered(
-                lambda x: x.start_date <= fields.Date.today() <= x.end_date and x.payment_id.status == 'success'):
+                lambda x: fields.Date.today() <= x.end_date and x.payment_id.status == 'success'):
             return True
         return False
 
