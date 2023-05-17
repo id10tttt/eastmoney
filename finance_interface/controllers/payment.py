@@ -109,7 +109,7 @@ class WxPayment(http.Controller, BaseController):
             mall_name = '扫雷: {}'.format(out_trade_no)
 
             base_url = 'https://www.pickbest.cn/api/wechat/mini/pay/notify'
-            
+
             total_fee = int(pay_money * 100) or 1
             wxa_pay_client = WeChatPay(WXA_SUB_APP_ID, api_key=WXA_PAY_SECRET, sub_appid=WXA_SUB_APP_ID, mch_id=MCH_ID)
             wxa_order_data = wxa_pay_client.order.create(
@@ -135,6 +135,16 @@ class WxPayment(http.Controller, BaseController):
             })))
         return response
 
+    def get_exist_payment_order(self, wechat_user_id):
+        res = request.env['wxa.payment'].sudo().search([('wechat_user_id', '=', wechat_user_id.id)])
+        if not res:
+            return False
+        valid_payment = res.filtered(
+            lambda x: x.start_date <= fields.Date.today() <= x.end_date and x.payment_id.status == 'success')
+        if valid_payment:
+            return max([x.end_date for x in valid_payment])
+        return False
+
     @http.route('/api/wechat/mini/pay/notify', auth='public', methods=['POST', 'GET'], csrf=False,
                 type='http')
     def notify(self):
@@ -149,8 +159,12 @@ class WxPayment(http.Controller, BaseController):
                 data.update({'status': utils.PaymentStatus.success})
                 payment_id = request.env['wxa.payment'].sudo().search([('payment_number', '=', data['out_trade_no'])],
                                                                       limit=1)
-
+                if not payment_id:
+                    return self._res_xml('FAIL', '未找到对应的订单')
                 current_date = fields.Date.today()
+                exist_date = self.get_exist_payment_order(payment_id.wechat_user_id)
+                if exist_date:
+                    current_date = exist_date
                 duration_time = payment_id.subscribe_id.duration_time or 30
                 payment_id.write({
                     'openid': data['openid'],
@@ -176,6 +190,8 @@ class WxPayment(http.Controller, BaseController):
             else:
                 data.update({'status': utils.PaymentStatus.fail})
                 payment = request.env['wxa.payment'].sudo().search([('payment_number', '=', data['out_trade_no'])])
+                if not payment:
+                    return self._res_xml('FAIL', '未找到对应的订单')
                 payment.write(data)
             return self._res_xml('SUCCESS', 'SUCCESS')
         except Exception as e:
