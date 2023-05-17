@@ -136,7 +136,7 @@ class WxPayment(http.Controller, BaseController):
         return response
 
     def get_exist_payment_order(self, wechat_user_id):
-        res = request.env['wxa.payment'].sudo().search([('wechat_user_id', '=', wechat_user_id.id)])
+        res = request.env['wxa.subscribe.order'].sudo().search([('wechat_user_id', '=', wechat_user_id.id)])
         if not res:
             return False
         valid_payment = res.filtered(
