@@ -63,6 +63,6 @@ class BaseController(object):
             return False
         else:
             res = redis_client.keys('{}:*'.format(query_redis_prefix))
-            if len(res) <= ALLOW_QUERY_TIME:
+            if len(res) < ALLOW_QUERY_TIME:
                 return True
             return False
