@@ -3,6 +3,7 @@ import logging
 from .response_code import ResponseCode
 from odoo.tools import config
 import json
+import time
 from odoo import http
 from ..utils import get_redis_client
 _logger = logging.getLogger(__name__)
@@ -42,7 +43,7 @@ class BaseController(object):
         query_redis_prefix = '{}:{}:query:stock:vip'.format(config.get('redis_cache_prefix'), wx_uid)
         redis_client = get_redis_client(config.get('redis_cache_db'))
         if stock_id:
-            store_key = '{}:{}'.format(query_redis_prefix, stock_id.symbol)
+            store_key = '{}:{}:{}'.format(query_redis_prefix, stock_id.symbol, time.time())
 
             # TODO: 不定
             # 如果已经存在，则允许查询
