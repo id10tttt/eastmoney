@@ -100,8 +100,10 @@ Page({
     let date_data_value = Array()
     if (this.data.detail_data) {
       this.data.detail_data.map(res => {
-        date_value.push(res.date)
-        date_data_value.push(res.value.toFixed(2))
+        if(res.value){
+          date_value.push(res.date)
+          date_data_value.push(res.value.toFixed(2))
+        }
       })
       option = {
         xAxis: {

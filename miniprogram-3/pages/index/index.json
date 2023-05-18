@@ -1,5 +1,6 @@
 {
   "navigationBarTitleText": "扫雷",
+  "disableScroll": true,
   "usingComponents": {
     "t-search": "tdesign-miniprogram/search/search",
     "t-toast": "tdesign-miniprogram/toast/toast"

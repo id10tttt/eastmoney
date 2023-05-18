@@ -1,29 +1,42 @@
 // pages/vip-detail/vip-detail.js
 import stock_api from '../../api/stock.js'
 import Message from 'tdesign-miniprogram/message/index';
-// const CryptoJS = require('../../utils/aes_util.js')
+import * as echarts from '../../ec-canvas/echarts';
+var option = []; //图表配置项 声明
+// 初始化图表函数  开始
+let chart2 = null;
 
+function initChart2(canvas, width, height, dpr) {
+  chart2 = echarts.init(canvas, null, {
+    width: width,
+    height: height,
+    devicePixelRatio: dpr
+  })
+  canvas.setChart(chart2)
+  return chart2;
+}
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
-    rain_image: '/static/rain.png',
-    sun_image: '/static/sun.png',
-    danger_image: '/static/danger.png',
+    rain_image: '/static/yin@2x.png',
+    sun_image: '/static/yang@2x.png',
+    danger_image: '/static/lei@2x.png',
     stock_code: '',
     stock_name: '',
     vip_content: [],
-    default_content: 0,
     current_collapse: 0,
-    benchmark_count: {}
+    benchmark_count: {},
+    ec2: {
+      onInit: initChart2
+    },
   },
   syncVIPContent(type_id) {
     let that = this
     let payload_data = {
       header: {
-
       },
       body: {
         stock_code: this.data.stock_code,
@@ -42,12 +55,21 @@ Page({
   },
   handlehangeCollapse(e) {
     let current_collapse = e.detail.value
-    if (current_collapse) {
-      this.setData({
-        current_collapse: current_collapse
+    let id = e.currentTarget.dataset.ids
+    let types = e.currentTarget.dataset.compare_type;
+    if(current_collapse.length!=0&&types=="vs"){
+      this.data.vip_content.forEach(res=>{
+        if(res.benchmark_id==current_collapse[0]){
+          this.initEchartView(res.value,res.benchmark_id);
+        }
       })
+    }else{
+      if(types=="vs"){
+        let cartId = '#mychart-dom-bar-'+id
+        this.ecComponent = this.selectComponent(cartId);
+        this.ecComponent.chart.clear();
+      }
     }
-    // this.syncVIPContent(current_collapse)
   },
   fetchStockVIPContetnt() {
     let that = this
@@ -69,43 +91,29 @@ Page({
         wx.hideLoading({
           success: (res) => {},
         })
-
-        // let data = result.data
-        // console.log('decrypt_data: ', data.data, data.iv)
-        // let descrypt_msg = CryptoJS.AesDecrypt(data.data)
-        // console.log('descrypt_msg: ', descrypt_msg)
-        // let decrypt_data = aes_decrypt_msg(data.data, data.iv)
-
         that.setData({
           vip_content: result.data.data,
           stock_code: result.data.stock_code,
           stock_name: result.data.stock_name,
-          default_content: result.data.default_content,
           benchmark_count: result.data.benchmark_count
         })
-      } else {
-        wx.hideLoading({
-          success: (res) => {},
-        })
-        Message.error({
-          context: this,
-          offset: [20, 32],
-          duration: 5000,
-          content: result.data,
-        });
+      } else {  
+      wx.navigateTo({
+          url: '/pages/subscribe/subscribe?stock_code='+that.data.stock_code,
+      });
       }
     })
   },
+
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
-    var stock_code = JSON.parse(options.stock)
-    this.setData({
-      stock_code: stock_code.stock_code
-    })
+    // var stock_code = JSON.parse(options.stock)
+    // this.setData({
+    //   stock_code: stock_code.stock_code
+    // })
   },
-
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
@@ -117,6 +125,13 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow() {
+    let pages = getCurrentPages();
+    let currentPage = pages[pages.length-1];
+    console.log(currentPage.options);
+    var stock_code = JSON.parse(currentPage.options.stock)
+    this.setData({
+      stock_code: stock_code.stock_code
+    })
     this.fetchStockVIPContetnt()
   },
 
@@ -154,44 +169,93 @@ Page({
   onShareAppMessage() {
 
   },
-  onShowDetailContent(e) {
-    wx.showLoading({
-      title: '加载中...',
-    })
-    let benchmark_id = e.target.dataset.value
-    let that = this
-    let payload_data = {
-      header: {
-
-      },
-      body: {
-        stock_code: this.data.stock_code,
-        benchmark_id: benchmark_id
+  getEchartsOption(detail_data){
+    let option = {}
+    let date_value = Array()
+    let date_data_value = Array()
+    if (detail_data) {
+      detail_data.map(res => {
+        if(res[0]){
+          date_value.push(res[1])
+          date_data_value.push(res[0].toFixed(2))
+        }
+      })
+      option = {
+        xAxis: {
+          type: 'category',
+          data: date_value,
+          boundaryGap: false,
+          axisLabel: {
+            show: true,
+            interval: 0,
+            rotate: 45
+          }
+        },
+        grid: {
+          containLabel: true
+        },
+        tooltip: {
+          show: true,
+          trigger: 'axis',
+          axisPointer: {
+            type: 'line'
+          }
+        },
+        toolbox: {
+          show: true,
+          feature: {
+            magicType: {
+              show: true,
+              type: ["line", "bar"]
+            },
+            saveAsImage: {
+              show: false
+            },
+          }
+        },
+        yAxis: {
+          x: 'center',
+          type: 'value',
+          splitLine: {
+            lineStyle: {
+              type: 'dashed'
+            }
+          }
+        },
+        series: [{
+            label: { //数据显示
+              show: true,
+              color: 'inherit',
+              position: 'top',
+              fontSize: 10,
+            },
+            data: date_data_value,
+            type: 'line'
+          }
+        ]
       }
     }
-    stock_api.fetch_stock_vip_content_detail(payload_data).then(res => {
-      wx.hideLoading()
-      let result = res.result
-      let code = result.code
-      if (code == 200) {
-        let res_data = result.data
-        var benchmark_data = {
-          stock_code: that.data.stock_code,
-          benchmark_id: benchmark_id,
-          data: res_data,
-          benchmark: result.benchmark
-        }
-        wx.navigateTo({
-          url: '/pages/vip-detail/content_detail/content_detail?benchmark_data=' + JSON.stringify(benchmark_data),
-        });
-      } else {
-        Message.error({
-          context: that,
-          offset: [20, 32],
-          duration: 5000,
-          content: '暂无明细数据',
-        });
-      }
-    })
-  }
+    return option
+  },
+  initEchartView(datas,id) {
+    let cartId = '#mychart-dom-bar-'+id
+    this.ecComponent = this.selectComponent(cartId);
+    this.ecComponent.init((canvas, width, height, dpr) => {
+      // 获取组件的 canvas、width、height 后的回调函数
+      // 在这里初始化图表
+      const chart = echarts.init(canvas, null, {
+        width: width,
+        height: height,
+        devicePixelRatio: dpr // new
+      });
+      console.log('start refresh...')
+      let option = this.getEchartsOption(datas)
+      chart.setOption(option, true);
+      // 将图表实例绑定到 this 上，可以在其他成员函数（如 dispose）中访问
+      this.chart = chart;
+      // 注意这里一定要返回 chart 实例，否则会影响事件处理等
+      return chart;
+    });
+  },
+ 
 })

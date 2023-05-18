@@ -1,1 +1,139 @@
 /* pages/vip-detail/vip-detail.wxss */
+
+page {
+  background: #f3f1f3;
+}
+.detail-top{
+  width: auto;
+  height: 200rpx;
+  background: #e1c8ae;
+  margin: 0 auto;
+  display: flex;
+  position: relative;
+}
+.detail-top-num{
+  height: 96rpx;
+  position: absolute;
+  left: 40rpx;
+  top:40rpx;
+}
+.detail-top-num-txt{
+  font-size: 52rpx;
+  font-family: Jost, Jost-Bold;
+  font-weight: 700;
+  text-align: CENTER;
+  color: #333333;
+}
+.detail-top-num-num{
+  width: 208rpx;
+  height: 52rpx;
+  font-size: 16px;
+  font-family: Jost, Jost-Regular;
+  font-weight: 400;
+  text-align: CENTER;
+  color: #333333;
+  opacity: 0.5;
+  letter-spacing: 0.93px;
+}
+.detail-top-add{
+  width: 118rpx;
+  height: 96rpx;
+  background: rgba(34,33,34,0.90);
+  border: 4rpx dashed rgba(225,199,174,0.00);
+  border-radius: 24rpx;
+  position: absolute;
+  left: 276rpx;
+  top:40rpx;
+}
+.detail-top-add-plus{
+  color: #e1c8ad;
+  text-align: CENTER;
+  font-weight: 800;
+  font-size: 36rpx;
+}
+.detail-top-add-txt{
+  font-size: 24rpx;
+  font-family: Jost, Jost-Regular;
+  font-weight: 400;
+  text-align: CENTER;
+  color: #e1c7ae;
+}
+
+.detail-top-scan{
+  width: 238rpx;
+  height: 96rpx;
+  position: absolute;
+  left: 444rpx;
+  top:70rpx;
+  display: flex;
+}
+
+.detail-top-scan-img image{
+  width: 30rpx;
+  height: 30rpx;
+  margin-left: 10rpx;
+  margin-top: 13rpx;
+}
+.detail-top-scan-font{
+  font-family: 'Rubik';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 36rpx;
+  margin-left:10rpx;
+}
+.detail-top-scan-line{
+  opacity: 0.1;
+  color: #000000;
+  margin-left: 10rpx;
+
+}
+.detail-center{
+  height:auto;
+}
+.detail-center-content{
+  width: 654rpx;
+  margin-top: 24rpx;
+  margin-left: 45rpx;
+  height: 104rpx;
+}
+.detail-center-content image{
+  width: 48rpx;
+  height: 48rpx;
+}
+.detail-center-echart{
+  width: 650rpx;
+  height: 500rpx;
+}
+.t-cell__title-text{
+  font-family: 'Titillium Web';
+  font-style: normal;
+  font-weight: 300;
+  font-size: 26rpx;
+}
+.t-collapse--card{
+  margin: -24rpx 46rpx !important;
+}
+.detail-center-img{
+  display: flex;
+  z-index: 100;
+  width: 50rpx;
+  position: relative;
+  top: 80rpx;
+  left: 20rpx;
+}
+.detail-center-img image{
+   width : 48rpx;
+   height: 48rpx;
+}
+.t-cell__title-text{
+  font-size: 26rpx !important;
+  font-weight: 300 !important;
+  font-family: Titillium Web !important;
+  color: #3C386B !important;
+}
+.t-collapse-panel__content{
+  padding: 0rpx 0rpx !important;
+}
+.detail-center-img-con{
+  padding: 20rpx 40rpx;
+}

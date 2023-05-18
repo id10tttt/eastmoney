@@ -17,29 +17,81 @@ Page({
     stock_code: '',
     token: '',
     user_code: '',
-    free_data: {
-    },
-    visible_data: false
+    free_data: {},
+    visible_data: false,
+    cur: {
+      value: 'top',
+      text: '更多指标包括：\n - 过去三年每股收益季度同比是否连续增长？\n- 资产投资回报环比是否保持增长？\n- 有在持续分红吗？\n- 销售情况是否健康？\n- 员工贡献度是否合理？\n- 经营现金流是否健康？\n- 等等......'
+    }
+  },
+
+  // 添加自选
+  addStore(e) {
+    let code = e.currentTarget.dataset.value
+    let payload_data = {
+      "header": {},
+      "body": {
+        "stock_code": code
+      }
+    }
+    user_api.add_collect(payload_data).then(res => {
+      if (res.result.code = 200) {
+        Toast({
+          context: this,
+          selector: '#t-toast',
+          message: res.result.data,
+          theme: 'warning',
+          direction: 'column'
+        });
+      } else {
+        Toast({
+          context: this,
+          selector: '#t-toast',
+          message: res.result.data,
+          theme: 'warning',
+          direction: 'column'
+        });
+      }
+    })
+  },
+  //深度风险扫描
+  addVip() {
+    this.checkUserIsVIP();
+  },
+  goToSubscribe() {
+    wx.navigateTo({
+      url: '/pages/subscribe/subscribe',
+    });
+  },
+  onVisibleChange(e) {
+    this.setData({
+      info_visible: e.detail.visible,
+    });
+  },
+  showTips() {
+    this.setData({
+      info_visible: true
+    });
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
-    var stock_data =JSON.parse(options.stock)
+    console.log(options.stock);
+    let stock_data = JSON.parse(options.stock)
     this.setData({
       stock_code: stock_data.stock_code
     })
     this.getStockFreeData()
   },
-  onClickUpdate(){
+  onClickUpdate() {
     this.getStockFreeData()
   },
-  getStockFreeData(){
+  getStockFreeData() {
     let that = this
     let payload_data = {
-      header: {
-      },
+      header: {},
       body: {
         stock_code: this.data.stock_code
       }
@@ -47,33 +99,28 @@ Page({
     wx.showLoading({
       title: '加载中...',
     })
-    stock_api.fetch_stock_free_value(payload_data).then(res=>{
+    stock_api.fetch_stock_free_value(payload_data).then(res => {
       let result = res.result
       let code = result.code
-      if(code == 200){
+      if (code == 200) {
         that.setData({
           visible_data: true,
           free_data: {
-            peg: result.data.peg,
-            peg_sign: result.data.peg_sign,
-            plge: result.data.plge,
-            plge_sign: result.data.plge_sign,
-            plge_freeze: result.data.plge_freeze,
-            restricted: result.data.restricted,
-            restricted_sign: result.data.restricted_sign,
-            shr_red: result.data.shr_red,
-            shr_red_sign: result.data.shr_red_sign,
-            gw_netast: result.data.gw_netast,
-            options: result.data.options,
-            options_sign: result.data.options_sign,
-            law_case: result.data.law_case,
-            law_case_sign: result.data.law_case_sign
+            datas: result.data.data,
+            stock_code: result.data.stock_code,
+            stock_name: result.data.stock_name
           }
         })
         wx.hideLoading();
-      }
-      else{
-
+      } else {
+        Toast({
+          context: this,
+          selector: '#t-toast',
+          message: result.message,
+          theme: 'warning',
+          direction: 'column'
+        });
+        wx.hideLoading();
       }
     })
   },
@@ -88,13 +135,12 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow() {
-    if(this.data.token){
+    if (this.data.token) {
       console.log('let us dance!')
-    }
-    else{
+    } else {
       wx.login({
         timeout: 0,
-        success(res){
+        success(res) {
           wx.setStorageSync('token', useInfo.data.token)
           console.log('success res: ', res)
           this.setData({
@@ -102,12 +148,12 @@ Page({
             user_code: res.code
           })
         },
-        fail(res){
+        fail(res) {
           console.log('fail res: ', res)
         }
       })
     }
-    if(this.data.stock_code && this.data.token){
+    if (this.data.stock_code && this.data.token) {
       var payload_data = {
         header: {
 
@@ -118,7 +164,7 @@ Page({
           user_code: this.data.user_code
         }
       }
-      stock_api.list_mine_stock(payload_data).then(res=>{
+      stock_api.list_mine_stock(payload_data).then(res => {
         console.log(res)
       })
     }
@@ -159,14 +205,14 @@ Page({
 
   },
 
-  checkUserIsVIP(){
+  checkUserIsVIP() {
     let that = this
     wx.showLoading({
       title: '加载中...',
     })
     wx.getStorage({
       key: 'openid',
-      success(res){
+      success(res) {
         let open_id = res.data
         let payload_data = {
           header: {
@@ -176,24 +222,22 @@ Page({
 
           }
         }
-        user_api.check_user_vip(payload_data).then(res=>{
+        user_api.check_user_vip(payload_data).then(res => {
+          wx.hideLoading()
           let result = res.result
           let code = result.code
-          if(code == 200){
-            wx.hideLoading()
+          if (code == 200) {
             var stock_data = {
               stock_code: that.data.stock_code
             }
             wx.navigateTo({
-                url: '/pages/vip-detail/vip-detail?stock=' + JSON.stringify(stock_data),
+              url: '/pages/vip-detail/vip-detail?stock=' + JSON.stringify(stock_data),
             });
-          }
-          else if(code == 403){
+          } else if (code == 403) {
             wx.navigateTo({
-                url: '/pages/subscribe/subscribe',
+              url: '/pages/subscribe/subscribe',
             });
-          }
-          else{
+          } else {
             Toast({
               context: this,
               selector: '#t-toast',
@@ -204,14 +248,11 @@ Page({
           }
         })
       },
-      fail(res){
+      fail(res) {
         wx.navigateTo({
           url: '/pages/my/login/login',
         })
       }
     })
   },
-  onClickShowVipInfo(){
-    this.checkUserIsVIP()
-  }
 })

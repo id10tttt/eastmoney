@@ -1,45 +1,37 @@
 <!--pages/detail/detail.wxml-->
 
 <t-toast id="t-toast" />
-<t-cell title="风险显微镜" description="买入前风险扫描" image="{{check_image}}" hover arrow bind:click="onClickShowVipInfo" />
-<t-collapse defaultValue="{{[0]}}" expandMutex expandIcon wx:if="{{visible_data}}">
-  <t-collapse-panel header="指标" value="{{0}}">
-    <t-cell title="PEG是否合理" description="{{free_data.peg}}" image="{{sun_image}}" hover wx:if="{{free_data.peg_sign == 'sun'}}"/>
-    <t-cell title="PEG是否合理" description="{{free_data.peg}}" image="{{rain_image}}" hover wx:if="{{free_data.peg_sign == 'rain'}}"/>
-    <t-cell title="PEG是否合理" description="{{free_data.peg}}" image="{{danger_image}}" hover wx:if="{{free_data.peg_sign == 'danger'}}"/>
-    <!-- <t-cell title="PEG是否合理" description="{{free_data.peg}}" image="{{rain_image}}" hover wx:else=""/> -->
+<view class="detail">
+  <view class="detail-top">
+    <view class="detail-top-num">
+        <view class="detail-top-num-txt">{{free_data.stock_name}}</view>
+        <view class="detail-top-num-num">{{free_data.stock_code}}</view>
+    </view>
+    <!-- <view catchtap="addStore" data-value="{{free_data.stock_code}}" class="detail-top-add">
+        <view class="detail-top-add-plus">+</view>
+        <view class="detail-top-add-txt">加入自选</view>
+    </view> -->
+    <view class="detail-top-deng" catchtap="showTips"><image src="/static/dengp@2x.png"></image></view>
+    <view catchtap="goToSubscribe" class="detail-top-scan">
+      <view class="detail-top-scan-1">订阅</view>
+        <view class="detail-top-scan-1">（10+核心指标）</view>
+    </view>
+</view>
 
-    <t-cell title="股权质押" description="{{free_data.plge}}" image="{{sun_image}}" hover wx:if="{{free_data.plge_sign == 'sun'}}"/>
-    <t-cell title="股权质押" description="{{free_data.plge}}" image="{{rain_image}}" hover wx:if="{{free_data.plge_sign == 'rain'}}"/>
-    <t-cell title="股权质押" description="{{free_data.plge}}" image="{{danger_image}}" hover wx:if="{{free_data.plge_sign == 'danger'}}"/>
-    <!-- <t-cell title="股权质押" description="{{free_data.plge}}" image="{{rain_image}}" hover wx:else=""/> -->
+<view class="detail-center">
+    <!-- <view class="detail-center-top">指标</view> -->
+    <view wx:for="{{free_data.datas}}" wx:for-item="free_datas" class="detail-center-content">
+      <view class="detail-center-content-img"><image wx:if="{{free_datas.sign == 'danger'}}" src="/static/lei@3x.png"></image> <image wx:if="{{free_datas.sign == 'sun'}}" src="/static/yang@3x.png"></image> <image wx:if="{{free_datas.sign == 'rain'}}" src="/static/yin@3x.png"></image> <image wx:if="{{free_datas.sign == null}}" src="/static/yin@3x.png"></image> </view>
+      <view class="detail-center-content-right font-size">{{free_datas.name}} </view>
+      <view class="detail-center-content-left">{{free_datas.value}}</view>
+    </view>
+</view>
+</view>
 
-    <!-- <t-cell title="股权冻结" description="{{free_data.plge_freeze}}" image="{{quota_image}}" hover /> -->
-    <t-cell title="限售解禁" description="{{free_data.restricted}}" image="{{sun_image}}" hover wx:if="{{free_data.restricted_sign == 'sun'}}"/>
-    <t-cell title="限售解禁" description="{{free_data.restricted}}" image="{{rain_image}}" hover wx:if="{{free_data.restricted_sign == 'rain'}}"/>
-    <t-cell title="限售解禁" description="{{free_data.restricted}}" image="{{danger_image}}" hover wx:if="{{free_data.restricted_sign == 'danger'}}"/>
-    <!-- <t-cell title="限售解禁" description="{{free_data.restricted}}" image="{{rain_image}}" hover wx:else=""/> -->
+<t-popup visible="{{info_visible}}" bind:visible-change="onVisibleChange" placement="{{cur.value}}">
+  <view class="block_info block--{{cur.value}}" style="white-space: pre-wrap">{{cur.text}}</view>
+</t-popup>
 
-    <!-- <t-cell title="限售解禁" description="{{free_data.restricted}}" image="{{quota_image}}" hover /> -->
-
-    <t-cell title="股东减持" description="{{free_data.shr_red}}" image="{{sun_image}}" hover wx:if="{{free_data.shr_red_sign == 'sun'}}"/>
-    <t-cell title="股东减持" description="{{free_data.shr_red}}" image="{{rain_image}}" hover wx:if="{{free_data.shr_red_sign == 'rain'}}"/>
-    <t-cell title="股东减持" description="{{free_data.shr_red}}" image="{{danger_image}}" hover wx:if="{{free_data.shr_red_sign == 'danger'}}"/>
-    <!-- <t-cell title="股东减持" description="{{free_data.shr_red}}" image="{{rain_image}}" hover wx:else=""/> -->
-    <!-- <t-cell title="股东减持" description="{{free_data.shr_red}}" image="{{quota_image}}" hover /> -->
-    
-    <t-cell title="商誉净资产占比" description="{{free_data.gw_netast}}" image="{{rain_image}}" hover />
-
-    <t-cell title="会计师审计" description="{{free_data.options}}" image="{{sun_image}}" hover wx:if="{{free_data.options_sign == 'sun'}}"/>
-    <t-cell title="会计师审计" description="{{free_data.options}}" image="{{rain_image}}" hover wx:if="{{free_data.options_sign == 'rain'}}"/>
-    <t-cell title="会计师审计" description="{{free_data.options}}" image="{{danger_image}}" hover wx:if="{{free_data.options_sign == 'danger'}}"/>
-    <!-- <t-cell title="会计师审计" description="{{free_data.options}}" image="{{rain_image}}" hover wx:else=""/> -->
-    <!-- <t-cell title="会计师审计" description="{{free_data.options}}" image="{{quota_image}}" hover /> -->
-
-    <t-cell title="诉讼仲裁数量" description="{{free_data.law_case}}" image="{{sun_image}}" hover wx:if="{{free_data.law_case_sign == 'sun'}}"/>
-    <t-cell title="诉讼仲裁数量" description="{{free_data.law_case}}" image="{{rain_image}}" hover wx:if="{{free_data.law_case_sign == 'rain'}}"/>
-    <t-cell title="诉讼仲裁数量" description="{{free_data.law_case}}" image="{{danger_image}}" hover wx:if="{{free_data.law_case_sign == 'danger'}}"/>
-    <!-- <t-cell title="诉讼仲裁数量" description="{{free_data.law_case}}" image="{{rain_image}}" hover wx:else=""/> -->
-    <!-- <t-cell title="诉讼仲裁数量" description="{{free_data.law_case}}" image="{{quota_image}}" hover /> -->
-  </t-collapse-panel>
-</t-collapse>
+<view class="btn-area" id="buttonContainer">
+    <button type="primary" bind:tap="addVip">扫描更多...（10+核心指标）</button>
+  </view>

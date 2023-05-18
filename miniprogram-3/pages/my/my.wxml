@@ -1,28 +1,23 @@
-<!--pages/my/my.wxml-->
-<view class="">
-  <t-toast id="t-toast" />
-  <view class="userinfo">
-    <block wx:if="{{!hasUserInfo}}">
-      <button wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile"> 获取头像昵称 </button>
-    </block>
-    <block wx:else>
-      <view class="container">
-        <view class="avatar" slot="left-icon">
-          <open-data type="userAvatarUrl" />
-        </view>
-        <open-data type="userNickName" />
-      </view>
-    </block>
-  </view>
-
-</view>
-<view>
-  <t-cell-group theme="card">
-    <t-cell title="我的订阅" leftIcon="service" hover arrow bind:click="onClickShowSubscribe" />
-  </t-cell-group>
-</view>
-<view class="container">
-  <view class="button-expirelogin" wx:if="{{hasUserInfo}}">
-    <t-button theme="primary" size="middle" bindtap="onTapExpireLogin" block class="expire_login_btn">退出登录</t-button>
+<view data-weui-theme="{{theme}}">
+  <button class="avatar-wrapper" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+    <image class="avatar" src="{{avatarUrl}}"></image>
+  </button>
+  <mp-form>
+    <mp-cells>
+      <mp-cell title="昵称">
+        <input type="nickname" class="weui-input" placeholder="请输入昵称" value="{{nick_name}}" bind:change="onChangeNickname" bindinput="onChangeNickname" bindblur="onBlurNickname"/>
+      </mp-cell>
+    </mp-cells>
+    <mp-cells title="我的订阅">
+      <mp-cell title="开始日期">
+        <input type="text" class="gray_display" disabled="true" value="{{vip_start_date}}"/>
+      </mp-cell>
+      <mp-cell title="截止日期">
+        <input type="text" class="gray_display" disabled="true" value="{{vip_end_date}}"/>
+      </mp-cell>
+    </mp-cells>
+  </mp-form>
+  <view class="btn-area" id="buttonContainer">
+    <button type="primary" bind:tap="onSaveMyProfile">保存并返回</button>
   </view>
 </view>

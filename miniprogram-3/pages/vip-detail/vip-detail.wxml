@@ -1,21 +1,56 @@
-<!--pages/vip-detail/vip-detail.wxml-->
-<t-message id="t-message" />
-<wxs module="filters" src="../../utils/filter.wxs"></wxs>
-<view>
-  <t-cell title="{{stock_name}} {{stock_code}}" description="阳: {{benchmark_count.sun}}, 阴: {{benchmark_count.rain}}, 雷: {{benchmark_count.danger}}"></t-cell>
-  <view wx:for="{{vip_content}}" wx:key="index" wx:for-item="categ_data">
-    <view wx:for="{{categ_data.data}}" wx:for-item="detail_data" wx:for-index="data_index" wx:key="name">
-      <view wx:if="{{detail_data.compare_type == 'value'}}">
-        <t-cell title="{{detail_data.name}}" data-value="{{detail_data.benchmark_id}}" value="{{idx}}" image="{{sun_image}}" hover wx:if="{{detail_data.sign == 'sun'}}" bind:click="onShowDetailContent" description="{{filters.toFix(detail_data.value)}}"/>
-        <t-cell title="{{detail_data.name}}" data-value="{{detail_data.benchmark_id}}" value="{{idx}}" image="{{danger_image}}" hover wx:if="{{detail_data.sign == 'danger'}}" bind:click="onShowDetailContent" />
-        <t-cell title="{{detail_data.name}}" data-value="{{detail_data.benchmark_id}}" value="{{idx}}" image="{{rain_image}}" hover wx:if="{{detail_data.sign == 'rain'}}" bind:click="onShowDetailContent" />
-      </view>
-      <view wx:else="">
-        <t-cell title="{{detail_data.name}}" arrow data-value="{{detail_data.benchmark_id}}" value="{{idx}}" image="{{sun_image}}" hover wx:if="{{detail_data.sign == 'sun'}}" bind:click="onShowDetailContent" />
-        <t-cell title="{{detail_data.name}}" arrow data-value="{{detail_data.benchmark_id}}" value="{{idx}}" image="{{danger_image}}" hover wx:if="{{detail_data.sign == 'danger'}}" bind:click="onShowDetailContent" />
-        <t-cell title="{{detail_data.name}}" arrow data-value="{{detail_data.benchmark_id}}" value="{{idx}}" image="{{rain_image}}" hover wx:if="{{detail_data.sign == 'rain'}}" bind:click="onShowDetailContent" />
-      </view>
+<!--pages/detail/detail.wxml-->
 
+<t-message id="t-message" />
+<view class="detail">
+
+  <view class="detail-top">
+    <view class="detail-top-num">
+      <view class="detail-top-num-txt">{{stock_name}}</view>
+      <view class="detail-top-num-num">{{stock_code}}</view>
+    </view>
+    <!-- <view catchtap="addStore" data-value="{{stock_code}}" class="detail-top-add">
+        <view class="detail-top-add-plus">+</view>
+        <view class="detail-top-add-txt">加入自选</view>
+    </view> -->
+
+    <view class="detail-top-scan">
+      <view class="detail-top-scan-img">
+        <image src="/static/lei@3x.png"></image>
+      </view>
+      <view class="detail-top-scan-font">{{benchmark_count.danger}} </view>
+      <view class="detail-top-scan-line">|</view>
+      <view class="detail-top-scan-img">
+        <image src="/static/yin@3x.png"></image>
+      </view>
+      <view class="detail-top-scan-font">{{benchmark_count.rain}} </view>
+      <view class="detail-top-scan-line">|</view>
+      <view class="detail-top-scan-img">
+        <image src="/static/yang@3x.png"></image>
+      </view>
+      <view class="detail-top-scan-font">{{benchmark_count.sun}} </view>
     </view>
   </view>
+
+  <view class="detail-center">
+    <t-collapse theme="card" bind:change="handlehangeCollapse" data-ids="{{categ_data.benchmark_id}}" data-compare_type="{{categ_data.compare_type}}" wx:for="{{vip_content}}" wx:for-item="categ_data" wx:key="index">
+      <view class="detail-center-img">
+        <image wx:if="{{categ_data.sign == 'danger'}}" src="/static/lei@3x.png"></image>
+        <image wx:if="{{categ_data.sign == 'sun'}}" src="/static/yang@3x.png"></image>
+        <image wx:if="{{categ_data.sign == 'rain'}}" src="/static/yin@3x.png"></image>
+        <image wx:if="{{categ_data.sign == null}}" src="/static/yin@3x.png"></image>
+      </view>
+      <t-collapse-panel value="{{categ_data.benchmark_id}}" header="{{categ_data.name}}">
+        <view wx:if="{{categ_data.compare_type=='vs'}}" class="detail-center-echart">
+          <ec-canvas id="mychart-dom-bar-{{categ_data.benchmark_id}}" ec="{{ ec2 }}"></ec-canvas>
+        </view>
+        <view wx:if="{{categ_data.compare_type=='vs' && categ_data.origin_data}}">
+          <view wx:for="{{categ_data.origin_data}}" wx:for-item="value_data" class="detail-center-img-con">{{value_data.value}} </view>
+        </view>
+        <view wx:if="{{categ_data.compare_type=='value'}}" class="detail-center-test">
+          <view wx:for="{{categ_data.value}}" wx:for-item="value_data" class="detail-center-img-con">{{value_data.report_date}} {{value_data.value}} </view>
+        </view>
+      </t-collapse-panel>
+    </t-collapse>
+  </view>
+
 </view>

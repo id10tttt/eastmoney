@@ -1,20 +1,45 @@
 <!--index.wxml-->
 <t-toast id="t-toast" />
-<!-- <view class="container"> -->
-  <!-- <view class="avatar" slot="left-icon">
-    <open-data type="userAvatarUrl" />
-  </view> -->
-  <view class="space"></view>
-  <t-input prefix-icon="search" type="number" value="{{stock_code}}" clearable focus placeholder="请输入股票代码" bind:change="setSearchValue">
-    <t-button slot="suffix" theme="light" size="extra-small" class="search_btn" bindtap="onClickSearch">搜索</t-button>
-  </t-input>
-  <!-- <view class="search_stock">
-    <view class="space"></view>
-    <t-search model:value="{{value}}" type="number" placeholder="请输入股票代码" action="搜索" bind:action-click="onClickSearch" />
-  </view> -->
+<view class="index">
+  <view class="index-top">
+    <view class="index-top-hello">Hello</view>
+    <view class="index-top-name" bind:tap="handleMyProfile">{{user_name}} ></view>
+    <view class="index-top-sign" bind:tap="handleMyProfile"></view>
+    <!-- <view class="index-top-my">我的自选</view> -->
+  </view>
+  <view class="index-search">
+    <view style="width: 756rpx; height: 102rpx; display: block; box-sizing: border-box">
+      <t-input class="index-search-inp" bind:change="stockCode" value="{{stock_code}}" placeholder="请输入公司代码或名称" clearable bind:clear="clearStockCode">
+        <!-- <view class='clear_input {{isShowClear ? "show_clear" : "hide_clear"}}'>
+        <icon class="clear_button" type="clear" size="40" bindtap='clearInput'></icon>
+      </view> -->
+      </t-input>
+      <view bindtap="searchOne" class="index-search-btn" style="width: 193rpx; height: 100rpx; display: block; box-sizing: border-box; left: 522rpx; top: 100rpx; position: absolute">扫雷</view>
+    </view>
+
+    
+  </view>
+  <view wx:if="{{showInputStatus}}" class="block_scroll">
+      <scroll-view scroll-y="true" class="scrollview">
+        <view wx:for="{{bindSource}}" wx:for-item="query_item">
+          　　<view data-name="{{query_item.code}}" class="itemview block" bindtap="itemtap" data-statu="close">{{query_item.code}} {{query_item.name}}</view>
+        </view>
+      </scroll-view>
+    </view>
   <view class="block">
     <block wx:for="{{query_his}}" wx:key="index" wx:for-item="query_data">
-      <t-tag class="margin-8" bind:close="handleCloseTag" bind:click="onClickOpenPage" shape="square" data-value="{{query_his[index]}}" size="large" variant="light" closable="true">{{query_his[index]}}</t-tag>
+      <t-tag class="margin-8" bind:close="handleCloseTag" bind:click="onClickOpenPage" shape="square" data-value="{{query_his[index].code}}" size="large" variant="light" closable>{{query_his[index].code}} {{query_his[index].name}}</t-tag>
     </block>
   </view>
-<!-- </view> -->
+  <view class="index-bot">
+    <view class="index-bot-img" bind:tap="handlePopup">
+      <image src="../../static/dengp@2x.png"></image>
+    </view>
+    <view class="index-bot-txt" bind:tap="handlePopup">小提示 </view>
+    <view class="index-bot-sign" bind:tap="handlePopup"> > </view>
+  </view>
+</view>
+
+<t-popup visible="{{visible}}" bind:visible-change="onVisibleChange" placement="{{cur.value}}">
+  <view class="block_info block--{{cur.value}}">{{cur.text}}</view>
+</t-popup>

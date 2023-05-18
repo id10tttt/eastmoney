@@ -78,7 +78,7 @@
 }
 .t-cell__title-text {
   display: flex;
-  font-size: var(--td-cell-title-font-size, var(--td-font-size-m, 32rpx));
+  font-size: var(--td-cell-title-font-size, var(--td-font-size-m, 24rpx));
   color: var(--td-cell-title-color, var(--td-font-gray-1, rgba(0, 0, 0, 0.9)));
   font-weight: 400;
 }

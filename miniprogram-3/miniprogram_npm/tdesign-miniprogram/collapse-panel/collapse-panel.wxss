@@ -159,6 +159,7 @@
 }
 .class-title {
   font-size: var(--td-collapse-title-font-size, var(--td-font-size-m, 32rpx));
+  padding-left: 40rpx;
 }
 .class-title--disabled {
   color: var(--td-text-disabled-color, rgba(0, 0, 0, 0.26));

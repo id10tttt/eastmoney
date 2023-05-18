@@ -3,10 +3,9 @@
     "pages/index/index",
     "pages/detail/detail",
     "pages/vip-detail/vip-detail",
+    "pages/subscribe/subscribe",
     "pages/my/my",
     "pages/my/login/login",
-    "pages/subscribe/subscribe",
-    "pages/side-bar/side-bar",
     "pages/vip-detail/content_detail/content_detail"
   ],
   "usingComponents": {
@@ -21,7 +20,8 @@
     "t-image": "tdesign-miniprogram/image/image",
     "t-tag": "tdesign-miniprogram/tag/tag",
     "t-button": "tdesign-miniprogram/button/button",
-    "t-input": "tdesign-miniprogram/input/input"
+    "t-input": "tdesign-miniprogram/input/input",
+    "t-popup": "tdesign-miniprogram/popup/popup"
   },
   "window": {
     "backgroundTextStyle": "light",
@@ -31,5 +31,8 @@
     "navigationBarTextStyle": "black"
   },
   "style": "v2",
-  "sitemapLocation": "sitemap.json"
+  "sitemapLocation": "sitemap.json",
+  "useExtendedLib": {
+    "weui": true
+  }
 }

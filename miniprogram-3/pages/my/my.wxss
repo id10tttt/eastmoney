@@ -1,18 +1,29 @@
 /* pages/my/my.wxss */
-.userinfo{
-  padding: 142rpx 0 70rpx;
-  text-align: center;
+.avatar-wrapper {
+  padding: 0;
+  width: 56px !important;
+  border-radius: 8px;
+  margin-top: 40px;
+  margin-bottom: 40px;
 }
 
-.button-expirelogin {
-  position: fixed;
-  bottom: 30rpx;
-  margin: 0 32rpx;
-  width: 92% !important;
-  padding-bottom: 2rpx !important;
+.avatar {
+  display: block;
+  width: 56px;
+  height: 56px;
 }
 
-.expire_login_btn{
-  width: 100% !important;
-  background-color: rgb(245, 106, 106) !important;
+.container {
+  display: flex;
+}
+
+button{
+  width: 95% !important;
+  margin-top: 30rpx;
+  background: rgba(34,33,34,0.90) !important;
+  margin-bottom: 30rpx;
+  color: #e1c7ae !important;
+}
+.gray_display{
+  color: gray;
 }
