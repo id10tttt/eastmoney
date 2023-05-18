@@ -22,14 +22,14 @@ class OperateCustomerSupplier(models.Model):
     report_date_char = fields.Char('Date')
     report_date = fields.Date('日期', required=1)
     rate = fields.Float('Rate', compute='_compute_operate_rate', store=True)
+    sequence = fields.Integer(u'排序')
 
     @api.depends('name', 'value', 'report_date')
     def _compute_operate_rate(self):
         for operate_id in self:
             total_operate = self.env['operate.customer.supplier'].sudo().search([
                 ('stock_id', '=', operate_id.stock_id.id),
-                ('type', '=', operate_id.type),
-                ('name', '!=', '其他')
+                ('type', '=', operate_id.type)
             ])
             total_operate = total_operate.filtered(lambda o: o.report_date == operate_id.report_date)
 
@@ -54,6 +54,7 @@ class OperateCustomerSupplier(models.Model):
         except Exception as e:
             _logger.error('出现了错误咯。。。{}'.format(e))
             return False
+
         data = []
         for provider_key in provider_flash_value.keys():
             provider_line = provider_flash_value.get(provider_key)
@@ -64,7 +65,7 @@ class OperateCustomerSupplier(models.Model):
             supplier = provider_line.get('supplier')
             tmp = []
             if customer:
-                for line_id in customer:
+                for index_c, line_id in enumerate(customer):
                     tmp.append({
                         'stock_id': stock_id.id,
                         'name': line_id.get('name'),
@@ -72,16 +73,18 @@ class OperateCustomerSupplier(models.Model):
                         'type': 'customer',
                         'report_date_char': report_date,
                         'report_date': report_date,
+                        'sequence': index_c
                     })
             if supplier:
-                for line_id in supplier:
+                for index_s, line_id in enumerate(supplier):
                     tmp.append({
                         'stock_id': stock_id.id,
                         'name': line_id.get('name'),
                         'value': line_id.get('y'),
                         'type': 'supplier',
                         'report_date_char': report_date,
-                        'report_date': report_date
+                        'report_date': report_date,
+                        'sequence': index_s
                     })
             for line_data in tmp:
                 # 筛选重复项

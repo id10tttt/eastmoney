@@ -171,6 +171,10 @@ class FinanceStockBasic(models.Model):
     law_case = fields.Char('诉讼仲裁')
     mine_json = fields.Char('MINE SWEEP JSON')
 
+    def manual_fetch_customer_supplier(self):
+        for line_id in self:
+            self.env['operate.customer.supplier'].sudo().fetch_operate_cs_value(line_id)
+
     def update_fiscal_data(self):
         self.ensure_one()
         all_fiscal_ids = self.env['finance.fiscal.data'].search([('stock_id', '=', self.id)],
