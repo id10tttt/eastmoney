@@ -160,6 +160,8 @@ class VIPContent(http.Controller, BaseController):
                 display_data = self.parse_compare_value(benchmark_data_id.value)
                 origin_data = self.parse_compare_display_data(benchmark_data_id)
 
+            if not display_data:
+                display_data = [{'value': '暂无'}]
             tmp_data = {
                 'name': benchmark_data_id.compare_id.name,
                 'value': display_data,
