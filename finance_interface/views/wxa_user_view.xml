@@ -20,8 +20,9 @@
                     <field name="gender"/>
 
                     <field name="create_date" string="注册时间"/>
-                    <field name="last_login"/>
-                    <field name="status"/>
+                    <field name="is_vip"/>
+                    <field name="vip_start_date"/>
+                    <field name="vip_end_date"/>
 
                     <field name="register_type"/>
                 </tree>
@@ -62,6 +63,15 @@
                                 <field name="ip" readonly="1"/>
                             </group>
                         </group>
+                        <group string="订阅">
+                            <group>
+                                <field name="is_vip"/>
+                            </group>
+                            <group>
+                                <field name="vip_start_date"/>
+                                <field name="vip_end_date"/>
+                            </group>
+                        </group>
                         <group string="API相关设置">
                             <group>
                                 <field name="forbidden_user"/>
@@ -72,6 +82,17 @@
                             </group>
                         </group>
                         <notebook>
+                            <page string="支付订单">
+                                <field name="order_ids">
+                                    <tree>
+                                        <field name="subscribe_id"/>
+                                        <field name="price_total" sum="total"/>
+                                        <field name="payment_id"/>
+                                        <field name="start_date"/>
+                                        <field name="end_date"/>
+                                    </tree>
+                                </field>
+                            </page>
                             <page string="我的收藏">
                                 <field name="collect_ids">
                                     <tree create="0" edit="0" delete="0">
@@ -104,6 +125,7 @@
             <field name="arch" type="xml">
                 <search string="查找">
                     <field name="nickname" string="昵称"/>
+                    <filter name="filter_vip" domain="[('is_vip', '=', True)]" string="订阅用户"/>
                 </search>
             </field>
         </record>

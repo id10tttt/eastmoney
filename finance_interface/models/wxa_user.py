@@ -10,6 +10,10 @@ class WxaAppUser(models.Model):
     _description = u'小程序: 微信客户'
     _order = 'id desc'
 
+    _sql_constraints = [
+        ('unique_open_id_phone', 'unique(open_id, phone)', '手机和openid 必须唯一'),
+    ]
+
     name = fields.Char(string='名称')
     nickname = fields.Char('昵称')
 
@@ -43,9 +47,24 @@ class WxaAppUser(models.Model):
     real_name = fields.Char(u'真实姓名')
     collect_ids = fields.One2many('wxa.stock.collect', 'wxa_id', string=u'我的收藏')
 
-    _sql_constraints = [
-        ('unique_open_id_phone', 'unique(open_id, phone)', '手机和openid 必须唯一'),
-    ]
+    order_ids = fields.One2many('wxa.subscribe.order', 'wechat_user_id', string='支付记录')
+
+    is_vip = fields.Boolean('是否订阅用户', compute='_compute_vip_info', store=True)
+    vip_start_date = fields.Date('订阅开始日期', compute='_compute_vip_info', store=True)
+    vip_end_date = fields.Date('订阅截止日期', compute='_compute_vip_info', store=True)
+
+    @api.depends('order_ids.start_date', 'order_ids.end_date', 'order_ids')
+    def _compute_vip_info(self):
+        for line_id in self:
+            if not line_id.order_ids:
+                continue
+            vip_order_ids = line_id.order_ids.filtered(lambda o: fields.Date.today() <= o.end_date)
+            if vip_order_ids:
+                line_id.is_vip = True
+                line_id.vip_start_date = min([x.start_date for x in vip_order_ids])
+                line_id.vip_end_date = max([x.end_date for x in vip_order_ids])
+            else:
+                line_id.is_vip = False
 
     def change_access_token(self):
         for user_id in self:
