@@ -36,7 +36,7 @@ class OperateCustomerSupplier(models.Model):
             total_value = sum(x.value for x in total_operate)
             if total_value == 0:
                 continue
-            operate_id.rate = operate_id.value / total_value
+            operate_id.rate = (operate_id.value / total_value) * 100
 
     def fetch_operate_cs_value(self, stock_id):
         operate_cs_ids = stock_id.operate_cs_ids
