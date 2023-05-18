@@ -509,38 +509,38 @@
             <field name="usage">vip</field>
             <field name="type_id" eval="ref('finance_mine_type_9')"/>
         </record>
-        <record id="finance_compare_16_line_1" model="stock.compare.analysis.line">
-            <field name="source_data">
-                with res as (
-                select
-                    ocs.rate as rate,
-                    ocs.report_date as report_date,
-                    ocs.name as name
-                from
-                    operate_customer_supplier as ocs
-                join finance_stock_basic fsb on
-                    ocs.stock_id = fsb.id
-                where
-                    ocs.type = 'customer'
-                    and fsb.symbol = '{security_code}'
-                order by
-                    ocs.report_date desc,
-                    ocs.rate desc
-                )
-                select
-                    sum(rate),
-                    report_date
-                from
-                    res
-                group by
-                    report_date
-                order by
-                    report_date desc
-            </field>
-            <field name="use_latest_period">6</field>
-            <field name="source_args">{}</field>
-            <field name="compare_id" eval="ref('finance_compare_16')"/>
-        </record>
+<!--        <record id="finance_compare_16_line_1" model="stock.compare.analysis.line">-->
+<!--            <field name="source_data">-->
+<!--                with res as (-->
+<!--                select-->
+<!--                    ocs.rate as rate,-->
+<!--                    ocs.report_date as report_date,-->
+<!--                    ocs.name as name-->
+<!--                from-->
+<!--                    operate_customer_supplier as ocs-->
+<!--                join finance_stock_basic fsb on-->
+<!--                    ocs.stock_id = fsb.id-->
+<!--                where-->
+<!--                    ocs.type = 'customer'-->
+<!--                    and fsb.symbol = '{security_code}'-->
+<!--                order by-->
+<!--                    ocs.report_date desc,-->
+<!--                    ocs.rate desc-->
+<!--                )-->
+<!--                select-->
+<!--                    sum(rate),-->
+<!--                    report_date-->
+<!--                from-->
+<!--                    res-->
+<!--                group by-->
+<!--                    report_date-->
+<!--                order by-->
+<!--                    report_date desc-->
+<!--            </field>-->
+<!--            <field name="use_latest_period">6</field>-->
+<!--            <field name="source_args">{}</field>-->
+<!--            <field name="compare_id" eval="ref('finance_compare_16')"/>-->
+<!--        </record>-->
 
         <record id="finance_compare_17" model="stock.compare.analysis">
             <field name="name">每员工年度贡献收入金额？</field>
