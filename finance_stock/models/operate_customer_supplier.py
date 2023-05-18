@@ -90,7 +90,7 @@ class OperateCustomerSupplier(models.Model):
                 # 筛选重复项
                 if operate_cs_ids.filtered(
                         lambda o: o.type == line_data.get('type') and
-                                  o.report_date == line_data.get('report_date_char') and
+                                  o.report_date_char == line_data.get('report_date_char') and
                                   o.name == line_data.get('name')):
                     continue
                 data.append((0, 0, line_data))
