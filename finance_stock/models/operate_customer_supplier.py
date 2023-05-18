@@ -64,11 +64,19 @@ class OperateCustomerSupplier(models.Model):
             customer = provider_line.get('customer')
             supplier = provider_line.get('supplier')
             tmp = []
+            exist_cus = []
+            exist_sup = []
             if customer:
                 for index_c, line_id in enumerate(customer):
+                    cus_name = line_id.get('name')
+                    if cus_name in exist_cus:
+                        cus_name = '/1'.format(cus_name)
+                        exist_cus.append(cus_name)
+                    else:
+                        exist_cus.append(cus_name)
                     tmp.append({
                         'stock_id': stock_id.id,
-                        'name': line_id.get('name'),
+                        'name': cus_name,
                         'value': line_id.get('y'),
                         'type': 'customer',
                         'report_date_char': report_date,
@@ -77,9 +85,15 @@ class OperateCustomerSupplier(models.Model):
                     })
             if supplier:
                 for index_s, line_id in enumerate(supplier):
+                    sup_name = line_id.get('name')
+                    if sup_name in exist_sup:
+                        sup_name = '/1'.format(sup_name)
+                        exist_sup.append(sup_name)
+                    else:
+                        exist_sup.append(sup_name)
                     tmp.append({
                         'stock_id': stock_id.id,
-                        'name': line_id.get('name'),
+                        'name': sup_name,
                         'value': line_id.get('y'),
                         'type': 'supplier',
                         'report_date_char': report_date,
