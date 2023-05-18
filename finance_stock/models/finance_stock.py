@@ -768,19 +768,20 @@ class FinanceStockBasic(models.Model):
                 'main_data_ids': main_data
             })
 
-    def fetch_zcfbz_data(self, query_dates, security_code, default_company_type=4, retry=False):
+    def fetch_zcfbz_data(self, query_dates, security_code, company_type=4, retries=5):
         finance_zcfzb_url = 'http://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/zcfzbAjaxNew'
         payloads = {
-            'companyType': default_company_type,
+            'companyType': company_type,
             'reportDateType': 0,
             'reportType': 1,
             'dates': query_dates,
             'code': security_code,
         }
         res = requests.get(finance_zcfzb_url, params=payloads, headers=headers)
-        data = res.json().get('data')
-        if not data and not retry:
-            return self.fetch_zcfbz_data(query_dates, security_code, default_company_type=3, retry=True)
+        data = res.json().get('data', {})
+        if not data and retries > 0:
+            _logger.info('retry...{}, company_type: {}'.format(security_code, company_type - 1))
+            return self.fetch_zcfbz_data(query_dates, security_code, company_type=company_type - 1, retries=retries - 1)
         return res
 
     def cron_fetch_zcfzb(self):
