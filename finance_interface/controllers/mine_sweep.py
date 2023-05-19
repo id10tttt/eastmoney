@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+import datetime
 import decimal
 from .wxa_common import verify_auth_token
 from odoo.tools import config
@@ -17,6 +18,18 @@ def decimal_float_number(number, rounding='0.00'):
     decimal.getcontext().rounding = "ROUND_HALF_UP"
     res = decimal.Decimal(str(number)).quantize(decimal.Decimal(rounding))
     return str(res)
+
+
+def convert_timestamp_to_datetime(timestamp):
+    try:
+        if timestamp:
+            dt = datetime.datetime.fromtimestamp(timestamp / 1000)
+            return str(dt.date())
+        else:
+            return timestamp
+    except Exception as e:
+        _logger.error('error: {}'.format(e))
+        return timestamp
 
 
 class FinanceMineSweep(http.Controller, BaseController):
@@ -127,13 +140,20 @@ class FinanceMineSweep(http.Controller, BaseController):
             _logger.error('发生异常: {}'.format(e))
             return 'sun', 0
 
-    def get_rls_tshr_rat_sign(self, rls_tshr_rat, shr_type):
+    def get_rls_tshr_rat_sign(self, stock_id):
+        rls_tshr_rat = stock_id.rls_tshr_rat
+        shr_type = stock_id.shr_type
         try:
+            stock_json = json.loads(stock_id.restricted_json)
+            nearest_unrestricted = stock_json.get('nearestUnrestricted')
+            bgn_date = convert_timestamp_to_datetime(nearest_unrestricted.get('bgnDt'))
+            display_msg = '{} {}'.format(bgn_date, '解禁{}%'.format(rls_tshr_rat) if rls_tshr_rat else shr_type)
             if not rls_tshr_rat or float(rls_tshr_rat) == 0:
                 return 'sun', '暂无'
-            return 'danger', shr_type or rls_tshr_rat
+            return 'danger', display_msg
         except Exception as e:
-            return 'sun', '暂无'
+            display_msg = rls_tshr_rat or shr_type
+            return 'sun', display_msg or '暂无'
 
     def get_options_rslt_sign(self, options_rslt):
         try:
@@ -193,7 +213,7 @@ class FinanceMineSweep(http.Controller, BaseController):
 
         shr_red_sign, shr_redu_result = self.get_shr_redu_sign(stock_id)
         law_case_sign, law_case_result = self.get_law_case_sign(stock_id.law_case)
-        restricted_sign, restricted_value = self.get_rls_tshr_rat_sign(stock_id.rls_tshr_rat, stock_id.shr_type)
+        restricted_sign, restricted_value = self.get_rls_tshr_rat_sign(stock_id)
         options_sign, options_result = self.get_options_rslt_sign(stock_id.options_rslt)
 
         free_content = [{
