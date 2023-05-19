@@ -921,7 +921,11 @@ class FinanceStockBasic(models.Model):
                 'reportName': 'RPT_LICO_FN_CPD'
             }
             res = requests.get(rpt_lico_fn_cpd_url, params=payload_data, headers=headers)
-            result = res.json().get('result', {}).get('data')
+            result_json = res.json()
+            if not result_json:
+                continue
+            result = result_json.get('result', {}).get('data')
+            
             all_data = []
             if not result:
                 continue
