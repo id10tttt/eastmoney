@@ -100,6 +100,7 @@
                         <button name="get_finance_stock_share_holder_news" string="高管持股变动" type="object"/>
                         <button name="manual_generate_fiscal_data" string="生成-处理后财务信息" type="object"/>
                         <button name="update_fiscal_data" string="更新-处理后财务信息" type="object"/>
+                        <button name="manual_update_all_compare_data" string="生成Benchmark" type="object"/>
                         <button name="get_mine_brief" string="扫雷" type="object"/>
                         <button name="manual_fetch_customer_supplier" string="主要客户/供应商" type="object"/>
                     </header>

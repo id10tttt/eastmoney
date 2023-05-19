@@ -126,6 +126,12 @@ class StockCompareAnalysis(models.Model):
             benchmark_data_ids = self.env['compare.benchmark.data'].search([('stock_id', '=', stock_id.id)])
             self.with_delay()._get_benchmark_result(stock_id, compare_ids, benchmark_data_ids)
 
+    def manual_get_benchmark_result(self, stock_ids):
+        compare_ids = self.env['stock.compare.analysis'].search([])
+        for stock_id in stock_ids:
+            benchmark_data_ids = self.env['compare.benchmark.data'].search([('stock_id', '=', stock_id.id)])
+            self._get_benchmark_result(stock_id, compare_ids, benchmark_data_ids)
+
     def _get_benchmark_result_vs(self, security_code='000001'):
         self.ensure_one()
         all_result = []

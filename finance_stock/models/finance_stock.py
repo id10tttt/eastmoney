@@ -179,6 +179,10 @@ class FinanceStockBasic(models.Model):
         stock_ids = self
         self.env['finance.fiscal.data'].sudo().manual_fetch_fiscal_data(stock_ids)
 
+    def manual_update_all_compare_data(self):
+        stock_ids = self
+        self.env['stock.compare.analysis'].sudo().manual_get_benchmark_result(stock_ids)
+
     def update_fiscal_data(self):
         self.ensure_one()
         all_fiscal_ids = self.env['finance.fiscal.data'].search([('stock_id', '=', self.id)],
