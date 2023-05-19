@@ -175,6 +175,10 @@ class FinanceStockBasic(models.Model):
         for line_id in self:
             self.env['operate.customer.supplier'].sudo().fetch_operate_cs_value(line_id)
 
+    def manual_generate_fiscal_data(self):
+        stock_ids = self
+        self.env['finance.fiscal.data'].sudo().manual_fetch_fiscal_data(stock_ids)
+
     def update_fiscal_data(self):
         self.ensure_one()
         all_fiscal_ids = self.env['finance.fiscal.data'].search([('stock_id', '=', self.id)],
@@ -925,7 +929,7 @@ class FinanceStockBasic(models.Model):
             if not result_json:
                 continue
             result = result_json.get('result', {}).get('data')
-            
+
             all_data = []
             if not result:
                 continue

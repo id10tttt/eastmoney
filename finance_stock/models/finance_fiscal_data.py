@@ -126,6 +126,11 @@ class FinanceFiscalData(models.Model):
             _logger.info('开始更新: {}, {}'.format(line_id.security_code, line_id.report_date))
             line_id.write(update_data)
 
+    def manual_fetch_fiscal_data(self, stock_ids):
+        all_period = self.get_default_period()
+        for stock_id in stock_ids:
+            self.generate_fiscal_data(stock_ids=stock_id, report_date=all_period)
+
     def cron_fetch_fiscal_data(self):
         all_period = self.get_default_period()
         all_stock_ids = self.env['finance.stock.basic'].search([])
