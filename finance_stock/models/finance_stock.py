@@ -981,10 +981,10 @@ class FinanceStockBasic(models.Model):
                 'report_ids': all_data
             })
 
-    def fetch_lrb_data(self, query_dates, security_code, default_company_type=4, retry=False):
+    def fetch_lrb_data(self, query_dates, security_code, company_type=4, retries=5):
         finance_lrb_url = 'http://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/lrbAjaxNew'
         payloads = {
-            'companyType': default_company_type,
+            'companyType': company_type,
             'reportDateType': 0,
             'reportType': 1,
             'dates': query_dates,
@@ -996,14 +996,14 @@ class FinanceStockBasic(models.Model):
         except Exception as e:
             _logger.error('获取利润表出错: {}, {}'.format(e, res.text))
             data = False
-        if not data and not retry:
-            return self.fetch_lrb_data(query_dates, security_code, default_company_type=3, retry=True)
+        if not data and retries > 0:
+            return self.fetch_lrb_data(query_dates, security_code, company_type=company_type - 1, retries=retries - 1)
         return res
 
-    def fetch_xjllb_data(self, query_dates, security_code, default_company_type=4, retry=False):
+    def fetch_xjllb_data(self, query_dates, security_code, company_type=4, retries=5):
         finance_xjllb_url = 'https://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/xjllbAjaxNew'
         payloads = {
-            'companyType': default_company_type,
+            'companyType': company_type,
             'reportDateType': 0,
             'reportType': 1,
             'dates': query_dates,
@@ -1015,8 +1015,9 @@ class FinanceStockBasic(models.Model):
         except Exception as e:
             _logger.error('获取现金流量表出错: {}, {}'.format(e, res.text))
             data = False
-        if not data and not retry:
-            return self.fetch_xjllb_data(query_dates, security_code, default_company_type=3, retry=True)
+        if not data and retries > 0:
+            _logger.info('retry...{}, company_type: {}'.format(security_code, company_type - 1))
+            return self.fetch_xjllb_data(query_dates, security_code, company_type=company_type - 1, retries=retries - 1)
         return res
 
     def cron_fetch_lrb(self):
