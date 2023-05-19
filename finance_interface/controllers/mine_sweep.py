@@ -227,6 +227,12 @@ class FinanceMineSweep(http.Controller, BaseController):
             'data': [],
             'chart': [],
         }, {
+            'name': '业绩',
+            'value': stock_id.pred_typ_name or '暂无',
+            'sign': None,
+            'data': [],
+            'chart': [],
+        }, {
             'name': '会计师审计',
             'value': options_result or '暂无',
             'sign': options_sign,
