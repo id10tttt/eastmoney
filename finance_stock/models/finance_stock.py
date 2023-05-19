@@ -932,7 +932,10 @@ class FinanceStockBasic(models.Model):
             result_json = res.json()
             if not result_json:
                 continue
-            result = result_json.get('result', {}).get('data')
+            try:
+                result = result_json.get('result', {}).get('data')
+            except Exception as e:
+                continue
 
             all_data = []
             if not result:

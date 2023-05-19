@@ -23,14 +23,16 @@ class FinanceStockLRB(models.Model):
     report_type = fields.Char('REPORT_TYPE')
     continued_netprofit = fields.Char('CONTINUED_NETPROFIT')
     interest_expense = fields.Char('INTEREST_EXPENSE')
-    operate_income = fields.Char('OPERATE_INCOME', compute='_compute_operate_income', store=True)
+    diluted_eps = fields.Char('DILUTED_EPS', compute='_compute_lrb_value', store=True)
+    operate_income = fields.Char('OPERATE_INCOME', compute='_compute_lrb_value', store=True)
 
     @api.depends('lrb_json')
-    def _compute_operate_income(self):
+    def _compute_lrb_value(self):
         for line_id in self:
             try:
                 if line_id.lrb_json:
                     lrb_json = json.loads(line_id.lrb_json)
                     line_id.operate_income = lrb_json.get('OPERATE_INCOME')
+                    line_id.diluted_eps = lrb_json.get('DILUTED_EPS')
             except Exception as e:
                 continue
