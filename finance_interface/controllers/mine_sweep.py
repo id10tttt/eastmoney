@@ -184,6 +184,16 @@ class FinanceMineSweep(http.Controller, BaseController):
         except Exception as e:
             return '暂无'
 
+    def get_pred_typ_value(self, stock_id):
+        try:
+            net_prof_pco = stock_id.net_prof_pco
+            if float(net_prof_pco) > 0:
+                return 'sun', stock_id.pred_typ_name
+            else:
+                return 'danger', stock_id.pred_typ_name
+        except Exception as e:
+            return None, stock_id.pred_typ_name or '暂无'
+
     @http.route(['/v1/api/wechat/mini/sweep/value/free'], auth='public', methods=['GET', 'POST'], csrf=False,
                 type='json')
     @verify_auth_token()
@@ -215,6 +225,8 @@ class FinanceMineSweep(http.Controller, BaseController):
         law_case_sign, law_case_result = self.get_law_case_sign(stock_id.law_case)
         restricted_sign, restricted_value = self.get_rls_tshr_rat_sign(stock_id)
         options_sign, options_result = self.get_options_rslt_sign(stock_id.options_rslt)
+
+        pred_typ_sign, pred_typ_name = self.get_pred_typ_value(stock_id)
 
         free_content = [{
             'name': 'PEG是否合理',
@@ -248,8 +260,8 @@ class FinanceMineSweep(http.Controller, BaseController):
             'chart': [],
         }, {
             'name': '业绩',
-            'value': stock_id.pred_typ_name or '暂无',
-            'sign': None,
+            'value': pred_typ_name,
+            'sign': pred_typ_sign,
             'data': [],
             'chart': [],
         }, {
