@@ -187,6 +187,40 @@ class VIPContent(http.Controller, BaseController):
         # data.update(**encrypt_data)
         return self.response_json_success(data)
 
+    @http.route('/v1/api/wechat/mini/vip/count', auth='public', methods=['POST'], csrf=False, type='json')
+    @verify_auth_token()
+    def query_vip_count_data(self, **kwargs):
+        payload_data = json.loads(request.httprequest.data)
+        headers = payload_data.get('header')
+        body = payload_data.get('body')
+
+        stock_code = body.get('stock_code')
+
+        stock_id = request.env['finance.stock.basic'].sudo().search([('symbol', '=', stock_code)])
+
+        if not stock_id:
+            return self.response_json_error(404, '股票不存在!')
+
+        benchmark_data_ids = request.env['compare.benchmark.data'].sudo().search([('stock_id', '=', stock_id.id)])
+        benchmark_count = {
+            'danger': 0,
+            'rain': 0,
+            'sun': 0,
+        }
+
+        for benchmark_data_id in benchmark_data_ids:
+            benchmark_count.update({
+                benchmark_data_id.sign: benchmark_count.get(benchmark_data_id.sign) + 1
+            })
+        data = {
+            'stock_code': stock_id[0].symbol,
+            'stock_name': stock_id[0].name,
+            'danger': benchmark_count.get('danger'),
+            'rain': benchmark_count.get('rain'),
+            'sun': benchmark_count.get('sun'),
+        }
+        return self.response_json_success(data)
+
     def parse_vip_content_detail(self, data):
         result = json.loads(data)
         return_data = []
