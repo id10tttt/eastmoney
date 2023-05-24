@@ -6,10 +6,9 @@ from wechatpy.crypto import WeChatWxaCrypto
 import json
 from .base import BaseController
 import logging
-import time
 import traceback
 import uuid
-from .wxa_common import verify_auth_token, get_wxa_user_openid, get_wxa_access_token
+from .wxa_common import verify_auth_token
 from odoo.tools import config
 
 _logger = logging.getLogger(__name__)

@@ -97,6 +97,7 @@ class RunJobController(http.Controller):
             buff = StringIO()
             traceback.print_exc(file=buff)
             _logger.error(buff.getvalue())
+            _logger.error('出现了错误了。。。: {}'.format(traceback.format_exc()))
             job.env.clear()
             with registry(job.env.cr.dbname).cursor() as new_cr:
                 job.env = api.Environment(new_cr, SUPERUSER_ID, {})
