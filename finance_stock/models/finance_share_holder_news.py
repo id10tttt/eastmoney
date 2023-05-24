@@ -67,10 +67,15 @@ class FinanceStockBonus(models.Model):
 
             if not ggcgbd_data:
                 continue
+            exist_record = []
             for ggcgbd_line in ggcgbd_data:
                 if share_news_ids.filtered(lambda b: b.change_date == ggcgbd_line.get('CHANGE_DATE')):
                     continue
-
+                unique_value = '{}:{}:{}'.format(stock_id.ts_code, ggcgbd_line.get('CHANGE_DATE'),
+                                                 ggcgbd_line.get('PERSON_NAME'))
+                if unique_value in exist_record:
+                    continue
+                exist_record.append(unique_value)
                 data = {
                     'secucode': stock_id.ts_code,
                     'security_code': stock_id.symbol,
