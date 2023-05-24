@@ -65,10 +65,17 @@ class FinanceStockBonus(models.Model):
             fhyx_data = result.get('fhyx')
             if not fhyx_data:
                 continue
+            exist_record = []
             for fhyx_line in fhyx_data:
                 if bonus_id.filtered(lambda b: b.notice_date == fhyx_line.get('NOTICE_DATE')):
                     continue
 
+                unique_value = '{}:{}:{}'.format(stock_id.ts_code, fhyx_line.get('NOTICE_DATE'),
+                                                 fhyx_line.get('IMPL_PLAN_PROFILE'))
+
+                if unique_value in exist_record:
+                    continue
+                exist_record.append(unique_value)
                 data = {
                     'secucode': stock_id.ts_code,
                     'security_code': stock_id.symbol,
