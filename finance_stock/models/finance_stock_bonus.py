@@ -85,5 +85,9 @@ class FinanceStockBonus(models.Model):
 
                 all_data.append(data)
         if all_data:
-            res = self.env['finance.stock.bonus'].create(all_data)
-            _logger.info('创建分红记录: {}'.format(res))
+            try:
+                res = self.env['finance.stock.bonus'].create(all_data)
+                _logger.info('创建分红记录: {}'.format(res))
+            except Exception as e:
+                _logger.error('发生了错误咯... {}'.format(e))
+
