@@ -56,6 +56,7 @@ class StockCompareAnalysis(models.Model):
 
     name = fields.Char('名称', required=True)
     uuid = fields.Char(string="UUID", default=lambda self: self.get_default_uuid(), index=True, required=True)
+    code = fields.Char('Code')
     value_type = fields.Selection([
         ('value', u'取值'),
         ('vs', u'比较'),
@@ -113,9 +114,9 @@ class StockCompareAnalysis(models.Model):
     def _get_benchmark_result(self, stock_id, compare_ids, benchmark_data_ids):
         for compare_id in compare_ids:
             if compare_id.value_type == 'value':
-                compare_id._get_benchmark_result_value(stock_id.symbol)
+                compare_id._get_benchmark_result_value(stock_id)
             if compare_id.value_type == 'vs':
-                compare_id._get_benchmark_result_vs(stock_id.symbol)
+                compare_id._get_benchmark_result_vs(stock_id)
             else:
                 continue
 
@@ -132,7 +133,8 @@ class StockCompareAnalysis(models.Model):
             benchmark_data_ids = self.env['compare.benchmark.data'].search([('stock_id', '=', stock_id.id)])
             self._get_benchmark_result(stock_id, compare_ids, benchmark_data_ids)
 
-    def _get_benchmark_result_vs(self, security_code='000001'):
+    def _get_benchmark_result_vs(self, stock_id):
+        security_code = stock_id.symbol
         self.ensure_one()
         all_result = []
         all_benchmark_result = []
@@ -141,7 +143,7 @@ class StockCompareAnalysis(models.Model):
         if not self.line_ids:
             return False
         for compare_line in self.line_ids:
-            sql_result, benchmark_result = compare_line.get_benchmark_result(security_code)
+            sql_result, benchmark_result = compare_line.get_benchmark_result_line(stock_id)
             all_result.append(sql_result)
             display_data += sql_result.get('display_data')
             origin_data += sql_result.get('data')
@@ -149,7 +151,8 @@ class StockCompareAnalysis(models.Model):
         if all_result and all_benchmark_result:
             self.save_benchmark_data(security_code, all_result, all_benchmark_result, display_data, origin_data)
 
-    def _get_benchmark_result_value(self, security_code='000001'):
+    def _get_benchmark_result_value(self, stock_id):
+        security_code = stock_id.symbol
         self.ensure_one()
         all_result = []
         all_benchmark_result = []
@@ -158,7 +161,7 @@ class StockCompareAnalysis(models.Model):
         if not self.line_ids:
             return False
         for compare_line in self.line_ids:
-            sql_result, benchmark_result = compare_line.get_benchmark_result(security_code, value_type='value')
+            sql_result, benchmark_result = compare_line.get_benchmark_result_line(stock_id, value_type='value')
             all_result.append(sql_result)
             display_data += sql_result.get('display_data')
             origin_data += sql_result.get('data')
@@ -166,14 +169,15 @@ class StockCompareAnalysis(models.Model):
         if all_result and all_benchmark_result:
             self.save_benchmark_data(security_code, all_result, all_benchmark_result, display_data, origin_data)
 
-    def get_benchmark_result_value(self, security_code='000001'):
+    def get_benchmark_result_value(self, stock_id):
+        security_code = stock_id.symbol
         self.ensure_one()
         all_result = []
         all_benchmark_result = []
         if not self.line_ids:
             raise ValidationError('没有定义规则!')
         for compare_line in self.line_ids:
-            sql_result, benchmark_result = compare_line.get_benchmark_result(security_code)
+            sql_result, benchmark_result = compare_line.get_benchmark_result_line(stock_id)
             all_result.append(sql_result)
             all_benchmark_result.append(benchmark_result)
         if all_result and all_benchmark_result:
@@ -478,22 +482,29 @@ class StockCompareLine(models.Model):
         except Exception as e:
             raise ValidationError('出现错误: {}'.format(e))
 
-    def verify_benchmark_result_sign_vs(self, compare_result):
+    def verify_benchmark_result_sign_vs(self, compare_result, stock_id):
         sql_result = compare_result.get('data')
         benchmark_result = []
         for line_id in self.benchmark_line_ids:
+            if line_id.compare_line_id.compare_id.code == 'BONUS':
+                benchmark_left_value = self.get_stock_real_vs_value_cause_list_date(stock_id, line_id.benchmark_left)
+                benchmark_right_value = line_id.benchmark_right
+            else:
+                benchmark_left_value = line_id.benchmark_left
+                benchmark_right_value = line_id.benchmark_right
+
             if line_id.inequality_operator == '>':
-                benchmark_data = [x[0] > line_id.benchmark_left for x in sql_result if x[0] is not None]
+                benchmark_data = [x[0] > benchmark_left_value for x in sql_result if x[0] is not None]
             elif line_id.inequality_operator == '<':
-                benchmark_data = [x[0] < line_id.benchmark_left for x in sql_result if x[0] is not None]
+                benchmark_data = [x[0] < benchmark_left_value for x in sql_result if x[0] is not None]
             elif line_id.inequality_operator == '=':
-                benchmark_data = [x[0] == line_id.benchmark_left for x in sql_result if x[0] is not None]
+                benchmark_data = [x[0] == benchmark_left_value for x in sql_result if x[0] is not None]
             elif line_id.inequality_operator == '>=':
-                benchmark_data = [x[0] >= line_id.benchmark_left for x in sql_result if x[0] is not None]
+                benchmark_data = [x[0] >= benchmark_left_value for x in sql_result if x[0] is not None]
             elif line_id.inequality_operator == '<=':
-                benchmark_data = [x[0] <= line_id.benchmark_left for x in sql_result if x[0] is not None]
+                benchmark_data = [x[0] <= benchmark_left_value for x in sql_result if x[0] is not None]
             elif line_id.inequality_operator == 'between':
-                benchmark_data = [line_id.benchmark_left < x[0] < line_id.benchmark_right for x in sql_result if
+                benchmark_data = [benchmark_left_value < x[0] < benchmark_right_value for x in sql_result if
                                   x[0] is not None]
             elif line_id.inequality_operator == 'increase':
                 benchmark_data = verify_pairwise_increase([x[0] for x in sql_result if x[0] is not None])
@@ -508,28 +519,47 @@ class StockCompareLine(models.Model):
             })
         return benchmark_result
 
-    def verify_benchmark_result_sign_value(self, compare_result):
+    def get_stock_real_vs_value_cause_list_date(self, stock_id, benchmark_left_value):
+        list_date = stock_id.list_date
+        list_date = datetime.datetime.strptime(list_date, '%Y%m%d')
+        now_date = fields.Datetime.now()
+        now_year = now_date.year
+        list_date_year = list_date.year
+        if now_year - list_date_year == 0:
+            return 1
+        elif now_year - list_date_year < benchmark_left_value:
+            return now_year - list_date_year
+        else:
+            return benchmark_left_value
+
+    def verify_benchmark_result_sign_value(self, compare_result, stock_id):
         sql_result = compare_result.get('data')
         benchmark_result = []
         for line_id in self.benchmark_line_ids:
+            if line_id.compare_line_id.compare_id.code == 'BONUS':
+                benchmark_left_value = self.get_stock_real_vs_value_cause_list_date(stock_id, line_id.benchmark_left)
+                benchmark_right_value = line_id.benchmark_right
+            else:
+                benchmark_left_value = line_id.benchmark_left
+                benchmark_right_value = line_id.benchmark_right
             if line_id.inequality_operator == '>':
-                benchmark_data = [x.get('value') > line_id.benchmark_left for x in sql_result if
+                benchmark_data = [x.get('value') > benchmark_left_value for x in sql_result if
                                   x.get('value') is not None]
             elif line_id.inequality_operator == '<':
-                benchmark_data = [x.get('value') < line_id.benchmark_left for x in sql_result if
+                benchmark_data = [x.get('value') < benchmark_left_value for x in sql_result if
                                   x.get('value') is not None]
             elif line_id.inequality_operator == '=':
-                benchmark_data = [x.get('value') == line_id.benchmark_left for x in sql_result if
+                benchmark_data = [x.get('value') == benchmark_left_value for x in sql_result if
                                   x.get('value') is not None]
             elif line_id.inequality_operator == '>=':
-                benchmark_data = [x.get('value') >= line_id.benchmark_left for x in sql_result if
+                benchmark_data = [x.get('value') >= benchmark_left_value for x in sql_result if
                                   x.get('value') is not None]
             elif line_id.inequality_operator == '<=':
-                benchmark_data = [x.get('value') <= line_id.benchmark_left for x in sql_result if
+                benchmark_data = [x.get('value') <= benchmark_left_value for x in sql_result if
                                   x.get('value') is not None]
             elif line_id.inequality_operator == 'between':
                 benchmark_data = [
-                    line_id.benchmark_left < x.get('value') < line_id.benchmark_right for x in sql_result if
+                    benchmark_left_value < x.get('value') < benchmark_right_value for x in sql_result if
                     x.get('value') is not None]
             elif line_id.inequality_operator == 'increase':
                 benchmark_data = verify_pairwise_increase(
@@ -546,14 +576,15 @@ class StockCompareLine(models.Model):
             })
         return benchmark_result
 
-    def get_benchmark_result(self, security_code='000001', value_type='vs'):
+    def get_benchmark_result_line(self, stock_id, value_type='vs'):
+        security_code = stock_id.symbol
         sql_result = getattr(self, 'fetch_metric_select_sql_result_{}'.format(value_type))(
             security_code=security_code)
         display_data = self.fetch_display_metric_select_sql_result_value(security_code)
         sql_result.update({
             'display_data': display_data
         })
-        benchmark_result = getattr(self, 'verify_benchmark_result_sign_{}'.format(value_type))(sql_result)
+        benchmark_result = getattr(self, 'verify_benchmark_result_sign_{}'.format(value_type))(sql_result, stock_id)
         return sql_result, benchmark_result
 
 

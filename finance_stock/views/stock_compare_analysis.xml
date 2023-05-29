@@ -20,6 +20,7 @@
                             <group>
                                 <field name="type_id"/>
                                 <field name="usage"/>
+                                <field name="code"/>
                             </group>
                         </group>
                         <group>
@@ -76,7 +77,7 @@
                     <field name="name"/>
                     <field name="uuid"/>
                     <field name="usage"/>
-                    <field name="type_id"/>
+                    <field name="value_type"/>
                 </tree>
             </field>
         </record>

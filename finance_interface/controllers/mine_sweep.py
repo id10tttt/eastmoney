@@ -133,7 +133,7 @@ class FinanceMineSweep(http.Controller, BaseController):
             shr_redu_value = stock_id.shr_redu
             redu_tshr_rat = stock_id.redu_tshr_rat
             if redu_tshr_rat:
-                msg = '{} 减持{}%'.format(stock_id.stat_datetime, redu_tshr_rat)
+                msg = '{} 减持{}%'.format(stock_id.stat_datetime or '', redu_tshr_rat)
                 return 'danger', msg
             return 'sun', decimal_float_number(shr_redu_value)
         except Exception as e:
@@ -229,7 +229,7 @@ class FinanceMineSweep(http.Controller, BaseController):
         pred_typ_sign, pred_typ_name = self.get_pred_typ_value(stock_id)
 
         free_content = [{
-            'name': 'PEG是否合理',
+            'name': 'PEG（市盈率对比公司盈利增长速度）',
             'value': peg_result or '暂无',
             'sign': peg_sign,
             'data': [],
