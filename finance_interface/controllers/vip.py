@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import json
 from odoo import http, exceptions, fields
 from odoo.http import request
 from .base import BaseController
@@ -78,7 +77,10 @@ class VIPContent(http.Controller, BaseController):
             err_msg = '未订阅用户，仅允许查询{}次!'.format(ALLOW_QUERY_TIME)
             return self.response_json_error(-1, err_msg)
 
-        benchmark_data_ids = request.env['compare.benchmark.data'].sudo().search([('stock_id', '=', stock_id.id)])
+        benchmark_data_ids = request.env['compare.benchmark.data'].sudo().search([
+            ('stock_id', '=', stock_id.id),
+            ('compare_id.active', '=', True)
+        ])
         type_ids = sorted(list(set(benchmark_data_ids.compare_id.mapped('type_id'))))
         if False not in type_ids:
             type_ids.append(False)
@@ -143,7 +145,10 @@ class VIPContent(http.Controller, BaseController):
             err_msg = '未订阅用户，仅允许查询{}次!'.format(ALLOW_QUERY_TIME)
             return self.response_json_error(-1, err_msg)
 
-        benchmark_data_ids = request.env['compare.benchmark.data'].sudo().search([('stock_id', '=', stock_id.id)])
+        benchmark_data_ids = request.env['compare.benchmark.data'].sudo().search([
+            ('stock_id', '=', stock_id.id),
+            ('compare_id.active', '=', True)
+        ])
         vip_content = []
         benchmark_count = {
             'danger': 0,
@@ -201,7 +206,10 @@ class VIPContent(http.Controller, BaseController):
         if not stock_id:
             return self.response_json_error(404, '股票不存在!')
 
-        benchmark_data_ids = request.env['compare.benchmark.data'].sudo().search([('stock_id', '=', stock_id.id)])
+        benchmark_data_ids = request.env['compare.benchmark.data'].sudo().search([
+            ('stock_id', '=', stock_id.id),
+            ('compare_id.active', '=', True)
+        ])
         benchmark_count = {
             'danger': 0,
             'rain': 0,

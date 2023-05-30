@@ -54,6 +54,7 @@ class StockCompareAnalysis(models.Model):
         ("name_uuid", "unique(uuid)", "uuid must be unique")
     ]
 
+    active = fields.Boolean(default=True)
     name = fields.Char('名称', required=True)
     uuid = fields.Char(string="UUID", default=lambda self: self.get_default_uuid(), index=True, required=True)
     code = fields.Char('Code')
