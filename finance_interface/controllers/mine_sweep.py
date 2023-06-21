@@ -113,7 +113,7 @@ class FinanceMineSweep(http.Controller, BaseController):
 
     def get_peg_sign(self, peg_value):
         try:
-            if 0 < float(peg_value) < 1:
+            if 0 <= float(peg_value) < 1:
                 return 'sun', decimal_float_number(peg_value)
             return 'danger', decimal_float_number(peg_value)
         except Exception as e:
