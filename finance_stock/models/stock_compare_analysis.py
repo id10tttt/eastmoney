@@ -487,7 +487,7 @@ class StockCompareLine(models.Model):
     def parse_sql_result_by_condition(self, sql_result):
         res = []
         for x in sql_result:
-            if self.ignore_zero and x == 0:
+            if self.ignore_zero and x[0] == 0:
                 continue
             res.append(x)
         return res
