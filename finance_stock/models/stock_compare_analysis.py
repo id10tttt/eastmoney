@@ -349,6 +349,7 @@ class StockCompareLine(models.Model):
     use_latest_period = fields.Integer('最近多少期间？', default=12)
     period_detail = fields.Char('期间明细', compute='_compute_period_detail')
     benchmark_line_ids = fields.One2many('stock.compare.benchmark.line', 'compare_line_id', string='Benchmark 明细')
+    ignore_zoro = fields.Boolean('忽略0值', default=False)
 
     def get_default_period(self, default_year=5, all_period=False):
         search_today = datetime.date.today()
@@ -483,8 +484,18 @@ class StockCompareLine(models.Model):
         except Exception as e:
             raise ValidationError('出现错误: {}'.format(e))
 
+    def parse_sql_result_by_condition(self, sql_result):
+        res = []
+        for x in sql_result:
+            if self.ignore_zoro and x == 0:
+                continue
+            res.append(x)
+        return res
+
     def verify_benchmark_result_sign_vs(self, compare_result, stock_id):
         sql_result = compare_result.get('data')
+        sql_result = self.parse_sql_result_by_condition(sql_result)
+
         benchmark_result = []
         for line_id in self.benchmark_line_ids:
             if line_id.compare_line_id.compare_id.code == 'BONUS':
@@ -535,6 +546,8 @@ class StockCompareLine(models.Model):
 
     def verify_benchmark_result_sign_value(self, compare_result, stock_id):
         sql_result = compare_result.get('data')
+        sql_result = self.parse_sql_result_by_condition(sql_result)
+
         benchmark_result = []
         for line_id in self.benchmark_line_ids:
             if line_id.compare_line_id.compare_id.code == 'BONUS':
