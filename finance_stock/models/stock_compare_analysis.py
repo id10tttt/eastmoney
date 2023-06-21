@@ -349,7 +349,7 @@ class StockCompareLine(models.Model):
     use_latest_period = fields.Integer('最近多少期间？', default=12)
     period_detail = fields.Char('期间明细', compute='_compute_period_detail')
     benchmark_line_ids = fields.One2many('stock.compare.benchmark.line', 'compare_line_id', string='Benchmark 明细')
-    ignore_zoro = fields.Boolean('忽略0值', default=False)
+    ignore_zero = fields.Boolean('忽略0值', default=False)
 
     def get_default_period(self, default_year=5, all_period=False):
         search_today = datetime.date.today()
@@ -487,7 +487,7 @@ class StockCompareLine(models.Model):
     def parse_sql_result_by_condition(self, sql_result):
         res = []
         for x in sql_result:
-            if self.ignore_zoro and x == 0:
+            if self.ignore_zero and x == 0:
                 continue
             res.append(x)
         return res

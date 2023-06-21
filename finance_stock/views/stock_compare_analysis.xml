@@ -38,6 +38,7 @@
                                                 <field name="display_data" widget="ace"/>
                                                 <field name="render_template" widget="ace"/>
                                                 <field name="source_data" widget="ace"/>
+                                                <field name="ignore_zero"/>
                                             </group>
                                             <group>
                                                 <field name="use_latest_period"/>
