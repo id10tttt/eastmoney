@@ -133,9 +133,18 @@ class VIPContent(http.Controller, BaseController):
         headers = payload_data.get('header')
         body = payload_data.get('body')
 
+        # 拼音缩写
         stock_code = body.get('stock_code')
 
-        stock_id = request.env['finance.stock.basic'].sudo().search([('symbol', '=', stock_code)])
+        stock_id = request.env['finance.stock.basic'].sudo().search([
+            '|',
+            '|',
+            '|',
+            ('symbol', '=', stock_code),
+            ('ts_code', '=', stock_code),
+            ('cnspell', '=', stock_code),
+            ('name', '=', stock_code),
+        ], limit=1)
 
         if not stock_id:
             return self.response_json_error(404, '股票不存在!')
