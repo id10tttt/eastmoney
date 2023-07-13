@@ -187,7 +187,7 @@ class FinanceMineSweep(http.Controller, BaseController):
     def get_pred_typ_value(self, stock_id):
         try:
             net_prof_pco = stock_id.net_prof_pco
-            if stock_id.pred_typ_name == '预增':
+            if stock_id.pred_typ_name in ['预增', '略增']:
                 return 'sun', stock_id.pred_typ_name
             if float(net_prof_pco) > 0:
                 return 'sun', stock_id.pred_typ_name
