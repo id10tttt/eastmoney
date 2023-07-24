@@ -387,9 +387,11 @@ class FinanceFiscalData(models.Model):
 
     def get_per_share_ratio(self, left_value, right_value):
         try:
+            if right_value < 0:
+                return 1 - float_or_zero(left_value) / float_or_zero(right_value)
+            else:
+                left_value = left_value - right_value
             trade_ratio = float_or_zero(left_value) / float_or_zero(right_value)
-            if float_or_zero(left_value) > 0 > float_or_zero(right_value):
-                return abs(trade_ratio)
         except Exception as e:
             trade_ratio = 0
         return trade_ratio
@@ -409,8 +411,7 @@ class FinanceFiscalData(models.Model):
         result = {
             'operate_revenue_mm_ratio': self.get_ratio(fiscal_id.operate_revenue - mm_fiscal_id.operate_revenue,
                                                        mm_fiscal_id.operate_revenue),
-            'per_share_mm_ratio': self.get_per_share_ratio(fiscal_id.per_share - mm_fiscal_id.per_share,
-                                                           mm_fiscal_id.per_share),
+            'per_share_mm_ratio': self.get_per_share_ratio(fiscal_id.per_share, mm_fiscal_id.per_share),
             'roe_mm_ratio': self.get_ratio(fiscal_id.roe - mm_fiscal_id.roe, mm_fiscal_id.roe),
             'accounts_receivable_mm_ratio': self.get_ratio(
                 fiscal_id.accounts_receivable - mm_fiscal_id.accounts_receivable,
