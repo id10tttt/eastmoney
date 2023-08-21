@@ -23,7 +23,7 @@ class QueueJob(models.Model):
 
     _order = "date_created DESC, date_done DESC"
 
-    _removal_interval = 30  # days
+    _removal_interval = 2  # days
     _default_related_action = "related_action_open_record"
 
     # This must be passed in a context key "_job_edit_sentinel" to write on
