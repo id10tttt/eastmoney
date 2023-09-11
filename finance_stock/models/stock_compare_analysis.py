@@ -368,9 +368,9 @@ class StockCompareLine(models.Model):
         else:
             if 4 <= search_month < 6:
                 search_period += [f'{search_year}-03-31 00:00:00']
-            elif 7 <= search_month < 9:
+            elif 6 <= search_month < 9:
                 search_period += [f'{search_year}-03-31 00:00:00', f'{search_year}-06-30 00:00:00']
-            elif 10 <= search_month < 12:
+            elif 9 <= search_month < 12:
                 search_period += [f'{search_year}-03-31 00:00:00', f'{search_year}-06-30 00:00:00',
                                   f'{search_year}-09-30 00:00:00']
             elif search_day == 31 and search_month == 12:
