@@ -1,0 +1,56 @@
+services:
+  database-pickbest:
+    image: registry.cn-shanghai.aliyuncs.com/odoo-1di0t/postgres:15
+    container_name: "database-pickbest"
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=${DB_PASS:-odoo}
+      - POSTGRES_USER=${DB_USER:-odoo}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - ./data:/var/lib/postgresql/data/pgdata
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "16m"
+        max-file: "8"
+
+  backend-pickbest:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: backend:15
+    container_name: "backend-pickbest"
+    depends_on:
+      - database-pickbest
+      - cache-pickbest
+    ports:
+      - "8069:8069"
+      - "8072:8072"
+    volumes:
+      - ./files:/var/lib/odoo
+      - ./config:/etc/odoo
+      - ../eastmoney:/mnt/extra-addons
+    environment:
+      - HOST=database-pickbest
+      - USER=${DB_USER:-odoo}
+      - PASSWORD=${DB_PASS:-odoo}
+      - ODOO_HTTP_SOCKET_TIMEOUT=${ODOO_HTTP_SOCKET_TIMEOUT}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "16m"
+        max-file: "8"
+
+  cache-pickbest:
+    image: registry.cn-shanghai.aliyuncs.com/odoo-1di0t/redis:7.2-alpine
+    container_name: "cache-pickbest"
+    restart: always
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${RD_PASS:-odoo}
+    volumes:
+      - ./cache:/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "16m"
+        max-file: "8"

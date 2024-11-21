@@ -1,0 +1,8 @@
+aiohttp
+pycryptodome
+xmltodict==0.11.0
+itsdangerous==0.24
+tushare
+wechatpy
+redis
+aiopg
