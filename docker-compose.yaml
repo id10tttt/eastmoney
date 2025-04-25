@@ -25,12 +25,12 @@ services:
       - database-pickbest
       - cache-pickbest
     ports:
-      - "8069:8069"
-      - "8072:8072"
+      - "38069:8069"
+      - "38072:8072"
     volumes:
       - ./files:/var/lib/odoo
       - ./config:/etc/odoo
-      - ../eastmoney:/mnt/extra-addons
+      - ../addons:/mnt/extra-addons
     environment:
       - HOST=database-pickbest
       - USER=${DB_USER:-odoo}
