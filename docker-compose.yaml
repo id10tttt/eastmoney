@@ -2,6 +2,7 @@ services:
   database-pickbest:
     image: registry.cn-shanghai.aliyuncs.com/odoo-1di0t/postgres:15
     container_name: "database-pickbest"
+    restart: always
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_PASSWORD=${DB_PASS:-odoo}
@@ -20,6 +21,7 @@ services:
       context: ./
       dockerfile: Dockerfile
     image: backend:15
+    restart: always
     container_name: "backend-pickbest"
     depends_on:
       - database-pickbest
@@ -30,7 +32,7 @@ services:
     volumes:
       - ./files:/var/lib/odoo
       - ./config:/etc/odoo
-      - ../addons:/mnt/extra-addons
+      - ./addons:/mnt/extra-addons
     environment:
       - HOST=database-pickbest
       - USER=${DB_USER:-odoo}

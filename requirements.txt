@@ -1,7 +1,7 @@
 aiohttp
 pycryptodome
-xmltodict==0.11.0
-itsdangerous==0.24
+xmltodict
+itsdangerous
 tushare
 wechatpy
 redis
